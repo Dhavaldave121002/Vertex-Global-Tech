@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const TechStack = () => {
-  const technologies = [
+const TechStack = ({ customStack }) => {
+  const defaultTechnologies = [
     { name: 'React', icon: 'bi-filetype-jsx', color: 'text-cyan-400' },
     { name: 'Node.js', icon: 'bi-filetype-js', color: 'text-green-500' },
     { name: 'Python', icon: 'bi-filetype-py', color: 'text-yellow-400' },
@@ -12,6 +12,8 @@ const TechStack = () => {
     { name: 'Next.js', icon: 'bi-layers', color: 'text-white' },
     { name: 'TypeScript', icon: 'bi-filetype-tsx', color: 'text-blue-400' },
   ];
+
+  const technologies = customStack && customStack.length > 0 ? customStack : defaultTechnologies;
 
   return (
     <section className="py-20 bg-[#0f172a]/50 border-y border-white/5">

@@ -2,17 +2,27 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const location = useLocation();
 
   useEffect(() => {
-    // We use behavior: 'instant' to override any CSS scroll-behavior: smooth
-    // and ensure the user is immediately at the top of the new page.
+    // 1. Reset standard window scroll
     window.scrollTo({
       top: 0,
       left: 0,
       behavior: 'instant'
     });
-  }, [pathname]);
+
+    // 2. Reset Admin-specific scroll container if it exists
+    // The admin section often has a fixed sidebar and independent main scroll area.
+    const adminContainer = document.getElementById('admin-scroll-container');
+    if (adminContainer) {
+      adminContainer.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant'
+      });
+    }
+  }, [location.key]); // Trigger on every unique navigation (even same pathname)
 
   return null;
 };

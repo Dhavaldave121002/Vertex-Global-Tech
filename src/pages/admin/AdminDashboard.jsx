@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import {
   FaUsers, FaArrowUp, FaChartBar, FaGlobe,
   FaDollarSign, FaBolt, FaArrowRight, FaEllipsisV,
-  FaDatabase, FaNetworkWired, FaShieldAlt, FaTerminal, FaCircle
+  FaDatabase, FaNetworkWired, FaShieldAlt, FaTerminal, FaCircle, FaStar, FaRoad, FaQuestionCircle,
+  FaBriefcase, FaNewspaper, FaRocket, FaHandshake, FaMoneyBillWave, FaDownload, FaFilePdf, FaChartLine,
+  FaCalendarAlt, FaPhone, FaEnvelope, FaClock
 } from 'react-icons/fa';
 
 const StatCard = ({ stat, i }) => {
@@ -33,319 +35,433 @@ const StatCard = ({ stat, i }) => {
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: i * 0.1, duration: 0.8 }}
+      transition={{ delay: i * 0.05, duration: 0.8 }}
       style={{ rotateX, rotateY, scale, perspective: 1200 }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="glass-panel p-6 border-white/10 group hover:border-blue-500/60 transition-all duration-500 relative overflow-hidden bg-white/[0.02]"
+      className="bg-[#0f172a]/40 backdrop-blur-xl p-8 border border-white/5 group hover:border-blue-500/30 transition-all duration-500 relative overflow-hidden rounded-[2.5rem] flex flex-col justify-between h-full shadow-2xl"
     >
       <motion.div
         style={{ x: useTransform(x, [-100, 100], [-10, 10]), y: useTransform(y, [-100, 100], [-10, 10]) }}
         className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700 pointer-events-none bg-[radial-gradient(circle_at_center,_#3b82f6_0%,_transparent_70%)]"
       />
 
-      <div className="flex items-start justify-between relative z-10 transition-transform duration-500 group-hover:translate-z-10">
+      <div className="flex items-start justify-between relative z-10 mb-8">
         <motion.div
           whileHover={{ rotate: [0, -10, 10, 0] }}
-          className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition-all duration-500"
-          style={{ color: stat.color === 'blue' ? '#60a5fa' : stat.color === 'emerald' ? '#34d399' : stat.color === 'purple' ? '#c084fc' : '#fbbf24' }}
+          className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition-all duration-500"
+          style={{ color: stat.color }}
         >
           {stat.icon}
         </motion.div>
-        <div className={`px-3 py-1.5 rounded-lg bg-black/60 text-[10px] font-black tracking-[0.2em] ${stat.change.includes('+') ? 'text-emerald-400' : 'text-blue-400'} border border-white/10 shadow-lg`}>
-          {stat.change}
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/60 text-[8px] font-black tracking-[0.2em] text-white border border-white/5`}>
+          <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse"></div>
+          {stat.subtext || 'SECURED_NODE'}
         </div>
       </div>
 
-      <div className="mt-8 relative z-10 group-hover:translate-z-20 transition-transform duration-500">
-        <p className="text-blue-400/80 text-[10px] font-black uppercase tracking-[0.3em] font-['Montserrat']">{stat.label}</p>
-        <h3 className="text-3xl font-black text-white mt-1 group-hover:tracking-wider transition-all duration-500 select-none">{stat.value}</h3>
+      <div className="relative z-10 group-hover:translate-z-20 transition-transform duration-500">
+        <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em] mb-1">{stat.label}</p>
+        <h3 className="text-3xl font-black text-white group-hover:tracking-wider transition-all duration-500 select-none uppercase tracking-tighter">{stat.value}</h3>
       </div>
-
-      <div className="absolute bottom-2 right-2 opacity-10 group-hover:opacity-60 transition-all duration-500">
-        <FaNetworkWired size={18} className="text-blue-500" />
-      </div>
-
-      <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/[0.04] to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-      <div className="absolute bottom-0 left-0 h-[3px] bg-gradient-to-r from-transparent via-blue-500 to-transparent w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center shadow-[0_0_15px_#3b82f6]"></div>
     </motion.div>
+  );
+};
+
+const PricingAnalytics = () => {
+  const [pricingData, setPricingData] = useState({ website: [], application: [], uiux: [], odoo: [] });
+  const [planStats, setPlanStats] = useState([]);
+
+  useEffect(() => {
+    const loadPricingData = () => {
+      // Define defaults if not present to ensure "Real" dashboard even before manager visits
+      const getStored = (key, def) => {
+        const item = localStorage.getItem(key);
+        if (!item) {
+          localStorage.setItem(key, JSON.stringify(def));
+          return def;
+        }
+        return JSON.parse(item);
+      };
+
+      const websitePlans = getStored('vgtw_pricing_plans', [
+        { name: 'Starter', price: '$2,500', features: ['5 Pages', 'Responsive'], popular: false },
+        { name: 'Business', price: '$5,000', features: ['15 Pages', 'CMS'], popular: true },
+        { name: 'Enterprise', price: 'Custom', features: ['Unlimited', 'Support'], popular: false }
+      ]);
+      const appPlans = getStored('vgtw_app_pricing_plans', [
+        { name: 'MVP Launch', price: '$10,000', features: ['Core', 'Dashboard'], popular: false },
+        { name: 'Scale & Grow', price: '$25,000', features: ['Advanced', 'API'], popular: true },
+        { name: 'Enterprise Platform', price: 'Custom', features: ['Microservices', '24/7'], popular: false }
+      ]);
+      const uiuxPlans = getStored('vgtw_uiux_pricing_plans', [
+        { name: 'UX Audit', price: '$1,500', features: ['Evaluation', 'Accessibility'], popular: false },
+        { name: 'Full Redesign', price: '$4,000', features: ['Research', 'UI Design'], popular: true },
+        { name: 'Design System', price: '$8,000', features: ['Library', 'Docs'], popular: false }
+      ]);
+      const odooPlans = getStored('vgtw_odoo_pricing_plans', [
+        { name: 'Essentials', price: '$5,000', features: ['Standard', 'CRM'], popular: false },
+        { name: 'Business Pro', price: '$12,000', features: ['Custom', 'Inventory'], popular: true },
+        { name: 'Infinite Suite', price: 'Custom', features: ['Infinite', 'Migration'], popular: false }
+      ]);
+
+      setPricingData({ website: websitePlans, application: appPlans, uiux: uiuxPlans, odoo: odooPlans });
+      const allPlans = [
+        ...websitePlans.map(p => ({ ...p, type: 'Website' })),
+        ...appPlans.map(p => ({ ...p, type: 'Application' })),
+        ...uiuxPlans.map(p => ({ ...p, type: 'UI/UX' })),
+        ...odooPlans.map(p => ({ ...p, type: 'Odoo ERP' }))
+      ];
+      setPlanStats(allPlans.map(plan => ({ name: plan.name, type: plan.type, price: plan.price, features: plan.features?.length || 0, popular: plan.popular || false })));
+    };
+    loadPricingData();
+    window.addEventListener('storage', loadPricingData);
+    return () => window.removeEventListener('storage', loadPricingData);
+  }, []);
+
+  const totalPlans = planStats.length;
+
+  return (
+    <div className="bg-[#0f172a]/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+      <div className="p-10 border-b border-white/5 bg-white/[0.01] flex items-center justify-between">
+        <div>
+          <h3 className="text-white font-black text-sm uppercase tracking-[0.3em] flex items-center gap-4">
+            <FaDollarSign className="text-blue-500" />
+            Pricing Matrix <span className="text-blue-500">Node</span>
+          </h3>
+          <div className="flex items-center gap-3 mt-2">
+            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest pl-8">Tier deployment distribution</p>
+            <div className="w-1 h-1 rounded-full bg-blue-500"></div>
+            <span className="text-[8px] text-blue-500/50 font-black uppercase tracking-widest">Last_Transmission {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+          </div>
+        </div>
+        <div className="px-5 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-[10px] font-black text-blue-500 uppercase tracking-widest">
+          {totalPlans} Active_Protocols
+        </div>
+      </div>
+
+      <div className="p-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+          {[
+            { label: 'Web Protocols', count: pricingData.website.length, color: 'blue', icon: <FaGlobe /> },
+            { label: 'App Protocols', count: pricingData.application.length, color: 'purple', icon: <FaRocket /> },
+            { label: 'UX Protocols', count: pricingData.uiux.length, color: 'emerald', icon: <FaStar /> },
+            { label: 'ERP Protocols', count: pricingData.odoo.length, color: 'orange', icon: <FaShieldAlt /> }
+          ].map((cat, idx) => (
+            <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className={`bg-[#030712]/60 border border-white/5 rounded-[2rem] p-8 shadow-xl group hover:border-${cat.color}-500/30 transition-all`}>
+              <div className="flex items-center gap-4 mb-4">
+                <div className={`w-12 h-12 rounded-2xl bg-${cat.color}-500/10 flex items-center justify-center text-${cat.color}-500 border border-${cat.color}-500/10 group-hover:scale-110 transition-transform`}>{cat.icon}</div>
+                <span className={`text-[10px] font-black text-gray-500 group-hover:text-${cat.color}-500 uppercase tracking-widest transition-colors`}>{cat.label}</span>
+              </div>
+              <div className="flex items-end justify-between">
+                <div className="text-4xl font-black text-white tracking-tighter">{cat.count}</div>
+                <div className="text-right">
+                  <div className={`text-2xl font-black text-${cat.color}-500`}>{totalPlans > 0 ? Math.round((cat.count / totalPlans) * 100) : 0}%</div>
+                  <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest">Protocol_Share</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 mb-6"><div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div><h4 className="text-white font-black text-[10px] uppercase tracking-[0.4em]">Integrated_Tier_Log</h4></div>
+          <div className="grid gap-4 max-h-[400px] overflow-y-auto no-scrollbar pr-2">
+            {planStats.map((plan, idx) => (
+              <motion.div key={idx} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }} className="flex items-center justify-between p-6 bg-black/20 border border-white/5 rounded-2xl hover:border-blue-500/30 transition-all group">
+                <div className="flex items-center gap-6 flex-1">
+                  <div className={`w-2 h-2 rounded-full ${plan.popular ? 'bg-emerald-500 shadow-[0_0_10px_#10b981] animate-pulse' : 'bg-gray-800'}`} />
+                  <div>
+                    <div className="flex items-center gap-4">
+                      <h5 className="text-white font-black text-sm uppercase tracking-tight">{plan.name}</h5>
+                      {plan.popular && <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-[8px] font-black text-emerald-500 uppercase tracking-widest">Priority_Node</span>}
+                    </div>
+                    <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest mt-2">{plan.type} SYSTEM • {plan.features} SECTORS</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-black text-blue-500 tracking-tighter">{plan.price.startsWith('₹') || plan.price.startsWith('$') ? plan.price : `₹${plan.price}`}</div>
+                  <p className="text-[8px] text-gray-700 font-black uppercase tracking-widest">Yield_Per_Deployment</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const UpcomingMeetings = () => {
+  const [meetings, setMeetings] = useState([]);
+
+  useEffect(() => {
+    const loadMeetings = () => {
+      const saved = localStorage.getItem('vgtw_meetings');
+      if (saved) {
+        const upcoming = JSON.parse(saved).filter(m => m.status !== 'Cancelled' && m.status !== 'Completed').sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time)).slice(0, 5);
+        setMeetings(upcoming);
+      }
+    };
+    loadMeetings();
+    window.addEventListener('storage', loadMeetings);
+    return () => window.removeEventListener('storage', loadMeetings);
+  }, []);
+
+  const formatMeetingTime = (date, time) => {
+    const meetingDate = new Date(date + 'T' + time);
+    const today = new Date();
+    if (meetingDate.toDateString() === today.toDateString()) return `Today @ ${time}`;
+    return `${meetingDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} @ ${time}`;
+  };
+
+  return (
+    <div className="bg-[#0f172a]/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+      <div className="p-10 border-b border-white/5 bg-white/[0.01] flex items-center justify-between">
+        <div>
+          <h3 className="text-white font-black text-sm uppercase tracking-[0.3em] flex items-center gap-4">
+            <FaCalendarAlt className="text-purple-500" />
+            Session <span className="text-purple-500">Links</span>
+          </h3>
+          <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-2 pl-8">Scheduled Synergy Protocol</p>
+        </div>
+        <div className="px-5 py-2 bg-purple-500/10 border border-purple-500/20 rounded-xl text-[10px] font-black text-purple-500 uppercase tracking-widest">
+          {meetings.length} Scheduled_Nodes
+        </div>
+      </div>
+      <div className="p-10 text-white">
+        {meetings.length > 0 ? (
+          <div className="space-y-4">
+            {meetings.map((meeting, idx) => (
+              <motion.div key={meeting.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} className="flex items-center justify-between p-6 bg-black/20 border border-white/5 rounded-[2rem] hover:border-purple-500/30 transition-all group">
+                <div className="flex-1">
+                  <div className="flex items-center gap-5 mb-3">
+                    <h5 className="text-white font-black text-sm uppercase tracking-tight">{meeting.name}</h5>
+                    <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[8px] font-black text-gray-500 uppercase tracking-widest">{meeting.service}</span>
+                  </div>
+                  <div className="flex items-center gap-6 text-[10px] font-black tracking-widest text-gray-500 uppercase italic">
+                    <span className="flex items-center gap-2"><FaEnvelope className="text-blue-500" /> {meeting.email}</span>
+                    {meeting.phone && <span className="flex items-center gap-2"><FaPhone className="text-purple-500" /> {meeting.phone}</span>}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-purple-500 font-black text-sm flex items-center justify-end gap-3 uppercase tracking-tighter mb-1"><FaClock className="animate-pulse" /> {formatMeetingTime(meeting.date, meeting.time)}</div>
+                  <span className="text-[8px] text-gray-700 font-black uppercase tracking-widest">{meeting.status}_State</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 opacity-20"><FaCalendarAlt className="mx-auto text-6xl mb-6" /><p className="text-[10px] font-black uppercase tracking-[0.5em]">No synergy sessions detected</p></div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const GrowthChart = ({ financials }) => {
+  const points = [15, 30, 25, 50, 45, 75, 70, 95, 85, 100];
+  const maxY = 200; const maxX = 800;
+  const pathData = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${(i / (points.length - 1)) * maxX} ${maxY - (p / 100) * maxY}`).join(' ');
+  const areaPath = `${pathData} L ${maxX} ${maxY} L 0 ${maxY} Z`;
+
+  return (
+    <div className="bg-[#0f172a]/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+      <div className="p-10 border-b border-white/5 bg-white/[0.01] flex items-center justify-between">
+        <div>
+          <h3 className="text-white font-black text-sm uppercase tracking-[0.3em] flex items-center gap-4">
+            <FaChartLine className="text-emerald-500" />
+            Growth <span className="text-emerald-500">Velocity</span>
+          </h3>
+          <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-2 pl-8">Enterprise Momentum Analytics</p>
+        </div>
+        <div className="flex items-center gap-3 px-5 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-[10px] font-black text-emerald-500 uppercase tracking-widest shadow-xl shadow-emerald-500/5">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> Upward_Shift
+        </div>
+      </div>
+      <div className="p-12 relative overflow-hidden h-[360px]">
+        <svg viewBox={`0 0 ${maxX} ${maxY}`} className="w-full h-full overflow-visible">
+          <defs><linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10b981" stopOpacity="0.3" /><stop offset="100%" stopColor="#10b981" stopOpacity="0" /></linearGradient></defs>
+          {[0, 1, 2, 3].map(i => <line key={i} x1="0" y1={i * (maxY / 3)} x2={maxX} y2={i * (maxY / 3)} stroke="rgba(255,255,255,0.03)" strokeDasharray="8 8" />)}
+          <motion.path d={areaPath} fill="url(#growthGradient)" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.5 }} />
+          <motion.path d={pathData} fill="none" stroke="#10b981" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2 }} style={{ filter: 'drop-shadow(0 0 20px rgba(16,185,129,0.4))' }} />
+          {points.map((p, i) => <motion.circle key={i} cx={(i / (points.length - 1)) * maxX} cy={maxY - (p / 100) * maxY} r="4" fill="#fff" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.5 + (i * 0.1) }} />)}
+        </svg>
+        <div className="absolute top-12 left-12">
+          <h4 className="text-5xl font-black text-white tracking-tighter mb-1">
+            {financials.income > 0 ? `+${Math.round((financials.profit / financials.income) * 100)}%` : '+0%'}
+          </h4>
+          <p className="text-[10px] text-emerald-500 font-black uppercase tracking-[0.4em]">Yield_Margin_Node</p>
+        </div>
+      </div>
+    </div>
   );
 };
 
 const AdminDashboard = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
-  const [terminalLines, setTerminalLines] = useState([]);
+  const [stats, setStats] = useState([]);
+  const [financials, setFinancials] = useState({ income: 0, expense: 0, profit: 0 });
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    const lines = [
-      'SYSTEM_INIT_AUTH_01 SUCCESS',
-      'ENCRYPTING_NODE_REGISTRY...',
-      'SECURE_LAYER_5_ACTIVE',
-      'DNS_SYNC_COMPLETE_0x4F',
-      'PACKET_STREAM_NOMINAL',
-      'TELEMETRY_RX_STABLE'
-    ];
-    let i = 0;
-    const interval = setInterval(() => {
-      setTerminalLines(prev => [...prev.slice(-4), lines[i % lines.length]]);
-      i++;
-    }, 4000);
-    return () => clearInterval(interval);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  const handleExport = (type) => {
-    setIsExporting(true);
-    setExportProgress(0);
-    const interval = setInterval(() => {
-      setExportProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setIsExporting(false);
-          }, 500);
-          return 100;
-        }
-        return prev + 5;
-      });
-    }, 100);
+  const calculateTotal = (key) => { const data = localStorage.getItem(key); return data ? JSON.parse(data).length : 0; };
+  const calculateStats = () => {
+    const services = ['informative', 'ecommerce', 'application', 'uiux', 'maintenance', 'dynamic', 'odoo'];
+    let totalFeatures = 0;
+    services.forEach(s => totalFeatures += JSON.parse(localStorage.getItem(`vgtw_service_${s}`) || '{}').features?.length || 0);
+    setStats([
+      { label: 'Active Services', value: services.length.toString(), icon: <FaGlobe />, color: '#3b82f6' },
+      { label: 'Service Sectors', value: totalFeatures.toString(), icon: <FaStar />, color: '#10b981' },
+      { label: 'Project Nodes', value: calculateTotal('vgtw_projects').toString(), icon: <FaBriefcase />, color: '#a855f7' },
+      { label: 'Job Applicants', value: calculateTotal('vgtw_applications').toString(), icon: <FaUsers />, color: '#f59e0b' },
+      { label: 'Inbound Leads', value: calculateTotal('vgtw_leads').toString(), icon: <FaDownload />, color: '#10b981' },
+      { label: 'Referral Nodes', value: calculateTotal('vgtw_referrals').toString(), icon: <FaHandshake />, color: '#ec4899' },
+      { label: 'Brand Partners', value: calculateTotal('vgtw_brands').toString(), icon: <FaShieldAlt />, color: '#3b82f6' },
+      { label: 'Total Contacts', value: calculateTotal('vgtw_contacts').toString(), icon: <FaEnvelope />, color: '#6366f1' },
+      { label: 'Team Visionaries', value: calculateTotal('vgtw_team').toString(), icon: <FaUsers />, color: '#ec4899' },
+      { label: 'Security Nodes', value: calculateTotal('vgtw_users').toString(), icon: <FaShieldAlt />, color: '#3b82f6' },
+      { label: 'Content Streams', value: calculateTotal('vgtw_blog').toString(), icon: <FaNewspaper />, color: '#6366f1' },
+      { label: 'Testimonials', value: calculateTotal('vgtw_testimonials').toString(), icon: <FaQuestionCircle />, color: '#8b5cf6' },
+      { label: 'Open Protocols', value: calculateTotal('vgtw_jobs').toString(), icon: <FaRocket />, color: '#ef4444' },
+    ]);
+    const acc = JSON.parse(localStorage.getItem('vgtw_accounting') || '[]');
+    const inc = acc.filter(d => d.type === 'Income').reduce((a, c) => a + cleanNum(c.amount), 0);
+    const exp = acc.filter(d => d.type === 'Expense').reduce((a, c) => a + cleanNum(c.amount), 0);
+    setFinancials({ income: inc, expense: exp, profit: inc - exp });
   };
 
-  const stats = [
-    { label: 'Global Traffic', value: '1.2M+', change: '+24.5%', icon: <FaGlobe />, color: 'blue' },
-    { label: 'Active Leads', value: '842', change: '+12.1%', icon: <FaUsers />, color: 'emerald' },
-    { label: 'Net Revenue', value: '$240.2K', change: '+18.2%', icon: <FaDollarSign />, color: 'purple' },
-    { label: 'Auth Success', value: '99.9%', change: 'Nominal', icon: <FaShieldAlt />, color: 'blue' },
-  ];
+  useEffect(() => {
+    calculateStats();
+    window.addEventListener('storage', calculateStats);
+    return () => window.removeEventListener('storage', calculateStats);
+  }, []);
+
+  const cleanNum = (val) => Number(val?.toString().replace(/[^0-9.]/g, '')) || 0;
+
+  const handleExportPDF = async () => {
+    setIsExporting(true); setExportProgress(10);
+    try {
+      const jsPDF = (await import('jspdf')).default; const autoTable = (await import('jspdf-autotable')).default;
+      const doc = new jsPDF(); setExportProgress(40);
+      doc.setFillColor(2, 6, 23); doc.rect(0, 0, 210, 50, 'F'); doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24); doc.text('VERTEX GLOBAL TECH', 15, 25); doc.setFontSize(10); doc.text('INTELLIGENCE_DEPLOYMENT_REPORT | SYSTEM_STATUS_ONLINE', 15, 38);
+      setExportProgress(70);
+      autoTable(doc, { startY: 60, head: [['Identifier', 'Node_Count']], body: stats.map(s => [s.label, s.value]), theme: 'grid', headStyles: { fillColor: [59, 130, 246] } });
+      doc.save('VGTW_Intelligence_Report.pdf');
+    } catch (e) { alert("Deployment Error: Protocol Export Failed"); }
+    finally { setExportProgress(100); setTimeout(() => setIsExporting(false), 1000); }
+  };
 
   return (
-    <div className="space-y-6 md:space-y-10 font-['Inter'] relative min-h-screen pb-20 px-4 md:px-8">
-      <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden opacity-[0.05]">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,b,b,0)_50%,rgba(0,0,0,0.4)_50%),linear-gradient(90deg,rgba(59,130,246,0.1),rgba(59,130,246,0.05),rgba(59,130,246,0.1))] bg-[length:100%_4px,3px:100%]"></div>
-      </div>
-
-      <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden opacity-30">
-        <svg width="100%" height="100%" className="opacity-[0.08]">
-          <pattern id="dashboard-grid" width="100" height="100" patternUnits="userSpaceOnUse">
-            <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#3b82f6" strokeWidth="0.8" />
-            <circle cx="0" cy="0" r="2" fill="#3b82f6" />
-          </pattern>
-          <rect width="100%" height="100%" fill="url(#dashboard-grid)" />
-        </svg>
-
-        <div className="absolute top-24 right-10 hidden lg:flex flex-col items-end opacity-[0.1] select-none text-[9px] font-black text-blue-400 gap-2 font-mono">
-          <AnimatePresence>
-            {terminalLines.map((line, idx) => (
-              <motion.div
-                key={idx + line}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="flex items-center gap-2"
-              >
-                <span className="text-blue-500/60">[{new Date().toLocaleTimeString()}]</span>
-                <span>{line}</span>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8 py-8 border-b border-white/10 relative bg-white/[0.02] rounded-b-[2rem] px-6 mt-[-40px]">
-        <div className="relative">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
-            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase flex items-center gap-4 flex-wrap font-['Montserrat']">
-              <span className="bg-gradient-to-r from-white via-white to-blue-500 bg-clip-text text-transparent">Command</span>
-              <span className="text-blue-600 relative">
-                Hub
-                <motion.span
-                  animate={{ opacity: [0, 1, 0] }}
-                  transition={{ duration: 0.1, repeat: Infinity, repeatDelay: 3 }}
-                  className="absolute -right-4 -top-1 text-xs text-blue-400"
-                >
-                  <FaCircle size={6} />
-                </motion.span>
-              </span>
-            </h1>
-          </motion.div>
-          <div className="flex items-center gap-5 mt-4 flex-wrap">
-            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 text-[10px] text-emerald-400 font-black uppercase tracking-widest rounded-xl shadow-inner">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_#10b981]"></div>
-              System Authorized
-            </div>
-            <div className="h-4 w-[1px] bg-white/20 hidden md:block"></div>
-            <div className="flex items-center gap-2 text-[10px] text-blue-400 font-bold uppercase tracking-[0.2em] font-mono">
-              <FaTerminal className="text-blue-500/60" />
-              NODE: <span className="text-white">0x9F_PRO</span>
+    <div className="p-6 md:p-10 min-h-screen bg-[#020617] font-sans space-y-10">
+      <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-8 mb-16">
+        <div className="flex items-center gap-10">
+          <div>
+            <h1 className="text-5xl font-black text-white uppercase tracking-tighter mb-3 font-['Montserrat']">Command <span className="text-blue-500">Node</span></h1>
+            <div className="flex items-center gap-4">
+              <p className="text-gray-500 font-medium uppercase tracking-[0.4em] text-[10px]">Operations Intelligence</p>
+              <div className="w-px h-3 bg-white/10"></div>
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]"></div>
+                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">System_Online</span>
+              </div>
             </div>
           </div>
+          <div className="hidden sm:block">
+            <div className="text-[24px] font-black text-white/90 tracking-tighter leading-none">{currentTime.toLocaleTimeString([], { hour12: false })}</div>
+            <div className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em] mt-1">{currentTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+          </div>
         </div>
+        <button onClick={handleExportPDF} disabled={isExporting} className="px-10 py-5 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-2xl shadow-blue-900/40 active:scale-95 disabled:grayscale flex items-center gap-4"><FaFilePdf size={18} /> {isExporting ? `SYNCHRONIZING ${exportProgress}%` : 'GENERATE_INTELLIGENCE_REPORT'}</button>
+      </header>
 
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button
-            onClick={() => handleExport('SYS_TELEMETRY')}
-            disabled={isExporting}
-            className="group px-8 py-5 bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-white/10 hover:border-blue-500/30 transition-all disabled:opacity-50 relative overflow-hidden backdrop-blur-xl shadow-2xl"
-          >
-            <span className="relative z-10 flex items-center justify-center gap-3">
-              <FaDatabase className={isExporting ? "animate-bounce" : "group-hover:rotate-12 transition-transform"} />
-              {isExporting ? `PULLING: ${exportProgress}%` : 'Pull System Logs'}
-            </span>
-            {isExporting && (
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${exportProgress}%` }}
-                className="absolute bottom-0 left-0 h-[3px] bg-blue-600 shadow-[0_0_15px_#2563eb]"
-              />
-            )}
-          </button>
-          <button
-            onClick={() => handleExport('EXECUTIVE_SUMMARY')}
-            disabled={isExporting}
-            className="px-8 py-5 bg-blue-600 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-blue-500 transition-all shadow-xl shadow-blue-900/40 active:scale-95 disabled:grayscale group"
-          >
-            <span className="flex items-center justify-center gap-3 font-['Montserrat']">
-              Generate Intelligence
-              <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-            </span>
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-        {stats.map((stat, i) => (
-          <StatCard key={stat.label} stat={stat} i={i} />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {[
+          { label: 'Active_Revenue', val: financials.income, color: 'emerald', icon: <FaMoneyBillWave /> },
+          { label: 'Operational_Out', val: financials.expense, color: 'red', icon: <FaArrowUp className="rotate-180" /> },
+          { label: 'Net_Yield', val: financials.profit, color: 'blue', icon: <FaChartBar /> }
+        ].map((fin, i) => (
+          <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className={`bg-[#0f172a]/40 backdrop-blur-xl border border-${fin.color}-500/20 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group`}>
+            <div className={`absolute -right-4 -bottom-4 text-${fin.color}-500 opacity-5 group-hover:opacity-10 transition-all duration-700 rotate-12`}><fin.icon.type size={120} /></div>
+            <div className={`text-${fin.color}-500 mb-4 flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]`}><div className={`w-2 h-2 rounded-full bg-${fin.color}-500 animate-pulse`}></div> {fin.label}</div>
+            <div className="text-4xl font-black text-white tracking-tighter select-none">₹{fin.val.toLocaleString()}</div>
+          </motion.div>
         ))}
       </div>
 
-      <div className="grid xl:grid-cols-12 gap-8">
-        <div className="xl:col-span-8 space-y-8">
-          <div className="glass-panel p-1 border-white/10 overflow-hidden group shadow-2xl bg-white/[0.01]">
-            <div className="p-8 flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 bg-white/[0.03] gap-4">
-              <div className="space-y-1">
-                <h3 className="text-white font-black text-sm uppercase tracking-[0.3em] flex items-center gap-3 font-['Montserrat']">
-                  <FaChartBar className="text-blue-500" />
-                  Neural Traffic Flux
-                </h3>
-                <p className="text-[10px] text-blue-400/60 font-black uppercase tracking-widest pl-7 font-mono">Active Monitoring Node: Edge-7</p>
-              </div>
-              <div className="flex gap-2">
-                <button className="p-3 bg-black/60 rounded-xl text-blue-500 border border-white/20 hover:border-blue-500/50 transition-all">
-                  <FaEllipsisV size={12} />
-                </button>
-              </div>
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <GrowthChart financials={financials} />
+        <UpcomingMeetings />
+      </div>
 
-            <div className="p-6 md:p-12 h-[350px] md:h-[500px] relative flex items-end justify-between gap-4 md:gap-8 overflow-x-auto custom-scrollbar">
-              {[45, 60, 35, 90, 65, 50, 80, 55, 100, 75, 40, 85].map((h, i) => (
-                <div key={i} className="min-w-[24px] md:min-w-0 flex-1 flex flex-col items-center gap-5 group/bar relative">
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: `${h}%` }}
-                    transition={{ delay: 0.5 + i * 0.05, duration: 1.5, ease: [0.23, 1, 0.32, 1] }}
-                    className="w-full bg-gradient-to-t from-blue-900/40 via-blue-500/60 to-blue-400 rounded-t-xl relative shadow-[0_0_25px_rgba(59,130,246,0.15)] group-hover/bar:to-white transition-all duration-500 border-t border-white/30"
-                  >
-                    <div className="absolute inset-0 bg-blue-500/20 opacity-0 group-hover/bar:opacity-100 transition-opacity blur-xl"></div>
-                    <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-black px-3 py-1.5 rounded-lg opacity-0 group-hover/bar:opacity-100 transition-all translate-y-2 group-hover/bar:translate-y-0 shadow-2xl z-30 pointer-events-none uppercase">
-                      {h * 123}v
-                    </div>
-                  </motion.div>
-                  <span className="text-[8px] md:text-[10px] text-blue-300 font-black uppercase tracking-tighter opacity-40 group-hover/bar:text-white group-hover/bar:opacity-100 transition-all font-mono">NODE-{i + 1}</span>
-                </div>
-              ))}
-              <div className="absolute inset-x-6 md:inset-x-12 inset-y-10 md:inset-y-14 flex flex-col justify-between pointer-events-none opacity-[0.1]">
-                {[...Array(6)].map((_, j) => (
-                  <div key={j} className="w-full h-[1px] bg-blue-500"></div>
-                ))}
-              </div>
-            </div>
+      {/* Quick Outreach Node */}
+      {JSON.parse(localStorage.getItem('vgtw_admin_session') || '{}').isMaster && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[#0f172a]/60 backdrop-blur-2xl border border-purple-500/20 p-10 rounded-[2.5rem] shadow-3xl relative overflow-hidden"
+        >
+          <div className="absolute -right-4 -bottom-4 opacity-5 pointer-events-none rotate-12">
+            <FaRocket size={150} className="text-purple-500" />
           </div>
-
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="glass-panel p-8 border-white/10 flex items-center gap-8 group hover:border-emerald-500/50 transition-all shadow-xl bg-white/[0.01]"
-            >
-              <div className="w-20 h-20 rounded-full border-4 border-emerald-500/10 border-t-emerald-500 animate-spin-slow flex items-center justify-center relative shadow-[0_0_40px_rgba(16,185,129,0.1)]">
-                <span className="text-white text-base font-black tracking-tighter">98%</span>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+            <div className="text-center md:text-left">
+              <div className="flex items-center gap-3 mb-3 justify-center md:justify-start">
+                <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse shadow-[0_0_10px_#a855f7]"></div>
+                <span className="text-purple-400 font-black text-[10px] uppercase tracking-[0.4em]">Propulsion_Node</span>
               </div>
-              <div className="space-y-1">
-                <h4 className="text-white text-xs font-black uppercase tracking-[0.2em] group-hover:text-emerald-400 transition-colors font-['Montserrat']">Network Integrity</h4>
-                <p className="text-[10px] text-blue-300/60 font-bold tracking-widest leading-relaxed uppercase font-mono">128 Secure Nodes<br />Status: Optimal</p>
-              </div>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="glass-panel p-8 border-white/10 flex items-center gap-8 group hover:border-blue-500/50 transition-all shadow-xl bg-white/[0.01]"
-            >
-              <div className="w-20 h-20 rounded-full border-4 border-blue-500/10 border-r-blue-500 animate-spin-slow flex items-center justify-center relative shadow-[0_0_40px_rgba(37,99,235,0.1)]">
-                <span className="text-white text-base font-black tracking-tighter">42ms</span>
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-white text-xs font-black uppercase tracking-[0.2em] group-hover:text-blue-400 transition-colors font-['Montserrat']">Global Latency</h4>
-                <p className="text-[10px] text-blue-300/60 font-bold tracking-widest leading-relaxed uppercase font-mono">Edge Optimized<br />Loss: 0.00%</p>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-
-        <div className="xl:col-span-4 flex flex-col gap-8">
-          <div className="glass-panel border-white/10 flex-1 p-1 overflow-hidden shadow-2xl bg-black/40">
-            <div className="p-8 border-b border-white/10 bg-white/[0.03] flex items-center justify-between">
-              <div className="space-y-1">
-                <h3 className="text-white font-black text-xs uppercase tracking-[0.3em] flex items-center gap-3 font-['Montserrat']">
-                  <FaBolt className="text-amber-400" />
-                  Activity Matrix
-                </h3>
-                <p className="text-[10px] text-blue-400/60 font-black uppercase tracking-widest pl-7 font-mono">Real-time Node Verifier</p>
-              </div>
-              <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_15px_#3b82f6] animate-ping"></div>
+              <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Quick Outreach</h3>
+              <p className="text-gray-500 text-[10px] font-medium uppercase tracking-[0.2em] mt-1">Deploy service briefings instantly</p>
             </div>
 
-            <div className="p-8 space-y-10">
-              {[
-                { type: 'Lead', msg: 'System initialized node 0x9F', time: '2m', color: 'blue' },
-                { type: 'Alert', msg: 'Traffic shift detected @ Edge-1', time: '14m', color: 'amber' },
-                { type: 'Node', msg: 'Secure layer 7 synchronized', time: '1h', color: 'purple' },
-                { type: 'System', msg: 'Backup completed successfully', time: '12h', color: 'emerald' },
-              ].map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.2 + i * 0.1 }}
-                  className="flex items-start gap-5 group cursor-crosshair relative pb-4 border-b border-white/[0.03] last:border-0"
-                >
-                  <div className={`mt-1 w-2.5 h-2.5 rounded-full shadow-[0_0_12px] group-hover:scale-150 transition-all`}
-                    style={{
-                      backgroundColor: item.color === 'blue' ? '#3b82f6' : item.color === 'amber' ? '#f59e0b' : item.color === 'purple' ? '#a855f7' : '#10b981',
-                      boxShadow: `0 0 10px ${item.color === 'blue' ? '#3b82f6' : item.color === 'amber' ? '#f59e0b' : item.color === 'purple' ? '#a855f7' : '#10b981'}`
-                    }}
-                  />
-                  <div className="flex-1">
-                    <p className="text-[13px] text-white/80 group-hover:text-white transition-colors leading-tight font-bold uppercase tracking-tight">{item.msg}</p>
-                    <div className="flex items-center gap-4 mt-3">
-                      <span className="text-[9px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded bg-white/5 border border-white/10" style={{ color: item.color === 'blue' ? '#60a5fa' : item.color === 'amber' ? '#fbbf24' : item.color === 'purple' ? '#c084fc' : '#34d399' }}>{item.type}</span>
-                      <span className="text-[9px] text-gray-500 font-black uppercase font-mono">{item.time} ago</span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="p-8 border-t border-white/10 bg-black/60">
-              <button className="w-full py-5 bg-blue-600/10 border border-blue-500/40 text-[10px] text-white font-black uppercase tracking-[0.4em] hover:bg-blue-600 hover:border-blue-500 transition-all rounded-2xl shadow-inner active:scale-95 group">
-                <span className="flex items-center justify-center gap-3 font-['Montserrat']">
-                  Full Archive
-                  <FaArrowRight className="group-hover:translate-x-2 transition-transform" />
-                </span>
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto md:min-w-[500px]">
+              <input
+                type="email"
+                placeholder="TARGET_CLIENT_IDENTITY"
+                className="flex-1 bg-black/40 border border-white/10 rounded-2xl py-5 px-8 text-white placeholder-gray-800 focus:border-purple-500 outline-none transition-all font-black text-[10px] uppercase tracking-widest"
+                id="quick-outreach-email"
+              />
+              <button
+                onClick={async () => {
+                  const emailInput = document.getElementById('quick-outreach-email');
+                  const val = emailInput.value;
+                  if (!val) return;
+                  const btn = document.getElementById('quick-outreach-btn');
+                  const originalText = btn.innerHTML;
+                  btn.innerHTML = 'SYNCING...';
+                  btn.disabled = true;
+                  try {
+                    const emailjs = (await import('@emailjs/browser')).default;
+                    await emailjs.send('YOUR_SERVICE_ID', 'YOUR_MARKETING_TEMPLATE_ID', { to_email: val, subject: 'Transforming Your Digital Vision | Vertex Global Tech' }, 'YOUR_PUBLIC_KEY');
+                    alert('DEPLOYMENT_SUCCESSFUL: PAYLOAD_DELIVERED');
+                    emailInput.value = '';
+                  } catch (e) {
+                    alert('SYSTEM_ERROR: PROTOCOL_ABORTED');
+                  } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                  }
+                }}
+                id="quick-outreach-btn"
+                className="px-10 py-5 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-xl shadow-purple-900/20 active:scale-95 whitespace-nowrap"
+              >
+                Dispatch_Brief
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
+      )}
+
+      <PricingAnalytics />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8">
+        {stats.map((stat, i) => <StatCard key={stat.label} stat={stat} i={i} />)}
       </div>
     </div>
   );

@@ -1,152 +1,219 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPlus, FaCloudUploadAlt, FaGripHorizontal, FaTimes, FaDatabase } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaEdit, FaSave, FaTimes, FaDatabase, FaRocket } from 'react-icons/fa';
+
+const DEFAULT_BRANDS = [
+  { id: '1', name: "TechNova", icon: "cpu", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
+  { id: '2', name: "FinStream", icon: "graph-up-arrow", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+  { id: '3', name: "CloudScale", icon: "cloud-check", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20" },
+  { id: '4', name: "SecureNet", icon: "shield-lock", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
+  { id: '5', name: "DataFlow", icon: "diagram-3", color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20" },
+];
+
+const COLORS = [
+  { label: 'Blue', color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
+  { label: 'Green', color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+  { label: 'Cyan', color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20" },
+  { label: 'Purple', color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
+  { label: 'Orange', color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20" },
+  { label: 'Pink', color: "text-pink-400", bg: "bg-pink-500/10", border: "border-pink-500/20" },
+  { label: 'Yellow', color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20" },
+];
 
 const BrandManager = () => {
-  const [brands, setBrands] = useState([
-    { id: 1, name: 'TechNova', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjUwIiB2aWV3Qm94PSIwIDAgMTUwIDUwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTQiPlRlY2hOb3ZhPC90ZXh0Pjwvc3ZnPg==' },
-    { id: 2, name: 'GlobalStream', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjUwIiB2aWV3Qm94PSIwIDAgMTUwIDUwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTQiPkdsb2JhbFN0cmVhbTwvdGV4dD48L3N2Zz4=' },
-    { id: 3, name: 'EcoPulse', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjUwIiB2aWV3Qm94PSIwIDAgMTUwIDUwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTQiPkVjb1B1bHNlPC90ZXh0Pjwvc3ZnPg==' },
-    { id: 4, name: 'FutureLink', logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjUwIiB2aWV3Qm94PSIwIDAgMTUwIDUwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTQiPkZ1dHVyZUxpbms8L3RleHQ+PC9zdmc+' },
-  ]);
+  const [brands, setBrands] = useState(() => {
+    const saved = localStorage.getItem('vgtw_brands');
+    return saved ? JSON.parse(saved) : DEFAULT_BRANDS;
+  });
 
+  const [isEditing, setIsEditing] = useState(null); // id of brand being edited
+  const [formData, setFormData] = useState({ name: '', icon: '', colorIndex: 0 });
   const [isAdding, setIsAdding] = useState(false);
-  const [newBrand, setNewBrand] = useState({ name: '', logo: '' });
+
+  useEffect(() => {
+    localStorage.setItem('vgtw_brands', JSON.stringify(brands));
+  }, [brands]);
 
   const handleAdd = (e) => {
     e.preventDefault();
-    const id = brands.length > 0 ? Math.max(...brands.map(b => b.id)) + 1 : 1;
-    setBrands([...brands, { ...newBrand, id }]);
-    setNewBrand({ name: '', logo: '' });
-    setIsAdding(false);
+    const color = COLORS[formData.colorIndex];
+    const newBrand = {
+      id: Date.now().toString(),
+      name: formData.name,
+      icon: formData.icon || 'star',
+      color: color.color,
+      bg: color.bg,
+      border: color.border
+    };
+    setBrands([...brands, newBrand]);
+    resetForm();
+  };
+
+  const handleUpdate = (e) => {
+    e.preventDefault();
+    const color = COLORS[formData.colorIndex];
+    const updatedBrands = brands.map(b => b.id === isEditing ? {
+      ...b,
+      name: formData.name,
+      icon: formData.icon,
+      color: color.color,
+      bg: color.bg,
+      border: color.border
+    } : b);
+    setBrands(updatedBrands);
+    resetForm();
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('PROTOCOL: REMOVE PARTNER NODE?')) {
+    if (window.confirm('CRITICAL: Delete this brand entity from the roster?')) {
       setBrands(brands.filter(b => b.id !== id));
     }
   };
 
+  const startEdit = (brand) => {
+    const colorIdx = COLORS.findIndex(c => c.color === brand.color);
+    setFormData({ name: brand.name, icon: brand.icon, colorIndex: colorIdx === -1 ? 0 : colorIdx });
+    setIsEditing(brand.id);
+    setIsAdding(true);
+  };
+
+  const resetForm = () => {
+    setFormData({ name: '', icon: '', colorIndex: 0 });
+    setIsEditing(null);
+    setIsAdding(false);
+  };
+
   return (
-    <div className="space-y-8 font-mono animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="p-6 md:p-10 min-h-screen bg-[#020617] font-sans">
+      <div className="max-w-7xl mx-auto">
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+          <div>
+            <h1 className="text-4xl font-black text-white uppercase tracking-tighter mb-2">Brand <span className="text-blue-500">Node</span></h1>
+            <p className="text-gray-500 font-medium uppercase tracking-[0.3em] text-[10px]">Corporate Identity Registry</p>
+          </div>
+          {!isAdding && (
+            <button
+              onClick={() => setIsAdding(true)}
+              className="flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-blue-900/20 active:scale-95"
+            >
+              <FaPlus /> Authorize New Node
+            </button>
+          )}
+        </header>
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-black text-white uppercase tracking-tighter">Brand <span className="text-blue-500">Partners</span></h1>
-          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.3em] mt-1">Manage homepage partner logos and trust assets</p>
-        </div>
-        {!isAdding && (
-          <button
-            onClick={() => setIsAdding(true)}
-            className="px-6 py-4 bg-blue-600 text-white text-[10px] font-black rounded-xl hover:bg-blue-500 transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-3 uppercase tracking-[0.2em] active:scale-95"
-          >
-            <FaCloudUploadAlt /> Launch Asset Node
-          </button>
-        )}
-      </div>
+        <AnimatePresence mode="wait">
+          {isAdding && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="glass-panel p-10 border-blue-500/20 relative">
+                <button onClick={resetForm} className="absolute top-6 right-6 text-gray-500 hover:text-white"><FaTimes /></button>
 
-      <AnimatePresence>
-        {isAdding && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            className="glass-panel p-8 border-blue-500/20 bg-blue-600/[0.02]"
-          >
-            <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-              <div className="space-y-3">
-                <label className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Partner Identity</label>
-                <input
-                  type="text"
-                  required
-                  value={newBrand.name}
-                  onChange={e => setNewBrand({ ...newBrand, name: e.target.value })}
-                  className="w-full bg-black/40 border border-white/5 rounded-lg p-3 text-white text-xs focus:outline-none focus:border-blue-500 transition-all font-mono"
-                  placeholder="e.g. Cyberdyne Systems"
-                />
-              </div>
-              <div className="space-y-3">
-                <label className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Asset Vector URL</label>
-                <input
-                  type="text"
-                  required
-                  value={newBrand.logo}
-                  onChange={e => setNewBrand({ ...newBrand, logo: e.target.value })}
-                  className="w-full bg-black/40 border border-white/5 rounded-lg p-3 text-white text-xs focus:outline-none focus:border-blue-500 transition-all font-mono"
-                  placeholder="https://..."
-                />
-              </div>
-              <div className="flex gap-3 md:col-span-2">
-                <button type="submit" className="flex-1 py-3 bg-blue-600 text-white text-[10px] font-black rounded-lg hover:bg-blue-500 transition-all uppercase tracking-widest">Commit Asset</button>
-                <button type="button" onClick={() => setIsAdding(false)} className="px-6 py-3 bg-white/5 text-gray-500 text-[10px] font-black rounded-lg hover:bg-white/10 transition-all uppercase tracking-widest">Cancel</button>
-              </div>
-            </form>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                <form onSubmit={isEditing ? handleUpdate : handleAdd} className="space-y-8">
+                  <div className="grid md:grid-cols-3 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Brand Identifier</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.name}
+                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="e.g. Cyberdyne"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white text-sm focus:border-blue-500 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Icon (Bootstrap Icon Name)</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.icon}
+                        onChange={e => setFormData({ ...formData, icon: e.target.value })}
+                        placeholder="e.g. cpu, graph-up, shield"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white text-sm focus:border-blue-500 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Visual Theme</label>
+                      <div className="flex flex-wrap gap-2">
+                        {COLORS.map((c, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, colorIndex: idx })}
+                            className={`w-10 h-10 rounded-lg ${c.bg} border-2 transition-all ${formData.colorIndex === idx ? 'border-white' : 'border-transparent'}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
 
-      <div className="glass-panel p-8 border-white/5">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+                  <div className="flex gap-4">
+                    <button type="submit" className="flex-1 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-[0.2em] rounded-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-3">
+                      {isEditing ? <><FaSave /> Update Node</> : <><FaRocket /> Commit Node</>}
+                    </button>
+                    <button type="button" onClick={resetForm} className="px-8 py-4 bg-white/5 text-gray-400 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all">
+                      Discard
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Brand Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <AnimatePresence>
-            {brands.map((brand, i) => (
+            {brands.map((brand) => (
               <motion.div
                 layout
                 key={brand.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
-                className="relative group bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center gap-6 hover:border-blue-500/40 hover:bg-blue-600/[0.03] transition-all cursor-move shadow-inner"
+                className={`group relative p-8 rounded-[2.5rem] bg-[#0f172a]/40 backdrop-blur-xl border border-white/5 hover:border-blue-500/30 transition-all duration-500 shadow-xl overflow-hidden`}
               >
-                <div className="absolute top-3 left-3 text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <FaGripHorizontal size={10} />
+                <div className="flex flex-col items-center gap-6 text-center">
+                  <div className={`w-16 h-16 rounded-2xl ${brand.bg} ${brand.color} flex items-center justify-center text-3xl transition-transform group-hover:scale-110 duration-500`}>
+                    <i className={`bi bi-${brand.icon}`}></i>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-white tracking-tight">{brand.name}</h3>
+                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">Active Partner</p>
+                  </div>
                 </div>
-                <button
-                  onClick={() => handleDelete(brand.id)}
-                  className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500/10 text-red-500 border border-red-500/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white shadow-xl backdrop-blur-md"
-                >
-                  <FaTimes size={10} />
-                </button>
-                <div className="h-12 w-full flex items-center justify-center overflow-hidden">
-                  <img src={brand.logo} alt={brand.name} className="max-h-full max-w-full object-contain grayscale group-hover:grayscale-0 transition-all opacity-40 group-hover:opacity-100 duration-500" />
+
+                {/* Action Overlays */}
+                <div className="absolute top-4 right-4 flex gap-2">
+                  <button
+                    onClick={() => startEdit(brand)}
+                    className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-xl"
+                  >
+                    <FaEdit size={12} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(brand.id)}
+                    className="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-xl"
+                  >
+                    <FaTrash size={12} />
+                  </button>
                 </div>
-                <p className="text-[10px] font-black uppercase text-gray-600 group-hover:text-blue-400 transition-colors tracking-widest">{brand.name}</p>
               </motion.div>
             ))}
           </AnimatePresence>
 
-          {!isAdding && (
-            <div
-              onClick={() => setIsAdding(true)}
-              className="border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center p-6 bg-white/[0.01] hover:bg-blue-600/[0.03] hover:border-blue-500/20 transition-all cursor-pointer group min-h-[140px]"
-            >
-              <FaPlus className="text-gray-700 group-hover:text-blue-500 transition-colors mb-2" />
-              <span className="text-[9px] font-black text-gray-700 group-hover:text-white uppercase tracking-widest">Inject Node</span>
+          {brands.length === 0 && (
+            <div className="col-span-full py-24 text-center border border-dashed border-white/5 rounded-[2.5rem] bg-white/[0.01]">
+              <FaDatabase className="mx-auto text-4xl text-white/5 mb-6 animate-pulse" />
+              <p className="text-[10px] font-black text-gray-700 uppercase tracking-[0.5em]">Registry_Empty</p>
             </div>
           )}
         </div>
 
-        {brands.length === 0 && (
-          <div className="py-20 text-center space-y-4">
-            <FaDatabase className="mx-auto text-4xl text-white/5 animate-pulse" />
-            <p className="text-[10px] text-gray-700 font-bold uppercase tracking-[0.5em]">Network partner registry is empty</p>
-          </div>
-        )}
-
-        <div className="mt-12 bg-blue-600/5 border border-blue-500/10 rounded-2xl p-6 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-            <FaCloudUploadAlt size={80} />
-          </div>
-          <div className="flex items-start gap-6 relative z-10">
-            <div className="w-12 h-12 rounded-xl bg-blue-600/20 flex items-center justify-center text-blue-500 border border-blue-500/20 shadow-inner">
-              <FaCloudUploadAlt />
-            </div>
-            <div>
-              <h4 className="text-sm font-black text-white mb-2 uppercase tracking-widest">Asset Protocol Registry</h4>
-              <p className="text-[11px] text-gray-500 leading-relaxed font-bold uppercase tracking-tighter">Recommended: Transparent SVG/PNG | Aspect 3:1 | Max 2MB per node | CDN replication active</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

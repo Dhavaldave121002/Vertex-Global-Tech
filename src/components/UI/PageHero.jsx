@@ -5,7 +5,12 @@ export default function PageHero({ title, subtitle, badge, highlight }) {
   return (
     <div className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 text-center z-10 px-6 overflow-hidden">
       {/* Subtle Background Glow for Hero */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-full bg-blue-500/5 blur-[120px] pointer-events-none"></div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-full bg-blue-500/5 blur-[120px] pointer-events-none"
+      />
 
       <div className="container mx-auto relative">
         {badge && (
@@ -27,15 +32,52 @@ export default function PageHero({ title, subtitle, badge, highlight }) {
         >
           {title.split(highlight).map((part, i, arr) => (
             <React.Fragment key={i}>
-              {part}
+              <span className="inline-block">
+                {part.split(" ").map((word, wI) => (
+                  <span key={wI} className="inline-block whitespace-nowrap">
+                    {word.split("").map((char, cI) => (
+                      <motion.span
+                        key={cI}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 + (i * 0.1) + (wI * 0.05) + (cI * 0.02), duration: 0.4 }}
+                        className="inline-block"
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                    <span className="inline-block">&nbsp;</span>
+                  </span>
+                ))}
+              </span>
               {i < arr.length - 1 && (
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400">
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 inline-block"
+                >
                   {highlight}
-                </span>
+                </motion.span>
               )}
             </React.Fragment>
           ))}
-          {!highlight && title}
+          {!highlight && title.split(" ").map((word, wI) => (
+            <span key={wI} className="inline-block whitespace-nowrap">
+              {word.split("").map((char, cI) => (
+                <motion.span
+                  key={cI}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + (wI * 0.05) + (cI * 0.02), duration: 0.4 }}
+                  className="inline-block"
+                >
+                  {char}
+                </motion.span>
+              ))}
+              <span className="inline-block">&nbsp;</span>
+            </span>
+          ))}
         </motion.h1>
 
         <motion.p

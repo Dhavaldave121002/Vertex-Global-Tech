@@ -7,14 +7,33 @@ import ServiceHero3D from '../../components/UI/ServiceHero3D';
 import SEO from '../../components/SEO';
 
 export default function Application() {
-  const features = [
+  const [features, setFeatures] = React.useState([
     { title: 'Scalable Platforms', icon: 'bi-cloud', desc: 'Growth-ready systems that handle thousands of users effortlessly.' },
     { title: 'Seamless Connections', icon: 'bi-code-square', desc: 'We connect your apps to other services for smooth data flow.' },
     { title: 'Instant Updates', icon: 'bi-arrow-repeat', desc: 'See changes immediately without refreshing the page.' },
     { title: 'Bank-Grade Security', icon: 'bi-shield-lock', desc: 'Top-tier encryption and protections to keep data safe.' },
     { title: 'Modular Design', icon: 'bi-diagram-2', desc: 'Built in blocks, so we can upgrade parts without breaking the whole.' },
     { title: 'Automated Releases', icon: 'bi-infinity', desc: 'We deploy updates faster and with fewer errors.' },
-  ];
+  ]);
+  const [techStack, setTechStack] = React.useState([]);
+  const [faqs, setFaqs] = React.useState([]);
+  const [process, setProcess] = React.useState([]);
+
+  React.useEffect(() => {
+    const loadData = () => {
+      const saved = localStorage.getItem('vgtw_service_application');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.features) setFeatures(data.features);
+        if (data.techStack) setTechStack(data.techStack);
+        if (data.faqs) setFaqs(data.faqs);
+        if (data.process) setProcess(data.process);
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
 
   return (
     <>
@@ -32,7 +51,8 @@ export default function Application() {
           highlight="Applications"
           badge="Services"
           subtitle="Scalable, enterprise-grade SaaS platforms built for performance and growth."
-          variant="application"
+          laptopImage="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=1000"
+          phoneImage="https://images.unsplash.com/photo-1555774698-0b77e0d5fac6?auto=format&fit=crop&q=80&w=500"
         />
 
         {/* INTRODUCTION */}
@@ -87,13 +107,13 @@ export default function Application() {
         </section>
 
         {/* PROCESS TIMELINE */}
-        <ProcessTimeline />
+        <ProcessTimeline customSteps={process} />
 
         {/* TECH STACK */}
-        <TechStack />
+        <TechStack customStack={techStack} />
 
         {/* FAQ */}
-        <ServiceFAQ category="Application" />
+        <ServiceFAQ category="Application" customFaqs={faqs} />
 
         {/* CTA */}
         <section className="py-24 text-center bg-gradient-to-b from-[#020617] to-[#0f172a]">

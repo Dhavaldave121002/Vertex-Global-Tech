@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const ProcessTimeline = () => {
-  const steps = [
+const ProcessTimeline = ({ customSteps }) => {
+  const defaultSteps = [
     {
       num: '01',
       title: 'Discovery & Strategy',
@@ -28,6 +28,8 @@ const ProcessTimeline = () => {
       icon: 'bi-rocket-takeoff'
     }
   ];
+
+  const steps = customSteps && customSteps.length > 0 ? customSteps : defaultSteps;
 
   return (
     <section className="py-24 bg-[#020617] relative overflow-hidden">

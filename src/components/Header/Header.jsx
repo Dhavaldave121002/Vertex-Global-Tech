@@ -39,6 +39,7 @@ const Header = () => {
         { name: 'Web Application', path: '/services/application' },
         { name: 'UI/UX Design', path: '/services/uiux' },
         { name: 'Maintenance', path: '/services/maintenance' },
+        { name: 'Odoo Customization', path: '/services/odoo' },
       ]
     },
     {
@@ -47,6 +48,7 @@ const Header = () => {
         { name: 'Website Packages', path: '/pricing/website' },
         { name: 'Application Plans', path: '/pricing/application' },
         { name: 'UI/UX Services', path: '/pricing/uiux' },
+        { name: 'Odoo ERP Plans', path: '/pricing/odoo' },
       ]
     },
     { name: 'Portfolio', path: '/portfolio' },

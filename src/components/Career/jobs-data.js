@@ -13,8 +13,7 @@
  * @property {string[]} qualifications - Required skills/experience
  */
 
-/** @type {Job[]} */
-export const JOBS = [
+const DEFAULT_JOBS = [
   {
     id: 'fe-dev',
     title: 'Frontend Developer (React)',
@@ -111,3 +110,17 @@ export const JOBS = [
     ]
   }
 ];
+
+// Load jobs from localStorage or use defaults
+export const getJobs = () => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('vgtw_jobs');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  }
+  return DEFAULT_JOBS;
+};
+
+/** @type {Job[]} */
+export const JOBS = getJobs();

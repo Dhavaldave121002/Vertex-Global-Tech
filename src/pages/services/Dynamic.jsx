@@ -7,14 +7,33 @@ import ServiceHero3D from '../../components/UI/ServiceHero3D';
 import SEO from '../../components/SEO';
 
 export default function Dynamic() {
-  const features = [
+  const [features, setFeatures] = React.useState([
     { title: 'Engaging Interfaces', icon: 'bi-cursor-fill', desc: 'Smooth, animated elements that keep users interested.' },
     { title: 'Connect Everything', icon: 'bi-hdd-network', desc: 'Link your website to other tools and data systems easily.' },
     { title: 'Live Updates', icon: 'bi-activity', desc: 'See stock prices, notifications, or chats happen instantly.' },
     { title: 'User Dashboards', icon: 'bi-person-badge', desc: 'Private areas for users to manage their profile and data.' },
     { title: 'Smart Workflows', icon: 'bi-diagram-3', desc: 'Automate complex business tasks to save time.' },
     { title: 'Cloud Powered', icon: 'bi-cloud-fill', desc: 'Hosted on powerful servers that grow with your traffic.' },
-  ];
+  ]);
+  const [techStack, setTechStack] = React.useState([]);
+  const [faqs, setFaqs] = React.useState([]);
+  const [process, setProcess] = React.useState([]);
+
+  React.useEffect(() => {
+    const loadData = () => {
+      const saved = localStorage.getItem('vgtw_service_dynamic');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.features) setFeatures(data.features);
+        if (data.techStack) setTechStack(data.techStack);
+        if (data.faqs) setFaqs(data.faqs);
+        if (data.process) setProcess(data.process);
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
 
   return (
     <>
@@ -32,7 +51,8 @@ export default function Dynamic() {
           highlight="Solutions"
           badge="Services"
           subtitle="Interactive, data-driven experiences that adapt to your users in real-time."
-          variant="dynamic"
+          laptopImage="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000"
+          phoneImage="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000"
         />
 
         {/* INTRODUCTION */}
@@ -87,13 +107,13 @@ export default function Dynamic() {
         </section>
 
         {/* PROCESS TIMELINE */}
-        <ProcessTimeline />
+        <ProcessTimeline customSteps={process} />
 
         {/* TECH STACK */}
-        <TechStack />
+        <TechStack customStack={techStack} />
 
         {/* FAQ */}
-        <ServiceFAQ category="Dynamic" />
+        <ServiceFAQ category="Dynamic" customFaqs={faqs} />
 
         {/* CTA */}
         <section className="py-24 text-center bg-gradient-to-b from-[#020617] to-[#0f172a]">

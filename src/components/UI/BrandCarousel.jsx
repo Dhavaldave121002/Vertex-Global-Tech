@@ -2,17 +2,32 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const BrandCarousel = () => {
-  // Enhanced visual presentation for "Project Brands"
-  const brands = [
-    { name: "TechNova", icon: "cpu", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
-    { name: "FinStream", icon: "graph-up-arrow", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
-    { name: "CloudScale", icon: "cloud-check", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20" },
-    { name: "SecureNet", icon: "shield-lock", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
-    { name: "DataFlow", icon: "diagram-3", color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20" },
-    { name: "UrbanArch", icon: "buildings", color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20" },
-    { name: "HealthPlus", icon: "heart-pulse", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20" },
-    { name: "EduVerse", icon: "mortarboard", color: "text-pink-400", bg: "bg-pink-500/10", border: "border-pink-500/20" },
-  ];
+  // Fetch from localStorage with a fallback to the default set
+  const [brands, setBrands] = React.useState(() => {
+    const saved = localStorage.getItem('vgtw_brands');
+    if (saved) return JSON.parse(saved);
+
+    return [
+      { name: "TechNova", icon: "cpu", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
+      { name: "FinStream", icon: "graph-up-arrow", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+      { name: "CloudScale", icon: "cloud-check", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20" },
+      { name: "SecureNet", icon: "shield-lock", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
+      { name: "DataFlow", icon: "diagram-3", color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20" },
+      { name: "UrbanArch", icon: "buildings", color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20" },
+      { name: "HealthPlus", icon: "heart-pulse", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20" },
+      { name: "EduVerse", icon: "mortarboard", color: "text-pink-400", bg: "bg-pink-500/10", border: "border-pink-500/20" },
+    ];
+  });
+
+  // Listen for storage changes in other tabs/windows
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('vgtw_brands');
+      if (saved) setBrands(JSON.parse(saved));
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   return (
     <section className="py-16 bg-[#030712] relative overflow-hidden">

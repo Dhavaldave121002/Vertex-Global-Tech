@@ -7,14 +7,33 @@ import ServiceHero3D from '../../components/UI/ServiceHero3D';
 import SEO from '../../components/SEO';
 
 export default function Informative() {
-  const features = [
+  const [features, setFeatures] = React.useState([
     { title: 'Responsive Design', icon: 'bi-phone', desc: 'Looks stunning on every device, from mobile to 4K desktops.' },
     { title: 'Search Engine Ready', icon: 'bi-graph-up', desc: 'Built to rank higher on Google so customers can find you.' },
     { title: 'Easy Management', icon: 'bi-window-sidebar', desc: 'Update text and images yourself with no coding needed.' },
     { title: 'Fast Performance', icon: 'bi-lightning-charge', desc: 'Loads instantly to keep visitors happy.' },
     { title: 'Secure & Reliable', icon: 'bi-shield-check', desc: 'Protected against threats with industry-best security.' },
     { title: 'Visitor Insights', icon: 'bi-bar-chart', desc: 'See who visits your site and what they do.' },
-  ];
+  ]);
+  const [techStack, setTechStack] = React.useState([]);
+  const [faqs, setFaqs] = React.useState([]);
+  const [process, setProcess] = React.useState([]);
+
+  React.useEffect(() => {
+    const loadData = () => {
+      const saved = localStorage.getItem('vgtw_service_informative');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.features) setFeatures(data.features);
+        if (data.techStack) setTechStack(data.techStack);
+        if (data.faqs) setFaqs(data.faqs);
+        if (data.process) setProcess(data.process);
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
 
   return (
     <>
@@ -32,7 +51,8 @@ export default function Informative() {
           highlight="Websites"
           badge="Services"
           subtitle="Establish a powerful digital presence with elegant, content-focused design."
-          variant="informative"
+          laptopImage="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1000"
+          phoneImage="https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&q=80&w=500"
         />
 
         {/* INTRODUCTION */}
@@ -87,13 +107,13 @@ export default function Informative() {
         </section>
 
         {/* PROCESS TIMELINE (Now stylized) */}
-        <ProcessTimeline />
+        <ProcessTimeline customSteps={process} />
 
         {/* TECH STACK */}
-        <TechStack />
+        <TechStack customStack={techStack} />
 
         {/* FAQ */}
-        <ServiceFAQ category="Informative" />
+        <ServiceFAQ category="Informative" customFaqs={faqs} />
 
         {/* CTA */}
         <section className="py-24 text-center bg-gradient-to-b from-[#020617] to-[#0f172a]">

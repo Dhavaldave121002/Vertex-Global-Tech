@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
-/* Removed Bootstrap Icons import as we are using React Icons now */
+@import "bootstrap-icons/font/bootstrap-icons.css";
 
 @tailwind base;
 @tailwind components;

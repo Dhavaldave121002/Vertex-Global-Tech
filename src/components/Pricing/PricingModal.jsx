@@ -21,7 +21,23 @@ export default function PricingModal({ isOpen, onClose, selectedPlan, planType }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // In a real app, send to API. For now, mailto.
+
+    // Save to localStorage for admin
+    const inquiry = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      selectedPlan: formData.plan,
+      message: formData.message,
+      date: new Date().toISOString()
+    };
+
+    const existing = JSON.parse(localStorage.getItem('vgtw_pricing_inquiries') || '[]');
+    existing.push(inquiry);
+    localStorage.setItem('vgtw_pricing_inquiries', JSON.stringify(existing));
+    window.dispatchEvent(new Event('storage'));
+
+    // Open email client
     const subject = encodeURIComponent(`New Inquiry: ${formData.plan}`);
     const body = encodeURIComponent(`
 Name: ${formData.name}

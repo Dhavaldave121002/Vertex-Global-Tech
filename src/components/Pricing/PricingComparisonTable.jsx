@@ -17,8 +17,8 @@ const PricingComparisonTable = ({ plans, features }) => {
                 <th className="p-6 bg-[#0f172a] text-white rounded-tl-2xl w-1/4 sticky left-0 z-10 border-b border-white/10">Features</th>
                 {plans.map((plan, i) => (
                   <th key={i} className={`p-6 bg-[#0f172a] text-xl font-bold border-b border-white/10 ${i === plans.length - 1 ? 'rounded-tr-2xl' : ''}`}>
-                    <span className={i === 1 ? 'text-blue-400' : 'text-white'}>{plan.name}</span>
-                    {i === 1 && <span className="block text-xs text-blue-500 font-normal mt-1 uppercase tracking-wider">Most Popular</span>}
+                    <span className={plan.isPopular ? 'text-blue-400' : 'text-white'}>{plan.name}</span>
+                    {plan.isPopular && <span className="block text-xs text-blue-500 font-normal mt-1 uppercase tracking-wider">Most Popular</span>}
                   </th>
                 ))}
               </tr>

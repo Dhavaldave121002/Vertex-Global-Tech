@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { FaMapMarkerAlt, FaBriefcase, FaClock, FaArrowRight, FaSearch } from 'react-icons/fa'
 import { JOBS } from '../components/Career/jobs-data'
@@ -16,10 +16,26 @@ export default function Career() {
   })
   const [modalOpen, setModalOpen] = useState(false)
   const [errors, setErrors] = useState({})
+  const [jobs, setJobs] = useState([])
 
   const filters = ['All', 'Full-time', 'Part-time', 'Remote', 'Internship']
 
-  const filteredJobs = JOBS.filter(j =>
+  useEffect(() => {
+    const loadJobs = () => {
+      const saved = localStorage.getItem('vgtw_jobs');
+      if (saved) {
+        setJobs(JSON.parse(saved));
+      } else {
+        setJobs(JOBS);
+      }
+    };
+
+    loadJobs();
+    window.addEventListener('storage', loadJobs);
+    return () => window.removeEventListener('storage', loadJobs);
+  }, []);
+
+  const filteredJobs = jobs.filter(j =>
     filter === 'All' ? true :
       filter === 'Remote' ? j.location.toLowerCase().includes('remote') :
         j.type === filter
@@ -51,18 +67,27 @@ export default function Career() {
           {/* Filters Bar */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-16 p-4 bg-[#0f172a]/60 backdrop-blur-xl border border-white/10 rounded-2xl max-w-7xl mx-auto shadow-xl">
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 w-full lg:w-auto">
-              {filters.map(f => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 border border-transparent ${filter === f
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 border-blue-500/50'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                    }`}
-                >
-                  {f}
-                </button>
-              ))}
+              <LayoutGroup>
+                {filters.map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={`relative px-5 py-2.5 rounded-xl text-sm font-black transition-colors duration-300 border border-transparent overflow-hidden ${filter === f
+                      ? 'text-white'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      }`}
+                  >
+                    <span className="relative z-10 uppercase tracking-widest">{f}</span>
+                    {filter === f && (
+                      <motion.div
+                        layoutId="activeJobFilter"
+                        className="absolute inset-0 bg-blue-600"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      />
+                    )}
+                  </button>
+                ))}
+              </LayoutGroup>
             </div>
             <div className="hidden md:block text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-500/10 px-4 py-2 rounded-full border border-blue-500/20">
               <span className="text-white">{filteredJobs.length}</span> Open Positions

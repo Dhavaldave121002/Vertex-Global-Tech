@@ -7,14 +7,33 @@ import ServiceHero3D from '../../components/UI/ServiceHero3D';
 import SEO from '../../components/SEO';
 
 export default function Ecommerce() {
-  const features = [
+  const [features, setFeatures] = React.useState([
     { title: 'Secure Checkouts', icon: 'bi-shield-lock', desc: 'PCI-DSS compliant payment processing for peace of mind.' },
     { title: 'Inventory Management', icon: 'bi-box-seam', desc: 'Real-time stock tracking and automated alerts.' },
     { title: 'Sales Analytics', icon: 'bi-graph-up-arrow', desc: 'Detailed dashboards for revenue, conversion, and traffic.' },
     { title: 'Mobile First', icon: 'bi-phone', desc: 'Optimized shopping experience for mobile users.' },
     { title: 'SEO Rankings', icon: 'bi-search', desc: 'Product schema markup to help you rank on Google Shopping.' },
     { title: 'Global Selling', icon: 'bi-globe', desc: 'Multi-currency and multi-language support built-in.' },
-  ];
+  ]);
+  const [techStack, setTechStack] = React.useState([]);
+  const [faqs, setFaqs] = React.useState([]);
+  const [process, setProcess] = React.useState([]);
+
+  React.useEffect(() => {
+    const loadData = () => {
+      const saved = localStorage.getItem('vgtw_service_ecommerce');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.features) setFeatures(data.features);
+        if (data.techStack) setTechStack(data.techStack);
+        if (data.faqs) setFaqs(data.faqs);
+        if (data.process) setProcess(data.process);
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
 
   return (
     <>
@@ -32,7 +51,8 @@ export default function Ecommerce() {
           highlight="Excellence"
           badge="Services"
           subtitle="Convert visitors into customers with a seamless, secure, and beautiful online store."
-          variant="ecommerce"
+          laptopImage="https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&q=80&w=1000"
+          phoneImage="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=500"
         />
 
         {/* INTRODUCTION */}
@@ -87,13 +107,13 @@ export default function Ecommerce() {
         </section>
 
         {/* PROCESS TIMELINE */}
-        <ProcessTimeline />
+        <ProcessTimeline customSteps={process} />
 
         {/* TECH STACK */}
-        <TechStack />
+        <TechStack customStack={techStack} />
 
         {/* FAQ */}
-        <ServiceFAQ category="E-Commerce" />
+        <ServiceFAQ category="E-Commerce" customFaqs={faqs} />
 
         {/* CTA */}
         <section className="py-24 text-center bg-gradient-to-b from-[#020617] to-[#0f172a]">

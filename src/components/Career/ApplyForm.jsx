@@ -37,6 +37,41 @@ export default function ApplyForm({ applyData, setApplyData, errors, setErrors, 
     }
 
     const job = JOBS.find(j => j.id === applyData.jobId)
+
+    // Handle resume file
+    const resumeInput = document.querySelector('input[type="file"]');
+    const resumeFile = resumeInput?.files[0];
+
+    if (resumeFile) {
+      // Convert file to base64 for storage
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        saveApplication(event.target.result, resumeFile.name, job);
+      };
+      reader.readAsDataURL(resumeFile);
+    } else {
+      saveApplication(null, null, job);
+    }
+  }
+
+  function saveApplication(resumeData, resumeFileName, job) {
+    // Save application to localStorage
+    const application = {
+      id: Date.now(),
+      ...applyData,
+      jobTitle: job.title,
+      jobType: job.type,
+      resumeData,
+      resumeFileName,
+      submittedAt: new Date().toISOString(),
+      status: 'New'
+    };
+
+    const existingApplications = JSON.parse(localStorage.getItem('vgtw_applications') || '[]');
+    existingApplications.unshift(application);
+    localStorage.setItem('vgtw_applications', JSON.stringify(existingApplications));
+    window.dispatchEvent(new Event('storage'));
+
     const subject = encodeURIComponent(`Job Application — ${job.title}`)
     const body = encodeURIComponent(`
 Name: ${applyData.name}
@@ -146,12 +181,12 @@ ${applyData.message}
         <div>
           <label className={labelClasses}>Resume</label>
           <input
-            className={`${inputClasses} opacity-50 cursor-not-allowed`}
+            className={inputClasses}
             type="file"
-            disabled
+            accept=".pdf,.doc,.docx"
           />
           <div className="text-xs text-blue-400 mt-1.5 font-medium">
-            You must attach the file <strong>manually</strong> when your email client opens.
+            Upload your resume (PDF or DOC). It will be saved with your application.
           </div>
         </div>
 

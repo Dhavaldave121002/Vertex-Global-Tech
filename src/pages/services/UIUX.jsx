@@ -7,14 +7,33 @@ import ServiceHero3D from '../../components/UI/ServiceHero3D';
 import SEO from '../../components/SEO';
 
 export default function UIUX() {
-  const features = [
+  const [features, setFeatures] = React.useState([
     { title: 'User Research', icon: 'bi-people', desc: 'We study your audience to know exactly what they want.' },
     { title: 'Blueprints', icon: 'bi-grid-1x2', desc: 'Simple sketches to test ideas before building.' },
     { title: 'Visual Design', icon: 'bi-palette', desc: 'Stunning, on-brand looks that wow your customers.' },
     { title: 'Design Library', icon: 'bi-collection', desc: 'A set of reusable elements to keep everything consistent.' },
     { title: 'Interactions', icon: 'bi-cursor', desc: 'Fun animations and feedback that make the app feel alive.' },
     { title: 'User Testing', icon: 'bi-clipboard-check', desc: 'Real people test the design to ensure it is easy to use.' },
-  ];
+  ]);
+  const [techStack, setTechStack] = React.useState([]);
+  const [faqs, setFaqs] = React.useState([]);
+  const [process, setProcess] = React.useState([]);
+
+  React.useEffect(() => {
+    const loadData = () => {
+      const saved = localStorage.getItem('vgtw_service_uiux');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.features) setFeatures(data.features);
+        if (data.techStack) setTechStack(data.techStack);
+        if (data.faqs) setFaqs(data.faqs);
+        if (data.process) setProcess(data.process);
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
 
   return (
     <>
@@ -32,7 +51,8 @@ export default function UIUX() {
           highlight="Design"
           badge="Services"
           subtitle="Crafting intuitive, user-centric interfaces that delight users and drive engagement."
-          variant="uiux"
+          laptopImage="https://images.unsplash.com/photo-1586717791821-3f44a5638d4f?auto=format&fit=crop&q=80&w=1000"
+          phoneImage="https://images.unsplash.com/photo-1581291518655-9523bb99d9f6?auto=format&fit=crop&q=80&w=500"
         />
 
         {/* INTRODUCTION */}
@@ -87,13 +107,13 @@ export default function UIUX() {
         </section>
 
         {/* PROCESS TIMELINE */}
-        <ProcessTimeline />
+        <ProcessTimeline customSteps={process} />
 
         {/* TECH STACK */}
-        <TechStack />
+        <TechStack customStack={techStack} />
 
         {/* FAQ */}
-        <ServiceFAQ category="UI/UX" />
+        <ServiceFAQ category="UI/UX" customFaqs={faqs} />
 
         {/* CTA */}
         <section className="py-24 text-center bg-gradient-to-b from-[#020617] to-[#0f172a]">

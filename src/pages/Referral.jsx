@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { FaCopy, FaCheck, FaUserPlus, FaChartLine, FaGift, FaWhatsapp, FaTwitter } from 'react-icons/fa'
+import { FaCopy, FaCheck, FaUserPlus, FaChartLine, FaGift, FaWhatsapp, FaTwitter, FaCrown, FaEnvelope } from 'react-icons/fa'
 import SEO from '../components/SEO'
+import emailjs from '@emailjs/browser';
 
 export default function Referral() {
-  // ... (keep state logic same)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -24,20 +24,94 @@ export default function Referral() {
   const [leadSubmitting, setLeadSubmitting] = useState(false)
   const [leadSuccess, setLeadSuccess] = useState(false)
 
+  // Tiers from localStorage
+  const [tiers, setTiers] = useState([])
+
+  React.useEffect(() => {
+    const savedTiers = localStorage.getItem('vgtw_referral_tiers')
+    if (savedTiers) {
+      const parsed = JSON.parse(savedTiers)
+
+      // Migration: Check if old percentage-based tiers exist and convert them
+      const needsMigration = parsed.some(t =>
+        (t.name === 'Starter' || t.name === 'Pro') &&
+        parseInt(t.commission) < 100
+      )
+
+      if (needsMigration) {
+        // Replace old tiers with new flat-rate tiers
+        const migratedTiers = [
+          { name: 'Bridge', commission: '1000', description: 'Standard entry level partner status.', color: 'blue' },
+          { name: 'Nexus', commission: '1500', description: 'Elite partner status after 3 successful referrals.', color: 'purple' }
+        ]
+        setTiers(migratedTiers)
+        localStorage.setItem('vgtw_referral_tiers', JSON.stringify(migratedTiers))
+      } else {
+        setTiers(parsed)
+      }
+    } else {
+      const defaultTiers = [
+        { name: 'Bridge', commission: '1000', description: 'Standard entry level partner status.', color: 'blue' },
+        { name: 'Nexus', commission: '1500', description: 'Elite partner status after 3 successful referrals.', color: 'purple' }
+      ]
+      setTiers(defaultTiers)
+      localStorage.setItem('vgtw_referral_tiers', JSON.stringify(defaultTiers))
+    }
+  }, [])
+
   // Handlers
   const handleGenerateCode = (e) => {
     e.preventDefault()
     if (!formData.name || !formData.email) return
     setCodeLoading(true)
 
-    // Simulate API/Email delay
-    setTimeout(() => {
-      const code = `VTX-${formData.name.substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`
-      setGeneratedCode(code)
-      setCodeLoading(false)
-      // Auto-fill code in lead form
-      setLead(prev => ({ ...prev, referralCode: code }))
-    }, 1500)
+    // Generate unique code first
+    const code = `VTX-${formData.name.substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`
+
+    // EmailJS Configuration
+    // REPLACE THESE WITH YOUR ACTUAL EMAILJS CREDENTIALS
+    const SERVICE_ID = 'service_YOUR_SERVICE_ID'; // e.g. service_xyz
+    const TEMPLATE_ID = 'template_YOUR_TEMPLATE_ID'; // e.g. template_abc
+    const PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; // e.g. user_123456
+
+    const templateParams = {
+      to_name: formData.name,
+      to_email: formData.email,
+      referral_code: code,
+      message: `Your exclusive partner referral code is: ${code}`
+    };
+
+    emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY)
+      .then((response) => {
+        console.log('SUCCESS!', response.status, response.text);
+
+        // Save referral to localStorage only on success
+        const referral = {
+          id: Date.now(),
+          code,
+          name: formData.name,
+          email: formData.email,
+          createdAt: new Date().toISOString(),
+          tier: tiers[0]?.name || 'Starter',
+          referralCount: 0,
+          totalEarnings: 0,
+          status: 'Active'
+        };
+
+        const existingReferrals = JSON.parse(localStorage.getItem('vgtw_referrals') || '[]');
+        existingReferrals.unshift(referral);
+        localStorage.setItem('vgtw_referrals', JSON.stringify(existingReferrals));
+        window.dispatchEvent(new Event('storage'));
+
+        setGeneratedCode(code)
+        setCodeLoading(false)
+        setLead(prev => ({ ...prev, referralCode: code }))
+
+      }, (err) => {
+        console.log('FAILED...', err);
+        alert('Failed to send email. Please check your internet connection or try again.');
+        setCodeLoading(false);
+      });
   }
 
   const handleLeadSubmit = (e) => {
@@ -45,6 +119,45 @@ export default function Referral() {
     setLeadSubmitting(true)
     // Simulate API
     setTimeout(() => {
+      // Save lead to localStorage
+      const leadData = {
+        id: Date.now(),
+        ...lead,
+        submittedAt: new Date().toISOString(),
+        status: 'New'
+      };
+
+      const existingLeads = JSON.parse(localStorage.getItem('vgtw_referral_leads') || '[]'); // Fixed naming consistency
+      existingLeads.unshift(leadData);
+      localStorage.setItem('vgtw_referral_leads', JSON.stringify(existingLeads));
+
+      // Update referral count
+      const referrals = JSON.parse(localStorage.getItem('vgtw_referrals') || '[]');
+      const referralIndex = referrals.findIndex(r => r.code === lead.referralCode);
+      if (referralIndex !== -1) {
+        referrals[referralIndex].referralCount++;
+
+        // Find current tier object to get commission
+        // Find current tier object to get flat earning
+        const currentTier = tiers.find(t => t.name === referrals[referralIndex].tier) || tiers[0];
+        const flatEarning = currentTier ? parseInt(currentTier.commission) : 1000;
+
+        // Apply flat earning
+        referrals[referralIndex].totalEarnings += flatEarning;
+
+        // Auto-upgrade logic: upgrade to Nexus (1500) after 3 referrals
+        if (referrals[referralIndex].referralCount >= 3) {
+          const nexusTier = tiers.find(t => t.name === 'Nexus') || tiers[1];
+          if (nexusTier) {
+            referrals[referralIndex].tier = nexusTier.name;
+          }
+        }
+
+        localStorage.setItem('vgtw_referrals', JSON.stringify(referrals));
+      }
+
+      window.dispatchEvent(new Event('storage'));
+
       setLeadSubmitting(false)
       setLeadSuccess(true)
       // Reset after 3s
@@ -75,48 +188,52 @@ export default function Referral() {
             animate={{ opacity: 1, y: 0 }}
             className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-xs uppercase tracking-widest mb-6"
           >
-            Partner Program
+            Partner Engine
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight"
+            className="text-5xl md:text-7xl font-bold text-white mb-6 leading-[0.9] uppercase tracking-tighter"
           >
-            Refer & Earn up to <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">₹1,500 Per Client</span>
+            Revolutionize Your <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Earnings Yield</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto"
+            className="text-lg text-gray-500 mb-12 max-w-2xl mx-auto uppercase tracking-[0.2em] font-medium"
           >
-            Join our network of partners. Simple process, guaranteed payouts, and unlimited earning potential.
+            Join our elite partner network and monetize your professional bridge.
           </motion.p>
 
-          {/* Tiers Visual */}
-          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-16">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="bg-[#0f172a] p-8 rounded-2xl border border-white/10 relative overflow-hidden text-left"
-            >
-              <div className="absolute top-0 right-0 p-4 opacity-10"><FaUserPlus className="text-8xl text-blue-500" /></div>
-              <h3 className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Starter Tier</h3>
-              <div className="text-4xl font-bold text-white mb-2">₹1,000 <span className="text-lg text-gray-500 font-normal">/ client</span></div>
-              <p className="text-blue-400 text-sm font-semibold">For your first 3 referrals</p>
-            </motion.div>
+          {/* Tiers Visual Dynamic */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
+            {tiers.map((tier, idx) => {
+              // Auto-detect premium tier (highest commission or "Nexus")
+              const isPremium = tier.name === 'Nexus' ||
+                parseInt(tier.commission) === Math.max(...tiers.map(t => parseInt(t.commission)))
 
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="bg-gradient-to-br from-blue-900/40 to-purple-900/40 p-8 rounded-2xl border border-blue-500/30 relative overflow-hidden shadow-lg shadow-blue-500/10 text-left"
-            >
-              <div className="absolute top-0 right-0 p-4 opacity-20"><FaChartLine className="text-8xl text-purple-400" /></div>
-              <div className="absolute top-4 right-4 bg-yellow-500/20 text-yellow-400 text-xs font-bold px-2 py-1 rounded">UNLOCKED AFTER 3 SALES</div>
-              <h3 className="text-blue-200 text-sm font-bold uppercase tracking-wider mb-2">Pro Partner</h3>
-              <div className="text-5xl font-bold text-white mb-2">₹1,500 <span className="text-lg text-blue-200 font-normal">/ client</span></div>
-              <p className="text-purple-300 text-sm font-semibold">For every referral after your 3rd</p>
-            </motion.div>
+              return (
+                <motion.div
+                  key={idx}
+                  whileHover={{ y: -10, scale: 1.02 }}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className={`backdrop-blur-xl p-8 rounded-[2.5rem] border relative overflow-hidden text-left group ${isPremium
+                    ? 'bg-gradient-to-br from-purple-900/30 via-blue-900/20 to-[#0f172a]/60 border-purple-500/30 shadow-2xl shadow-purple-500/10'
+                    : 'bg-[#0f172a]/60 border-white/5'
+                    }`}
+                >
+                  <div className={`absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity rotate-12 text-blue-400`}><FaCrown size={120} /></div>
+                  <h3 className="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">{tier.name} Status</h3>
+                  <div className="text-5xl font-black text-white mb-2 tracking-tighter">₹{tier.commission} <span className="text-xs text-gray-500 font-black uppercase tracking-widest">Per Node</span></div>
+                  <p className="text-gray-400 text-xs font-medium leading-relaxed">{tier.description}</p>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -173,21 +290,31 @@ export default function Referral() {
                   <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-green-400 text-2xl">
                     <FaCheck />
                   </div>
-                  <h3 className="text-white font-bold text-xl mb-2">Code Sent Successfully!</h3>
-                  <p className="text-gray-400 text-sm mb-6">Check your email. Here is your code:</p>
+                  <h3 className="text-white font-bold text-xl mb-2">Code Generated!</h3>
+                  <p className="text-gray-400 text-sm mb-6">Your exclusive partner code is ready.</p>
 
-                  <div className="bg-black/40 border border-blue-500/30 rounded-xl p-4 flex items-center justify-between group cursor-pointer" onClick={copyCode}>
-                    <code className="text-2xl font-mono text-blue-400 font-bold">{generatedCode}</code>
+                  <div className="bg-black/40 border border-blue-500/30 rounded-xl p-4 flex items-center justify-between group cursor-pointer hover:bg-black/60 transition-colors" onClick={copyCode}>
+                    <code className="text-3xl font-mono text-blue-400 font-bold tracking-wider">{generatedCode}</code>
                     <FaCopy className="text-gray-500 group-hover:text-white transition-colors" />
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">Click to copy</p>
+                  <p className="text-[10px] text-gray-500 mt-2 uppercase tracking-wider mb-6">Click to copy to clipboard</p>
 
-                  <button
-                    onClick={() => setGeneratedCode(null)}
-                    className="mt-6 text-sm text-gray-400 hover:text-white underline"
-                  >
-                    Generate another code
-                  </button>
+                  <div className="flex flex-col gap-3">
+                    <div className="w-full py-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 font-bold flex flex-col items-center justify-center gap-1">
+                      <div className="flex items-center gap-2">
+                        <FaEnvelope className="text-lg" />
+                        <span>Email Dispatched!</span>
+                      </div>
+                      <span className="text-[10px] uppercase tracking-widest opacity-60">Sent to: {formData.email}</span>
+                    </div>
+
+                    <button
+                      onClick={() => setGeneratedCode(null)}
+                      className="text-xs text-gray-500 hover:text-white transition-colors py-2 mt-4"
+                    >
+                      Generate New Code
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

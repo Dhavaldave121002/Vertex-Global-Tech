@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { FaCalendarAlt, FaTag, FaArrowRight, FaTimes, FaSearch } from 'react-icons/fa'
 import PageHero from '../components/UI/PageHero'
 import SEO from '../components/SEO'
@@ -8,65 +8,81 @@ export default function Blog() {
   const [selectedPost, setSelectedPost] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [searchQuery, setSearchQuery] = useState("")
+  const [posts, setPosts] = useState([])
 
   const categories = ["All", "Technology", "Development", "Design", "Business"]
 
-  const posts = [
-    {
-      id: 1,
-      title: "The Future of Web Development in 2025",
-      category: "Technology",
-      date: "Dec 28, 2025",
-      excerpt: "Exploring the latest trends in AI-driven development, serverless edge computing, and the next generation of web frameworks.",
-      content: "As we move into 2025, web development is undergoing a paradigm shift. AI coding assistants, serverless edge computing, and WebAssembly are no longer just buzzwords but integral parts of the development workflow. Developers are now architects of complex systems rather than just code writers.",
-      image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&q=80&w=2070"
-    },
-    {
-      id: 2,
-      title: "Optimizing React Performance",
-      category: "Development",
-      date: "Dec 15, 2025",
-      excerpt: "Key strategies to ensure your React applications run smoothly on all devices, from mobile to desktop.",
-      content: "React 19 and beyond have introduced powerful concurrent features. However, fundamental optimization techniques like memoization, effective code splitting, and virtualization remain crucial for delivering 60fps experiences on mobile devices.",
-      image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=2070"
-    },
-    {
-      id: 3,
-      title: "UI/UX Best Practices for eCommerce",
-      category: "Design",
-      date: "Nov 30, 2025",
-      excerpt: "How to design interfaces that maximize conversion rates and turn visitors into loyal customers.",
-      content: "In the competitive world of eCommerce, friction is the enemy. We explore how simplified checkout flows, biometric authentication, and personalized product recommendations can significantly boost conversion rates.",
-      image: "https://images.unsplash.com/photo-1586717791821-3f44a5638d4f?auto=format&fit=crop&q=80&w=2070"
-    },
-    {
-      id: 4,
-      title: "The Rise of No-Code Platforms",
-      category: "Business",
-      date: "Nov 12, 2025",
-      excerpt: "Understanding how no-code tools are empowering businesses to launch products faster than ever.",
-      content: "No-code platforms are democratizing software creation. While custom code remains essential for scalar, complex systems, no-code solutions are perfect for MVP validation and internal tools, allowing businesses to move at unprecedented speeds.",
-      image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=2070"
-    },
-    {
-      id: 5,
-      title: "Cybersecurity Essentials for Startups",
-      category: "Technology",
-      date: "Oct 28, 2025",
-      excerpt: "Protecting your digital assets is not optional. Here is a checklist for securing your startup's infrastructure.",
-      content: "Security cannot be an afterthought. From implementing Zero Trust architectures to regular penetration testing, we outline the non-negotiable security practices that every modern startup must adopt to survive in a hostile digital landscape.",
-      image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2070"
-    },
-    {
-      id: 6,
-      title: "Mastering Tailwind CSS",
-      category: "Development",
-      date: "Oct 15, 2025",
-      excerpt: "A deep dive into utility-first CSS and how to build complex, responsive layouts in record time.",
-      content: "Tailwind CSS has revolutionized styling. We look at advanced configuration, creating custom plugins, and how to maintain strict design systems while enjoying the speed and flexibility of utility classes.",
-      image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&q=80&w=2070"
-    }
-  ]
+  React.useEffect(() => {
+    const loadPosts = () => {
+      const saved = localStorage.getItem('vgtw_blog');
+      if (saved) {
+        setPosts(JSON.parse(saved));
+      } else {
+        // Default posts
+        const defaultPosts = [
+          {
+            id: 1,
+            title: "The Future of Web Development in 2025",
+            category: "Technology",
+            date: "Dec 28, 2025",
+            excerpt: "Exploring the latest trends in AI-driven development, serverless edge computing, and the next generation of web frameworks.",
+            content: "As we move into 2025, web development is undergoing a paradigm shift. AI coding assistants, serverless edge computing, and WebAssembly are no longer just buzzwords but integral parts of the development workflow. Developers are now architects of complex systems rather than just code writers.",
+            image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&q=80&w=2070"
+          },
+          {
+            id: 2,
+            title: "Optimizing React Performance",
+            category: "Development",
+            date: "Dec 15, 2025",
+            excerpt: "Key strategies to ensure your React applications run smoothly on all devices, from mobile to desktop.",
+            content: "React 19 and beyond have introduced powerful concurrent features. However, fundamental optimization techniques like memoization, effective code splitting, and virtualization remain crucial for delivering 60fps experiences on mobile devices.",
+            image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=2070"
+          },
+          {
+            id: 3,
+            title: "UI/UX Best Practices for eCommerce",
+            category: "Design",
+            date: "Nov 30, 2025",
+            excerpt: "How to design interfaces that maximize conversion rates and turn visitors into loyal customers.",
+            content: "In the competitive world of eCommerce, friction is the enemy. We explore how simplified checkout flows, biometric authentication, and personalized product recommendations can significantly boost conversion rates.",
+            image: "https://images.unsplash.com/photo-1586717791821-3f44a5638d4f?auto=format&fit=crop&q=80&w=2070"
+          },
+          {
+            id: 4,
+            title: "The Rise of No-Code Platforms",
+            category: "Business",
+            date: "Nov 12, 2025",
+            excerpt: "Understanding how no-code tools are empowering businesses to launch products faster than ever.",
+            content: "No-code platforms are democratizing software creation. While custom code remains essential for scalar, complex systems, no-code solutions are perfect for MVP validation and internal tools, allowing businesses to move at unprecedented speeds.",
+            image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=2070"
+          },
+          {
+            id: 5,
+            title: "Cybersecurity Essentials for Startups",
+            category: "Technology",
+            date: "Oct 28, 2025",
+            excerpt: "Protecting your digital assets is not optional. Here is a checklist for securing your startup's infrastructure.",
+            content: "Security cannot be an afterthought. From implementing Zero Trust architectures to regular penetration testing, we outline the non-negotiable security practices that every modern startup must adopt to survive in a hostile digital landscape.",
+            image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2070"
+          },
+          {
+            id: 6,
+            title: "Mastering Tailwind CSS",
+            category: "Development",
+            date: "Oct 15, 2025",
+            excerpt: "A deep dive into utility-first CSS and how to build complex, responsive layouts in record time.",
+            content: "Tailwind CSS has revolutionized styling. We look at advanced configuration, creating custom plugins, and how to maintain strict design systems while enjoying the speed and flexibility of utility classes.",
+            image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&q=80&w=2070"
+          }
+        ];
+        setPosts(defaultPosts);
+      }
+    };
+
+    loadPosts();
+    window.addEventListener('storage', loadPosts);
+    return () => window.removeEventListener('storage', loadPosts);
+  }, []);
 
   // Filtering Logic
   const filteredPosts = useMemo(() => {
@@ -76,7 +92,7 @@ export default function Blog() {
         post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     })
-  }, [selectedCategory, searchQuery]);
+  }, [posts, selectedCategory, searchQuery]);
 
   return (
     <div className="bg-[#030712] min-h-screen relative overflow-x-hidden font-sans">
@@ -105,18 +121,27 @@ export default function Blog() {
             <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-3 md:p-4 bg-[#0f172a]/60 backdrop-blur-xl border border-white/10 rounded-2xl max-w-5xl mx-auto shadow-xl shadow-black/20">
               {/* Categories */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 w-full lg:w-auto">
-                {categories.map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 border border-transparent ${selectedCategory === cat
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105 border-blue-500/50'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5 hover:border-white/5'
-                      }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
+                <LayoutGroup>
+                  {categories.map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`relative px-5 py-2.5 rounded-xl text-sm font-black transition-colors duration-300 border border-transparent overflow-hidden ${selectedCategory === cat
+                        ? 'text-white'
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                        }`}
+                    >
+                      <span className="relative z-10 uppercase tracking-widest">{cat}</span>
+                      {selectedCategory === cat && (
+                        <motion.div
+                          layoutId="activeCategory"
+                          className="absolute inset-0 bg-blue-600"
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        />
+                      )}
+                    </button>
+                  ))}
+                </LayoutGroup>
               </div>
 
               {/* Search */}
@@ -135,7 +160,7 @@ export default function Blog() {
 
           {/* Blog Grid */}
           <div className="overflow-hidden">
-            <AnimatePresence mode='wait'>
+            <AnimatePresence mode='popLayout'>
               <motion.div
                 layout
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"

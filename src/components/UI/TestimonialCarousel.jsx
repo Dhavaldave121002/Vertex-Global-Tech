@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaQuoteLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
-const testimonials = [
+const DEFAULT_TESTIMONIALS = [
   {
     id: 1,
     name: "Sarah Johnson",
@@ -28,16 +28,35 @@ const testimonials = [
 
 export default function TestimonialCarousel() {
   const [index, setIndex] = useState(0);
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(timer);
+    const loadTestimonials = () => {
+      const saved = localStorage.getItem('vgtw_testimonials');
+      if (saved) {
+        setItems(JSON.parse(saved));
+      } else {
+        setItems(DEFAULT_TESTIMONIALS);
+      }
+    };
+
+    loadTestimonials();
+    window.addEventListener('storage', loadTestimonials);
+    return () => window.removeEventListener('storage', loadTestimonials);
   }, []);
 
-  const next = () => setIndex((prev) => (prev + 1) % testimonials.length);
-  const prev = () => setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  useEffect(() => {
+    if (items.length === 0) return;
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % items.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [items]);
+
+  const next = () => setIndex((prev) => (prev + 1) % items.length);
+  const prev = () => setIndex((prev) => (prev - 1 + items.length) % items.length);
+
+  if (items.length === 0) return null;
 
   return (
     <div className="relative w-full max-w-4xl mx-auto px-4">
@@ -63,24 +82,24 @@ export default function TestimonialCarousel() {
             className="flex flex-col items-center text-center"
           >
             <div className="w-20 h-20 mb-6 rounded-full p-1 bg-gradient-to-r from-blue-500 to-purple-500">
-              <img src={testimonials[index].image} alt={testimonials[index].name} className="w-full h-full object-cover rounded-full border-2 border-[#030712]" />
+              <img src={items[index].image} alt={items[index].name} className="w-full h-full object-cover rounded-full border-2 border-[#030712]" />
             </div>
             <div className="text-blue-500 text-3xl mb-6 opacity-60">
               <FaQuoteLeft />
             </div>
             <p className="text-xl md:text-2xl text-gray-300 font-light italic mb-8 max-w-2xl leading-relaxed">
-              "{testimonials[index].content}"
+              "{items[index].content}"
             </p>
             <div>
-              <h4 className="text-white font-bold text-lg">{testimonials[index].name}</h4>
-              <p className="text-blue-400 text-sm font-medium">{testimonials[index].role}</p>
+              <h4 className="text-white font-bold text-lg">{items[index].name}</h4>
+              <p className="text-blue-400 text-sm font-medium">{items[index].role}</p>
             </div>
           </motion.div>
         </AnimatePresence>
       </div>
 
       <div className="flex justify-center gap-2 mt-4">
-        {testimonials.map((_, i) => (
+        {items.map((_, i) => (
           <button
             key={i}
             onClick={() => setIndex(i)}

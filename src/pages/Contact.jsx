@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { FaCalendarAlt, FaClock, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaCheck, FaTwitter, FaLinkedin, FaGithub, FaInstagram, FaArrowRight } from 'react-icons/fa';
 import PageHero from '../components/UI/PageHero';
 import SEO from '../components/SEO';
@@ -31,8 +31,45 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('submitting');
+
+    // Save to localStorage
+    const submission = {
+      id: Date.now(),
+      type: activeTab, // 'message' or 'schedule'
+      ...formData,
+      submittedAt: new Date().toISOString(),
+      status: 'New'
+    };
+
+    if (activeTab === 'schedule') {
+      // Save to meetings
+      const existingMeetings = JSON.parse(localStorage.getItem('vgtw_meetings') || '[]');
+      existingMeetings.unshift(submission);
+      localStorage.setItem('vgtw_meetings', JSON.stringify(existingMeetings));
+    } else {
+      // Save to contacts
+      const existingContacts = JSON.parse(localStorage.getItem('vgtw_contacts') || '[]');
+      existingContacts.unshift(submission);
+      localStorage.setItem('vgtw_contacts', JSON.stringify(existingContacts));
+    }
+
+    window.dispatchEvent(new Event('storage'));
+
     setTimeout(() => {
       setStatus('success');
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          service: 'Web Application Development',
+          message: '',
+          date: '',
+          time: ''
+        });
+      }, 3000);
     }, 2000);
   };
 
@@ -62,25 +99,29 @@ export default function Contact() {
           <div className="container mx-auto relative z-10 max-w-6xl">
             <div className="text-center mb-16">
               {/* Toggle */}
-              <div className="inline-flex bg-white/5 p-1 rounded-xl border border-white/10 mx-auto">
-                <button
-                  onClick={() => setActiveTab('message')}
-                  className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'message'
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'text-gray-400 hover:text-white'
-                    }`}
-                >
-                  Send Message
-                </button>
-                <button
-                  onClick={() => setActiveTab('schedule')}
-                  className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'schedule'
-                    ? 'bg-purple-600 text-white shadow-lg'
-                    : 'text-gray-400 hover:text-white'
-                    }`}
-                >
-                  Schedule Consultation
-                </button>
+              <div className="inline-flex bg-white/5 p-1 rounded-xl border border-white/10 mx-auto relative">
+                <LayoutGroup>
+                  {['message', 'schedule'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`relative px-6 py-2.5 rounded-lg text-sm font-bold transition-colors z-10 ${activeTab === tab ? 'text-white' : 'text-gray-400 hover:text-white'
+                        }`}
+                    >
+                      {activeTab === tab && (
+                        <motion.div
+                          layoutId="activeTab"
+                          className={`absolute inset-0 rounded-lg shadow-lg ${tab === 'schedule' ? 'bg-purple-600' : 'bg-blue-600'
+                            }`}
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-20">
+                        {tab === 'message' ? 'Send Message' : 'Schedule Consultation'}
+                      </span>
+                    </button>
+                  ))}
+                </LayoutGroup>
               </div>
             </div>
 
@@ -97,39 +138,30 @@ export default function Contact() {
                     <h3 className="text-2xl font-bold text-white mb-8">Contact Information</h3>
 
                     <div className="space-y-8">
-                      <div className="flex items-start gap-5 group">
-                        <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-xl group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-lg shadow-blue-500/5">
-                          <FaMapMarkerAlt />
-                        </div>
-                        <div>
-                          <h4 className="text-white font-bold text-lg mb-1">Our HQ</h4>
-                          <p className="text-gray-400 leading-relaxed font-medium text-sm">
-                            123 Innovation Drive,<br />Silicon Valley, CA 94025
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-5 group">
-                        <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 text-xl group-hover:bg-purple-600 group-hover:text-white transition-all duration-300 shadow-lg shadow-purple-500/5">
-                          <FaEnvelope />
-                        </div>
-                        <div>
-                          <h4 className="text-white font-bold text-lg mb-1">Email Us</h4>
-                          <p className="text-gray-400 font-medium text-sm">info@vertexglobal.tech</p>
-                          <p className="text-gray-400 font-medium text-sm">support@vertexglobal.tech</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-5 group">
-                        <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-xl group-hover:bg-cyan-600 group-hover:text-white transition-all duration-300 shadow-lg shadow-cyan-500/5">
-                          <FaPhoneAlt />
-                        </div>
-                        <div>
-                          <h4 className="text-white font-bold text-lg mb-1">Call Us</h4>
-                          <p className="text-gray-400 font-medium text-sm">+1 (888) 123-4567</p>
-                          <p className="text-gray-500 text-[10px] mt-1 uppercase tracking-wider font-black">Mon-Fri 9am-6pm PST</p>
-                        </div>
-                      </div>
+                      {[
+                        { icon: FaMapMarkerAlt, title: "Our HQ", desc: <>123 Innovation Drive,<br />Silicon Valley, CA 94025</>, color: "blue", link: "#" },
+                        { icon: FaEnvelope, title: "Email Us", desc: <>info@vertexglobal.tech<br />support@vertexglobal.tech</>, color: "purple", link: "mailto:info@vertexglobal.tech" },
+                        { icon: FaPhoneAlt, title: "Call Us", desc: <>+1 (888) 123-4567<br /><span className="text-gray-500 text-[10px] uppercase tracking-wider font-black">Mon-Fri 9am-6pm PST</span></>, color: "cyan", link: "tel:+18881234567" }
+                      ].map((item, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: 0.3 + (index * 0.1) }}
+                          className="flex items-start gap-5 group"
+                        >
+                          <div className={`w-12 h-12 rounded-xl bg-${item.color}-500/10 flex items-center justify-center text-${item.color}-400 text-xl group-hover:bg-${item.color}-600 group-hover:text-white transition-all duration-300 shadow-lg shadow-${item.color}-500/5`}>
+                            <item.icon />
+                          </div>
+                          <div>
+                            <h4 className="text-white font-bold text-lg mb-1">{item.title}</h4>
+                            <p className="text-gray-400 leading-relaxed font-medium text-sm">
+                              {item.desc}
+                            </p>
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
                   </div>
 

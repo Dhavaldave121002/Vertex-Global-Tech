@@ -7,14 +7,33 @@ import ServiceHero3D from '../../components/UI/ServiceHero3D';
 import SEO from '../../components/SEO';
 
 export default function Maintenance() {
-  const features = [
+  const [features, setFeatures] = React.useState([
     { title: 'Security Updates', icon: 'bi-shield-check', desc: 'We keep your site safe from the latest viruses and hackers.' },
     { title: 'Always Online', icon: 'bi-activity', desc: 'We watch your site 24/7 to make sure it never goes down.' },
     { title: 'Speed Optimization', icon: 'bi-speedometer2', desc: 'We make your site load faster so visitors stay longer.' },
     { title: 'Content Updates', icon: 'bi-pencil-square', desc: 'Need to change a photo or text? We do it for you.' },
     { title: 'Daily Backups', icon: 'bi-hdd', desc: 'We save a copy of your site every day, just in case.' },
     { title: 'Quick Fixes', icon: 'bi-bug', desc: 'If something breaks, we fix it right away.' },
-  ];
+  ]);
+  const [techStack, setTechStack] = React.useState([]);
+  const [faqs, setFaqs] = React.useState([]);
+  const [process, setProcess] = React.useState([]);
+
+  React.useEffect(() => {
+    const loadData = () => {
+      const saved = localStorage.getItem('vgtw_service_maintenance');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.features) setFeatures(data.features);
+        if (data.techStack) setTechStack(data.techStack);
+        if (data.faqs) setFaqs(data.faqs);
+        if (data.process) setProcess(data.process);
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
 
   return (
     <>
@@ -32,7 +51,8 @@ export default function Maintenance() {
           highlight="Support"
           badge="Services"
           subtitle="Keep your digital assets secure, updated, and running at peak performance."
-          variant="maintenance"
+          laptopImage="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=1000"
+          phoneImage="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&q=80&w=500"
         />
 
         {/* INTRODUCTION */}
@@ -87,13 +107,13 @@ export default function Maintenance() {
         </section>
 
         {/* PROCESS TIMELINE (Support Onboarding) */}
-        <ProcessTimeline />
+        <ProcessTimeline customSteps={process} />
 
         {/* TECH STACK (Tools we use) */}
-        <TechStack />
+        <TechStack customStack={techStack} />
 
         {/* FAQ */}
-        <ServiceFAQ category="Maintenance" />
+        <ServiceFAQ category="Maintenance" customFaqs={faqs} />
 
         {/* CTA */}
         <section className="py-24 text-center bg-gradient-to-b from-[#020617] to-[#0f172a]">
