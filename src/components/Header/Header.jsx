@@ -8,9 +8,16 @@ export default function Header(){
       <nav className="navbar navbar-expand-lg">
         <div className="container">
 
-          {/* Brand */}
+          {/* Brand + Logo */}
           <Link to="/" className="navbar-brand d-flex align-items-center">
-            <span className="vg-mark" aria-hidden="true" />
+
+            {/* FIXED LOGO PATH */}
+            <img
+              src="src/assets/vglogo.jpg"
+              alt="Vertex Global Tech Logo"
+              className="vg-logo"
+            />
+
             <div className="vg-brand-text ms-3">
               <span className="title">Vertex Global Tech</span>
               <span className="subtitle">Design • Engineering • Scale</span>
@@ -41,7 +48,7 @@ export default function Header(){
                 <Link to="/about" className="nav-link">About</Link>
               </li>
 
-              {/* CLEANED Services dropdown */}
+              {/* Services dropdown */}
               <li className="nav-item dropdown">
                 <button
                   className="nav-link btn-link dropdown-toggle"
@@ -53,44 +60,17 @@ export default function Header(){
                 </button>
 
                 <ul className="dropdown-menu" aria-labelledby="vgServices">
-
-                  {/* WEBSITE SERVICES – PERFECT */}
-                  <li>
-                    <Link to="/services/informative" className="dropdown-item">
-                      Informative Website
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link to="/services/dynamic" className="dropdown-item">
-                      Dynamic Website
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link to="/services/ecommerce" className="dropdown-item">
-                      E-Commerce Website
-                    </Link>
-                  </li>
+                  <li><Link to="/services/informative" className="dropdown-item">Informative Website</Link></li>
+                  <li><Link to="/services/dynamic" className="dropdown-item">Dynamic Website</Link></li>
+                  <li><Link to="/services/ecommerce" className="dropdown-item">E-Commerce Website</Link></li>
 
                   <li><hr className="dropdown-divider" /></li>
 
-                  {/* APPLICATION – ONLY ONCE */}
-                  <li>
-                    <Link to="/services/application" className="dropdown-item">
-                      Application Development
-                    </Link>
-                  </li>
+                  <li><Link to="/services/application" className="dropdown-item">Application Development</Link></li>
 
                   <li><hr className="dropdown-divider" /></li>
 
-                  {/* UI/UX – ONLY ONCE */}
-                  <li>
-                    <Link to="/services/uiux" className="dropdown-item">
-                      UI/UX Design
-                    </Link>
-                  </li>
-
+                  <li><Link to="/services/uiux" className="dropdown-item">UI/UX Design</Link></li>
                 </ul>
               </li>
 
@@ -115,7 +95,7 @@ export default function Header(){
               <li className="nav-item">
                 <Link to="/referral" className="nav-link">Referral</Link>
               </li>
-              
+
               <li className="nav-item">
                 <Link to="/career" className="nav-link">Career</Link>
               </li>

@@ -10,19 +10,37 @@ export default function Footer(){
         <div className="container">
           <div className="row gy-4">
 
+            {/* Brand + Logo */}
             <div className="col-12 col-md-4">
               <Link to="/" className="footer-brand d-flex align-items-center mb-3">
-                <span className="footer-mark" aria-hidden="true" />
+
+                {/* LOGO IMAGE */}
+                <img 
+                  src="/src/assets/vglogo.jpg" 
+                  alt="Vertex Global Tech Logo" 
+                  className="footer-logo"
+                />
+
                 <div className="ms-3">
                   <div className="f-title">Vertex Global Tech</div>
                   <div className="f-sub">Design • Engineering • Scale</div>
                 </div>
               </Link>
 
-              <p className="f-desc">We design and build fast, secure, high-converting websites and apps. Production-ready engineering with clear timelines.</p>
+              <p className="f-desc">
+                We design and build fast, secure, high-converting websites and apps. 
+                Production-ready engineering with clear timelines.
+              </p>
 
-              <p className="mb-1"><strong>Email:</strong> <a href="mailto:hello@vertexglobaltech.com">hello@vertexglobaltech.com</a></p>
-              <p className="mb-0"><strong>Phone:</strong> <a href="tel:+919876543210">+91 98765 43210</a></p>
+              <p className="mb-1">
+                <strong>Email:</strong> 
+                <a href="mailto:hello@vertexglobaltech.com"> hello@vertexglobaltech.com</a>
+              </p>
+
+              <p className="mb-0">
+                <strong>Phone:</strong> 
+                <a href="tel:+919876543210"> +91 98765 43210</a>
+              </p>
             </div>
 
             <div className="col-6 col-md-2">
@@ -42,7 +60,7 @@ export default function Footer(){
                 <li><Link to="/services/dynamic">Dynamic Website</Link></li>
                 <li><Link to="/services/ecommerce">E-Commerce</Link></li>
                 <li><Link to="/services/application">Application Dev</Link></li>
-                <li><Link to="/services/uiux-web">UI/UX</Link></li>
+                <li><Link to="/services/uiux">UI/UX</Link></li>
               </ul>
             </div>
 
@@ -50,14 +68,14 @@ export default function Footer(){
               <h6 className="f-head">Newsletter</h6>
               <p className="text-muted">Join our updates — product releases and special offers. No spam.</p>
 
-              <form className="d-flex" onSubmit={(e)=>e.preventDefault()} aria-label="Subscribe to newsletter">
-                <input className="form-control f-input me-2" type="email" placeholder="Your work email" aria-label="Email" />
+              <form className="d-flex" onSubmit={(e)=>e.preventDefault()}>
+                <input className="form-control f-input me-2" type="email" placeholder="Your work email" />
                 <button className="btn f-btn" type="submit">Subscribe</button>
               </form>
 
-              <div className="f-social mt-3" aria-hidden="true">
-                <a className="social" href="#" tabIndex={-1}>LinkedIn</a>
-                <a className="social ms-3" href="#" tabIndex={-1}>Twitter</a>
+              <div className="f-social mt-3">
+                <a className="social" href="#">LinkedIn</a>
+                <a className="social ms-3" href="#">Twitter</a>
               </div>
             </div>
 

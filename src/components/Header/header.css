@@ -27,20 +27,25 @@
   border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
-/* Navbar padding reduced, but readable */
+/* Navbar padding */
 .vg-header .navbar {
   padding: 10px 0;
   font-size: var(--vg-font-sz);
 }
 
-/* brand mark */
-.vg-mark {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  background: conic-gradient(from 120deg, var(--vg-accent2), var(--vg-accent1));
-  box-shadow: 0 8px 28px rgba(13,110,253,0.14);
-  display:inline-block;
+/* ---------- LOGO STYLE (ADDED) ---------- */
+.vg-logo {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 6px;        /* optional – remove if logo must stay square */
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+}
+
+@media (max-width: 576px) {
+  .vg-logo {
+    height: 34px;
+  }
 }
 
 /* brand copy */
@@ -58,7 +63,7 @@
   margin-top: 2px;
 }
 
-/* NAV links: bold, high-contrast */
+/* NAV links */
 .navbar-nav .nav-link {
   color: var(--vg-text);
   font-weight: 800;
@@ -68,7 +73,7 @@
   letter-spacing: 0.12px;
 }
 
-/* CTA link on header */
+/* CTA */
 .nav-cta {
   background: var(--vg-cta-bg);
   color: #fff !important;
@@ -78,7 +83,7 @@
   font-weight:800;
 }
 
-/* Emphasis on hover/focus */
+/* link hover */
 .navbar-nav .nav-link:hover,
 .navbar-nav .nav-link:focus {
   background: linear-gradient(90deg, rgba(13,110,253,0.12), rgba(13,202,240,0.06));
@@ -86,7 +91,7 @@
   transform: translateY(-1px);
 }
 
-/* Remove native button look for dropdown toggles */
+/* Dropdown toggle clean */
 .btn-link {
   background: transparent;
   border: none;
@@ -96,7 +101,7 @@
   border-radius: 10px;
 }
 
-/* Dropdown panel — very visible and legible */
+/* Dropdown menu */
 .dropdown-menu {
   min-width: 240px;
   background: var(--vg-drop-bg);
@@ -119,36 +124,43 @@
   color: #fff;
 }
 
-/* divider */
-.dropdown-divider { border-color: rgba(255,255,255,0.06); margin:8px 0; }
+.dropdown-divider { 
+  border-color: rgba(255,255,255,0.06); 
+  margin:8px 0; 
+}
 
-/* small indent for subitems */
-.dropdown-item.ps-4 { padding-left: 2rem; }
-
-/* open on hover for desktop and pointer-fine */
+/* open dropdown on hover for desktop */
 @media (min-width: 992px) {
-  .nav-item.dropdown:hover > .dropdown-menu { display:block; margin-top:0; }
+  .nav-item.dropdown:hover > .dropdown-menu { 
+    display:block; 
+    margin-top:0; 
+  }
   .nav-item.dropdown .dropdown-toggle::after { display:none; }
 }
 
-/* toggler contrast */
-.navbar-toggler { border-color: rgba(255,255,255,0.08); }
-.navbar-toggler-icon { filter: invert(1) brightness(1.2); }
+/* Toggler */
+.navbar-toggler { 
+  border-color: rgba(255,255,255,0.08); 
+}
+.navbar-toggler-icon { 
+  filter: invert(1) brightness(1.2); 
+}
 
 /* keyboard focus */
-.navbar-nav .nav-link:focus, .dropdown-item:focus {
+.navbar-nav .nav-link:focus, 
+.dropdown-item:focus {
   outline: 3px solid rgba(13,110,253,0.18);
   outline-offset: 4px;
   border-radius: 8px;
 }
 
-/* mobile spacing */
+/* mobile */
 @media (max-width: 991px) {
   .vg-brand-text .subtitle { display: none; }
   .navbar-nav .nav-link { padding: 12px 10px; }
 }
 
-/* LIGHT MODE overrides — preserve strong contrast */
+/* LIGHT MODE */
 @media (prefers-color-scheme: light) {
   :root {
     --vg-bg: rgba(255,255,255,0.9);
