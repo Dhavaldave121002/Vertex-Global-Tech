@@ -1,0 +1,29 @@
+[
+  {
+    "id": "b-1",
+    "title": "Why a Headless CMS?",
+    "slug": "why-headless-cms",
+    "date": "2025-09-10",
+    "thumb": "/assets/blog/headless.jpg",
+    "excerpt": "Headless CMS separates content from presentation — ideal for multi-channel delivery.",
+    "content": "Full article content here..."
+  },
+  {
+    "id": "b-2",
+    "title": "Dynamic vs Static Sites",
+    "slug": "dynamic-vs-static",
+    "date": "2025-08-02",
+    "thumb": "/assets/blog/dynamic-vs-static.jpg",
+    "excerpt": "Choosing between dynamic and static depends on your content, scale, and integrations.",
+    "content": "Full article content here..."
+  },
+  {
+    "id": "b-3",
+    "title": "Optimising API performance",
+    "slug": "optimising-api-performance",
+    "date": "2025-07-22",
+    "thumb": "/assets/blog/api-perf.jpg",
+    "excerpt": "Tips for fast API responses and lower TTFB.",
+    "content": "Full article content here..."
+  }
+]

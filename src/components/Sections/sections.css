@@ -1,0 +1,40 @@
+/* sections.css — shared small utilities for new sections */
+
+.sections { color: #e6eef8; }
+.section-title { font-weight:800; font-size:1.4rem; color: #fff; }
+.section-intro { color: #b8c9d7; max-width:68ch; margin:0 auto; }
+
+/* Feature card */
+.feature-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  padding: 20px; border-radius: 12px; min-height:160px; box-shadow: 0 12px 30px rgba(4,12,24,0.12);
+}
+.feature-icon { width:56px; height:56px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+
+/* Pricing cards */
+.price-card { padding:20px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); text-align:center; box-shadow: 0 14px 36px rgba(4,12,24,0.12); border: 1px solid rgba(255,255,255,0.03); }
+.price-card.featured { transform: translateY(-8px); border: 1px solid rgba(13,110,253,0.12); box-shadow: 0 28px 60px rgba(13,110,253,0.08); }
+.price-head { margin-bottom: 12px; }
+.plan-name { font-weight:700; color:#fff; }
+.plan-price { font-size:1.6rem; margin-top:6px; color: #0dcaf0; font-weight:800; }
+.plan-list { list-style: none; padding: 0; margin: 12px 0 16px; color:#b8c9d7; }
+
+/* Tech chips */
+.tech-chip { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.03); color: #fff; font-weight:600; }
+.chip-icon { opacity: 0.9; }
+.chip-label { font-size:0.95rem; }
+
+/* Testimonials */
+.testimonial-wrap { gap:18px; }
+.tc-btn { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: #fff; width:44px; height:44px; border-radius:8px; font-size:1.4rem; display:inline-flex; align-items:center; justify-content:center; }
+.testimonial-card { max-width:720px; padding:22px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow: 0 14px 40px rgba(4,12,24,0.12); color:#e6eef8; }
+.quote { font-size:1.05rem; margin-bottom:10px; color: #dbeefe; }
+
+/* Contact CTA */
+.contact-cta .cta-inner { background: linear-gradient(90deg, rgba(13,110,253,0.08), rgba(13,202,240,0.04)); box-shadow: 0 14px 46px rgba(4,12,24,0.12); color: #fff; }
+
+/* small responsive tweaks */
+@media (max-width: 768px) {
+  .testimonial-wrap { flex-direction: column; }
+  .price-card.featured { transform: none; }
+}

@@ -1,0 +1,47 @@
+.vg-floating-actions {
+  position: fixed;
+  right: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  z-index: 1080;
+  pointer-events: none;
+}
+
+.vg-float-btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(4,12,24,0.18);
+  transition: transform 180ms ease, opacity 180ms ease;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #fff;
+  backdrop-filter: blur(6px);
+  opacity: 0.96;
+}
+
+.vg-float-whatsapp { background: linear-gradient(180deg,#00b35a,#008e3e); color: white; }
+.vg-float-top { background: linear-gradient(180deg,#1f2937,#111827); color: #fff; }
+
+.vg-float-btn:hover, .vg-float-btn:focus { transform: translateY(-4px) scale(1.03); box-shadow: 0 16px 40px rgba(4,12,24,0.22); outline: none; }
+
+.vg-float-top.hidden { opacity: 0; transform: translateY(8px) scale(.96); pointer-events: none; transition: opacity 200ms ease, transform 200ms ease; }
+.vg-float-top.visible { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+
+.vg-float-btn svg { display: block; width: 20px; height: 20px; }
+.vg-float-whatsapp svg { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.24)); }
+.vg-float-top svg { color: #fff; }
+
+@media (max-width: 420px) {
+  .vg-floating-actions { right: 12px; gap: 10px; }
+  .vg-float-btn { width: 48px; height: 48px; border-radius: 10px; }
+  .vg-float-btn svg { width: 18px; height: 18px; }
+}

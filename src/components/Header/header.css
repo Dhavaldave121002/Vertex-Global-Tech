@@ -1,0 +1,162 @@
+/* header.css — Next-level, high-contrast professional header */
+
+/* ---------- Brand / accent variables (change to match brand) ---------- */
+:root{
+  --vg-bg: rgba(6,10,18,0.55);         /* glass background */
+  --vg-backdrop: blur(8px);
+  --vg-text: #f7fbff;                  /* main nav text */
+  --vg-sub: rgba(247,250,255,0.72);    /* subtitle text */
+  --vg-accent1: #0dcaf0;               /* cyan */
+  --vg-accent2: #0d6efd;               /* blue */
+  --vg-cta-bg: linear-gradient(90deg,var(--vg-accent2),var(--vg-accent1));
+  --vg-panel: rgba(255,255,255,0.03);
+  --vg-strong: rgba(255,255,255,0.08);
+  --vg-drop-bg: rgba(3,7,14,0.98);
+  --vg-radius: 12px;
+  --vg-font-sz: 1rem;
+}
+
+/* Sticky, compact header */
+.vg-header {
+  position: sticky;
+  top: 0;
+  z-index: 1100;
+  backdrop-filter: var(--vg-backdrop);
+  -webkit-backdrop-filter: var(--vg-backdrop);
+  background: var(--vg-bg);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Navbar padding reduced, but readable */
+.vg-header .navbar {
+  padding: 10px 0;
+  font-size: var(--vg-font-sz);
+}
+
+/* brand mark */
+.vg-mark {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: conic-gradient(from 120deg, var(--vg-accent2), var(--vg-accent1));
+  box-shadow: 0 8px 28px rgba(13,110,253,0.14);
+  display:inline-block;
+}
+
+/* brand copy */
+.vg-brand-text .title {
+  display:block;
+  font-weight:900;
+  color: var(--vg-text);
+  font-size: 1.02rem;
+  letter-spacing: 0.2px;
+}
+.vg-brand-text .subtitle {
+  display:block;
+  font-size: 0.68rem;
+  color: var(--vg-sub);
+  margin-top: 2px;
+}
+
+/* NAV links: bold, high-contrast */
+.navbar-nav .nav-link {
+  color: var(--vg-text);
+  font-weight: 800;
+  padding: 10px 14px;
+  border-radius: 10px;
+  transition: all .14s ease;
+  letter-spacing: 0.12px;
+}
+
+/* CTA link on header */
+.nav-cta {
+  background: var(--vg-cta-bg);
+  color: #fff !important;
+  padding: 8px 14px;
+  border-radius: 999px;
+  box-shadow: 0 8px 28px rgba(13,110,253,0.14);
+  font-weight:800;
+}
+
+/* Emphasis on hover/focus */
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus {
+  background: linear-gradient(90deg, rgba(13,110,253,0.12), rgba(13,202,240,0.06));
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Remove native button look for dropdown toggles */
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--vg-text);
+  font-weight:800;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+/* Dropdown panel — very visible and legible */
+.dropdown-menu {
+  min-width: 240px;
+  background: var(--vg-drop-bg);
+  color: var(--vg-text);
+  border-radius: var(--vg-radius);
+  border: 1px solid var(--vg-strong);
+  padding: 6px 0;
+  box-shadow: 0 30px 70px rgba(2,6,12,0.56);
+}
+
+/* Dropdown items */
+.dropdown-item {
+  color: var(--vg-text);
+  font-weight:700;
+  padding: 12px 18px;
+}
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background: linear-gradient(90deg, rgba(13,110,253,0.08), rgba(13,202,240,0.03));
+  color: #fff;
+}
+
+/* divider */
+.dropdown-divider { border-color: rgba(255,255,255,0.06); margin:8px 0; }
+
+/* small indent for subitems */
+.dropdown-item.ps-4 { padding-left: 2rem; }
+
+/* open on hover for desktop and pointer-fine */
+@media (min-width: 992px) {
+  .nav-item.dropdown:hover > .dropdown-menu { display:block; margin-top:0; }
+  .nav-item.dropdown .dropdown-toggle::after { display:none; }
+}
+
+/* toggler contrast */
+.navbar-toggler { border-color: rgba(255,255,255,0.08); }
+.navbar-toggler-icon { filter: invert(1) brightness(1.2); }
+
+/* keyboard focus */
+.navbar-nav .nav-link:focus, .dropdown-item:focus {
+  outline: 3px solid rgba(13,110,253,0.18);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+/* mobile spacing */
+@media (max-width: 991px) {
+  .vg-brand-text .subtitle { display: none; }
+  .navbar-nav .nav-link { padding: 12px 10px; }
+}
+
+/* LIGHT MODE overrides — preserve strong contrast */
+@media (prefers-color-scheme: light) {
+  :root {
+    --vg-bg: rgba(255,255,255,0.9);
+    --vg-text: #031428;
+    --vg-sub: rgba(3,20,40,0.6);
+    --vg-drop-bg: #ffffff;
+    --vg-strong: rgba(6,20,40,0.06);
+  }
+  .vg-header { border-bottom-color: rgba(6,20,40,0.06); }
+  .nav-cta { color:#fff; }
+}

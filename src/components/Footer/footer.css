@@ -1,0 +1,80 @@
+/* footer.css — clear, premium footer with strong contrast */
+
+/* variables */
+:root{
+  --f-bg: #021826;
+  --f-text: #eaf6ff;
+  --f-muted: #9fb8cf;
+  --accent: linear-gradient(90deg,#0d6efd,#0dcaf0);
+  --panel: rgba(255,255,255,0.03);
+  --btn-bg: linear-gradient(90deg,#0d6efd,#0dcaf0);
+}
+
+/* base */
+.vg-footer { background: var(--f-bg); color: var(--f-text); border-top: 1px solid rgba(255,255,255,0.04); }
+
+/* brand */
+.footer-mark {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: conic-gradient(from 120deg,#0d6efd,#0dcaf0);
+  box-shadow: 0 10px 30px rgba(13,110,253,0.12);
+}
+.f-title { font-weight:900; color:#fff; }
+.f-sub { color: rgba(234,246,255,0.72); font-size:0.78rem; margin-top:2px; }
+
+/* description */
+.f-desc { color: var(--f-muted); max-width: 46ch; line-height:1.6; margin-top:10px; }
+
+/* headings and links */
+.f-head { color:#fff; font-weight:900; margin-bottom:8px; }
+.f-links a { color: var(--f-text); display:block; padding:6px 0; font-weight:700; text-decoration:none; opacity:0.95; }
+.f-links a:hover, .f-links a:focus { color:#fff; opacity:1; text-decoration:underline; }
+
+/* newsletter input */
+.f-input {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--f-text);
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+.f-input::placeholder { color: rgba(234,246,255,0.44); }
+
+/* subscribe button */
+.f-btn {
+  background: var(--btn-bg);
+  color: #fff;
+  font-weight:800;
+  padding: 8px 12px;
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(13,110,253,0.12);
+  border: none;
+}
+
+/* social */
+.social { color: var(--f-text); text-decoration:none; font-weight:800; opacity:0.95; }
+.social:hover { opacity:1; text-decoration:underline; }
+
+/* bottom */
+.footer-bottom { border-top: 1px solid rgba(255,255,255,0.02); color: var(--f-muted); padding-top:12px; }
+
+/* responsive */
+@media (max-width:767px) {
+  .f-desc { max-width: 100%; }
+  .footer-bottom { text-align:center; }
+}
+
+/* light mode adjustments keep high contrast */
+@media (prefers-color-scheme: light){
+  :root{
+    --f-bg: #f7fbfe;
+    --f-text: #061428;
+    --f-muted: #32506b;
+    --btn-bg: linear-gradient(90deg,#0d6efd,#0dcaf0);
+  }
+  .vg-footer { background: var(--f-bg); color: var(--f-text); border-top-color: rgba(6,20,40,0.06); }
+  .f-links a { color: var(--f-text); }
+  .f-input { background: #fff; border-color: rgba(6,20,40,0.06); color: var(--f-text); }
+}

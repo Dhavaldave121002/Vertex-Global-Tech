@@ -1,0 +1,75 @@
+/* contact.css — styles for Contact page (component-level) */
+
+:root{
+  --accent1: #0dcaf0;
+  --accent2: #0d6efd;
+  --muted: #9fb8cf;
+  --card-bg: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+
+/* page base */
+.contact-page { color: #eaf6ff; background: transparent; }
+
+/* cards */
+.form-card, .contact-card, .map-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(2,10,22,0.36);
+  color: #eaf6ff;
+}
+
+/* inputs (higher contrast) */
+.form-control, .form-select {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: #eaf6ff;
+}
+.form-control::placeholder { color: rgba(234,246,255,0.46); }
+.form-label { font-weight:700; color:#fff; }
+.invalid-feedback { color: #ffcccb; font-weight:700; }
+
+/* buttons */
+.btn-primary {
+  background: linear-gradient(90deg,var(--accent2),var(--accent1));
+  border: none;
+  font-weight:800;
+  box-shadow: 0 10px 30px rgba(13,110,253,0.12);
+}
+.btn-outline-success {
+  border: 1px solid rgba(46,204,113,0.12);
+  color: #dff7ea;
+}
+
+/* map placeholder */
+.map-placeholder {
+  height: 220px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  border-radius: 0 0 12px 12px;
+  text-align:center;
+  padding: 24px;
+  color: #cfe8fb;
+}
+
+/* helper */
+.lead { color: #cfe8fb; }
+.card h4, .card h5, .card h6 { color: #fff; }
+
+/* small screens */
+@media (max-width: 991px) {
+  .map-placeholder { height: 180px; }
+}
+
+/* light mode */
+@media (prefers-color-scheme: light) {
+  :root { --card-bg: #fff; }
+  .contact-page { color: #061428; }
+  .form-card, .contact-card, .map-card { background: #fff; color: #061428; border-color: rgba(6,20,40,0.06); box-shadow: 0 8px 26px rgba(6,20,40,0.06); }
+  .form-control, .form-select { background:#fff; color:#061428; border-color: rgba(6,20,40,0.06); }
+  .btn-primary { color: #fff; }
+  .btn-outline-success { color: #164a1a; }
+}

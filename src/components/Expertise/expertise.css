@@ -1,0 +1,22 @@
+/* expertise.css */
+.expertise-section { --card-radius: 14px; color: #e6eef8; }
+
+.section-title { font-weight: 800; font-size: 1.5rem; margin-bottom: 6px; color: #fff; }
+.section-intro { max-width: 64ch; margin: 0 auto; color: #b9cbe0; }
+
+/* flipping */
+.flip-card { width: 100%; perspective: 1100px; cursor: pointer; padding: 6px; outline: none; }
+.flip-card:focus { box-shadow: 0 12px 40px rgba(13,110,253,0.12); transform: translateY(-2px); }
+.flip-card-inner { position: relative; width: 100%; min-height: 220px; transform-style: preserve-3d; transition: transform 550ms cubic-bezier(.2,.9,.2,1); border-radius: calc(var(--card-radius) - 6px); }
+.flip-card.is-flipped .flip-card-inner { transform: rotateY(180deg); }
+.flip-card-face { position:absolute; inset:0; backface-visibility: hidden; display:flex; flex-direction:column; justify-content:center; padding:22px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow: 0 12px 30px rgba(4,12,24,0.12); color: #e6eef8; border: 1px solid rgba(255,255,255,0.03); }
+.flip-card-front { transform: translateZ(0); }
+.flip-card-back { transform: rotateY(180deg); }
+
+.icon-wrap { width:56px; height:56px; display:flex; align-items:center; justify-content:center; border-radius:10px; background: linear-gradient(90deg,#0d6efd15,#0dcaf015); margin-bottom:12px; }
+.card-title { font-size:1.125rem; font-weight:700; margin:0 0 6px; }
+.card-sub { margin:0; color:#b9cbe0; }
+.back-list { margin:0; padding-left:1.1rem; color:#dbeefe; line-height:1.65; }
+.link-cta { color: rgba(255,255,255,0.85); font-size:0.9rem; }
+@media (max-width:575px){ .flip-card-inner{ min-height:240px; } }
+@media (prefers-reduced-motion: reduce){ .flip-card-inner{ transition:none } }

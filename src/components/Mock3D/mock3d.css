@@ -1,0 +1,68 @@
+/* mock3d.css - stack + robot, optimized */
+
+.mock-3d {
+  position: relative;
+  width: 340px;
+  height: 300px;
+  perspective: 900px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* stacked cards */
+.mock-stack {
+  position: relative;
+  width: 220px;
+  height: 170px;
+  transform-style: preserve-3d;
+  transition: transform 600ms cubic-bezier(.2,.9,.2,1);
+  z-index: 6;
+}
+.mock-card {
+  position: absolute;
+  width: 220px;
+  height: 170px;
+  border-radius: 12px;
+  box-shadow: 0 18px 42px rgba(4,12,24,0.18);
+  border: 1px solid rgba(255,255,255,0.03);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  transform-origin: center;
+  color: #e6eef8;
+}
+.mock-card.back { transform: translateZ(-40px) rotateX(6deg) rotateY(-8deg); opacity:0.86; left: -18px; top: -6px; }
+.mock-card.mid { transform: translateZ(-18px) rotateX(4deg) rotateY(-4deg); left: -8px; top: 0; opacity:0.95;}
+.mock-card.front { transform: translateZ(0); left: 0; top: 8px; padding: 14px; }
+
+/* front content */
+.front-top { height: 10px; width: 58%; border-radius: 6px; background: linear-gradient(90deg,#0d6efd33,#0dcaf033); margin-bottom:12px; }
+.front-mid { display:flex; flex-direction:column; gap:8px; }
+.fm-line { height: 10px; background: rgba(255,255,255,0.03); border-radius:6px; }
+.fm-line.short { width: 48%; }
+
+/* CTA */
+.front-cta { margin-top: 10px; height: 34px; width: 60%; background: linear-gradient(90deg,#0d6efd,#0dcaf0); border-radius:8px; box-shadow: 0 10px 26px rgba(13,110,253,0.12); }
+
+/* robot container */
+.robot-container {
+  position: absolute;
+  right: -10px;
+  bottom: -6px;
+  z-index: 8;
+  transform: translateZ(32px) translateX(6px);
+}
+.robot { width: 160px; height: auto; display:block; transition: transform 700ms cubic-bezier(.2,.9,.2,1); }
+
+/* hover effects (desktop) */
+.mock-3d:hover .mock-stack { transform: translateY(-10px) rotateX(4deg) rotateY(6deg) translateZ(8px); }
+.mock-3d:hover .robot { transform: translateY(-8px) rotateZ(-4deg) scale(1.02); filter: drop-shadow(0 16px 34px rgba(13,110,253,0.12)); }
+
+/* hide on small screens */
+@media (max-width: 880px) {
+  .mock-3d { display:none; }
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .mock-stack, .robot { transition: none !important; transform: none !important; }
+}

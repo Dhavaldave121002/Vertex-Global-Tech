@@ -1,0 +1,36 @@
+/* service-pricing.css - shared look for service and pricing pages */
+
+.sp-hero {
+  padding: 48px 0;
+  background: linear-gradient(180deg,#071226 0%, #041827 100%);
+  color: #e6eef8;
+}
+.sp-hero .container { position: relative; }
+.sp-breadcrumb { color: rgba(255,255,255,0.72); margin-bottom: 8px; }
+
+.sp-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 18px 44px rgba(4,12,24,0.16);
+  border: 1px solid rgba(255,255,255,0.03);
+  color: #e6eef8;
+}
+
+.sp-grid { gap: 20px; }
+
+.sp-section-title { font-size: 1.5rem; font-weight:800; color: #fff; margin-bottom: 8px; }
+
+.sp-feature-list { list-style: none; padding-left: 0; color: #cfe8fb; }
+.sp-feature-list li { margin-bottom: 8px; }
+
+.sp-cta { margin-top: 16px; }
+
+.pricing-table { display:flex; gap:16px; flex-wrap:wrap; }
+.pricing-plan { flex:1 1 260px; min-width:220px; border-radius:12px; padding:18px; background: linear-gradient(180deg, #041226, #06182b); border: 1px solid rgba(255,255,255,0.04); box-shadow: 0 12px 36px rgba(4,12,24,0.16);}
+.pricing-plan .price { font-size:1.6rem; color:#0dcaf0; font-weight:800; }
+.pricing-plan.featured { border-color: rgba(13,110,253,0.12); transform: translateY(-8px); box-shadow: 0 28px 60px rgba(13,110,253,0.08); }
+
+@media (max-width: 880px) {
+  .pricing-table { flex-direction: column; }
+}

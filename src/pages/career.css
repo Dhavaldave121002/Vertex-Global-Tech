@@ -1,0 +1,72 @@
+/* career.css — styles for Career page (drop into same folder) */
+
+:root{
+  --accent1: #0dcaf0;
+  --accent2: #0d6efd;
+  --muted: #9fb8cf;
+  --card-bg: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+
+/* page base */
+.career-page { color: #eaf6ff; }
+
+/* hero */
+.career-hero .eyebrow { color: var(--accent2); font-weight:800; letter-spacing:0.6px; }
+.career-hero h1 { font-weight:900; margin-top:6px; margin-bottom:6px; }
+.career-hero .lead { color: #cfe8fb; }
+
+/* job card */
+.job-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: 12px;
+  box-shadow: 0 14px 40px rgba(2,10,22,0.28);
+}
+.job-meta { min-width:110px; text-align:center; }
+.job-type {
+  display:inline-block; padding:6px 8px; border-radius:8px; background: rgba(255,255,255,0.02); color:#dff9ff; font-weight:800; font-size:0.78rem;
+}
+.job-location { font-size:0.8rem; color: #cfe8fb; margin-top:6px; }
+
+/* title */
+.job-title { font-weight:800; color:#fff; margin-right:12px; }
+
+/* skill chips */
+.skill-chip {
+  display:inline-block; background: rgba(255,255,255,0.02); color:#e9f7ff; padding:6px 8px; border-radius:999px; font-weight:700; font-size:0.8rem;
+}
+
+/* job details */
+.job-details { margin-top:12px; background: rgba(255,255,255,0.01); padding:12px; border-radius:8px; border: 1px solid rgba(255,255,255,0.02); }
+
+/* apply card */
+.apply-card, .recruiter-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(2,10,22,0.28);
+}
+.apply-card .form-label { color: #fff; font-weight:700; font-size:0.85rem; }
+.form-text { color: #cfe8fb; }
+
+/* small text */
+.small { color: #cfe8fb; }
+
+/* buttons */
+.btn-outline-light { color: #eaf6ff; border-color: rgba(255,255,255,0.06); }
+
+/* responsive tweaks */
+@media (max-width: 991px) {
+  .job-meta { min-width: 90px; }
+  .skill-chip { margin-bottom:6px; }
+}
+
+/* light mode */
+@media (prefers-color-scheme: light) {
+  :root { --card-bg: #fff; }
+  .career-page { color: #061428; }
+  .job-card, .apply-card, .recruiter-card { background: #fff; color: #061428; border-color: rgba(6,20,40,0.06); box-shadow: 0 8px 24px rgba(6,20,40,0.04); }
+  .job-type { background: rgba(6,20,40,0.04); color: #061428; }
+  .skill-chip { background: rgba(6,20,40,0.04); color: #061428; }
+  .form-text { color: #32506b; }
+}
