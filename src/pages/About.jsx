@@ -1,8 +1,24 @@
 // src/pages/About.jsx
 import React from 'react'
-import About from '../components/About/About'    // re-uses the component
-import '../components/About/about.css'           // make sure styles are loaded (if not imported inside component)
+import './about.css'         // keep your existing styles here
+import Hero from '../components/About/Hero'
+import MissionVision from '../components/About/MissionVision'
+import Values from '../components/About/Values'
+import Timeline from '../components/About/Timeline'
+import Team from '../components/About/Team'
+import StatsCTA from '../components/About/StatsCTA'
 
-export default function AboutPage(){
-  return <About />
+export default function About() {
+  return (
+    <section className="vg-about">
+      <div className="container">
+        <Hero />
+        <MissionVision />
+        <Values />
+        <Timeline />
+        <Team />
+        <StatsCTA />
+      </div>
+    </section>
+  )
 }

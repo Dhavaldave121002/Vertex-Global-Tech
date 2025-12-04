@@ -1,26 +1,18 @@
 [
   {
     "id": "proj-1",
-    "title": "Vertex Corporate CMS",
-    "thumb": "/assets/projects/vertex-corp.jpg",
-    "excerpt": "Headless CMS site with dynamic team & case studies.",
-    "description": "A robust CMS-driven site using Strapi + Next.js, with dynamic case studies and SEO-first architecture.",
-    "stack": ["Next.js", "Strapi", "Vercel"]
+    "title": "Inventory Platform",
+    "thumb": "/assets/projects/inventory.jpg",
+    "excerpt": "Headless CMS + admin for managing stock and sales.",
+    "description": "Full-featured inventory management with roles, CSV import, and reporting.",
+    "stack": ["Next.js","Strapi","Postgres"]
   },
   {
     "id": "proj-2",
-    "title": "Local Shop eCommerce",
-    "thumb": "/assets/projects/local-shop.jpg",
-    "excerpt": "Small store with product management and payment integration.",
-    "description": "WooCommerce + custom integrations, payment & inventory sync.",
-    "stack": ["WordPress", "WooCommerce", "Stripe"]
-  },
-  {
-    "id": "proj-3",
-    "title": "SaaS Landing + Blog",
-    "thumb": "/assets/projects/saas-landing.jpg",
-    "excerpt": "Lead-gen landing with blog and analytics.",
-    "description": "Landing built with server-side rendering and marketing integrations.",
-    "stack": ["React", "Netlify CMS", "Google Analytics"]
+    "title": "Marketplace",
+    "thumb": "/assets/projects/marketplace.jpg",
+    "excerpt": "Multi-vendor marketplace with payments and seller dashboards.",
+    "description": "Custom checkout flows, product management and shipping integrations.",
+    "stack": ["React","Node","Stripe"]
   }
 ]

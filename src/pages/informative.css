@@ -1,0 +1,53 @@
+/* src/pages/informative.css - styles used by Informative page */
+:root{
+  --vg-accent1: #0dcaf0;
+  --vg-accent2: #0d6efd;
+  --card-bg: rgba(255,255,255,0.02);
+  --muted: #9fb8cf;
+  --text: #eaf6ff;
+}
+
+.informative-page { color: var(--text); }
+
+/* HERO */
+.inf-hero { padding: 48px 0; background: linear-gradient(180deg,#071125 0%, #07131a 100%); }
+.eyebrow { color: var(--vg-accent2); font-weight:800; }
+.display-5 { font-weight:800; color: var(--text); }
+.lead { color: rgba(234,246,255,0.78); }
+
+/* Benefit cards */
+.benefit-card { background: var(--card-bg); border-radius: 10px; padding: 16px; box-shadow: 0 12px 36px rgba(2,10,22,0.26); }
+
+/* Portfolio */
+.portfolio-card { border-radius: 12px; overflow: hidden; background: var(--card-bg); border:1px solid rgba(255,255,255,0.03); box-shadow: 0 14px 40px rgba(2,10,22,0.36); }
+.portfolio-card img { height: 180px; object-fit: cover; }
+
+/* Process */
+.process-step { background: transparent; padding: 12px; border-radius: 10px; }
+
+/* Pricing */
+.price-card { background: var(--card-bg); border-radius: 12px; padding: 18px; text-align:center; border:1px solid rgba(255,255,255,0.03); }
+.price-card.featured { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(2,10,22,0.4); }
+
+/* CTA */
+.cta-card { background: var(--card-bg); border-radius: 12px; padding: 20px; border:1px solid rgba(255,255,255,0.03); }
+
+/* modal fallback style */
+.modal { background: rgba(2,6,12,0.6); color: var(--text); }
+
+/* forms */
+.form-control, .form-select, textarea { background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color: var(--text); }
+.form-control::placeholder { color: rgba(234,246,255,0.46); }
+
+/* small screens */
+@media (max-width: 767px) {
+  .inf-hero { padding: 28px 0; }
+  .portfolio-card img { height: 140px; }
+}
+
+/* light mode */
+@media (prefers-color-scheme: light) {
+  :root { --card-bg: #fff; --text: #061428; }
+  .informative-page { color: var(--text); }
+  .form-control { background: #fff; color: #061428; border-color: rgba(6,20,40,0.06); }
+}
