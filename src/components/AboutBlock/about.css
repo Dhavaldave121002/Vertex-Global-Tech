@@ -1,10 +1,285 @@
-/* about.css */
-.about-section { color: #e6eef8; }
-.about-eyebrow { color: #0dcaf0; font-weight:700; margin-bottom:6px; }
-.about-title { font-size: clamp(1.6rem, 2.8vw, 2rem); font-weight:800; margin-bottom:12px; color:#fff; }
-.about-text { color:#b8c9d7; max-width:70ch; line-height:1.7; font-size:1.03rem; }
-.about-img-wrap { border-radius:14px; overflow:hidden; box-shadow: 0 18px 42px rgba(4,12,24,0.28); display:inline-block; transition: transform .6s ease, box-shadow .6s ease; }
-.about-img-wrap:hover { transform: translateY(-6px); box-shadow: 0 36px 70px rgba(13,110,253,0.18); }
-.about-img { width:100%; height:auto; display:block; }
-@media (prefers-color-scheme: light){ .about-text{ color:#32506b } }
-@media (max-width: 992px){ .about-img-wrap { width: 100%; } .about-text { max-width: 100%; } }
+/* about.css - FINAL professional, high-performance */
+
+/* ---------- Dark Mode Variables (Matching Hero) ---------- */
+:root {
+  /* Core Colors */
+  --bg-dark: #0f172a; /* Slightly lighter background for sections */
+  --bg-light: #ffffff;
+  --accent1: #0dcaf0; /* Cyan */
+  --accent2: #0d6efd; /* Blue */
+  
+  /* Text & UI Colors */
+  --text-primary: #e6eef8;
+  --text-muted: #b8c9d7;
+  --shadow-dark: rgba(4, 12, 24, 0.35);
+  --border-dark: rgba(255, 255, 255, 0.08);
+}
+
+/* 1. SECTION STYLING */
+.about-section { 
+  color: var(--text-primary); 
+  background-color: var(--bg1, #0f172a); /* Use background from higher-level if defined, otherwise use default */
+  padding-top: 80px; /* Added padding for spacing */
+  padding-bottom: 80px;
+  box-sizing: border-box; /* Added for consistent box model */
+}
+
+/* 2. TYPOGRAPHY */
+.about-eyebrow { 
+  color: var(--accent1); 
+  font-weight: 800; 
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 8px; 
+  font-size: 0.9rem;
+  display: block; /* Ensure proper display */
+}
+
+.about-title { 
+  font-size: clamp(2rem, 3vw, 2.5rem); /* Increased title size */
+  font-weight: 900; 
+  line-height: 1.2;
+  margin-bottom: 16px; 
+  color: var(--text-primary); 
+  margin-top: 0; /* Remove default margin */
+}
+
+.about-text { 
+  color: var(--text-muted); 
+  max-width: 65ch; 
+  line-height: 1.7; 
+  font-size: 1.05rem; 
+  margin-bottom: 24px; /* Added bottom margin for spacing */
+}
+
+/* 3. IMAGE STYLING */
+.about-img-wrap { 
+  position: relative;
+  border-radius: 18px; /* Slightly larger radius for premium feel */
+  overflow: hidden; 
+  /* Deep shadow effect */
+  box-shadow: 0 20px 50px var(--shadow-dark); 
+  display: inline-block; 
+  transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.2, 1), box-shadow 0.4s ease; 
+  max-width: 100%; /* Ensure it doesn't overflow */
+  will-change: transform; /* Performance optimization */
+}
+
+/* Subtle image overlay for blending with dark background */
+.about-img-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Very subtle dark gradient overlay */
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.4s ease; /* Smooth transition */
+}
+
+/* Hover effects - only on devices that support hover */
+@media (hover: hover) and (pointer: fine) {
+  .about-img-wrap:hover { 
+    transform: translateY(-8px); /* More pronounced lift on hover */
+    /* Accent shadow for interaction */
+    box-shadow: 0 40px 80px rgba(13, 110, 253, 0.25); 
+  }
+  
+  .about-img-wrap:hover::after {
+    opacity: 1; /* Show overlay on hover */
+  }
+}
+
+.about-img { 
+  width: 100%; 
+  height: auto; 
+  display: block; 
+  transform: translateZ(0); /* GPU acceleration */
+  transition: transform 0.4s ease; /* Smooth image scaling */
+}
+
+/* 4. CTA CONSISTENCY (Copied from Hero CSS for Primary Button Look) */
+.hero-cta-primary {
+  background: linear-gradient(90deg, var(--accent2), var(--accent1)) !important;
+  border: none !important;
+  font-weight: 800;
+  padding: 14px 24px;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(13, 110, 253, 0.2);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  color: #fff !important;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover effects for buttons */
+@media (hover: hover) and (pointer: fine) {
+  .hero-cta-primary:hover {
+    transform: translateY(-2px); 
+    box-shadow: 0 20px 50px rgba(13, 110, 253, 0.35); 
+  }
+}
+
+/* Active state for buttons */
+.hero-cta-primary:active {
+  transform: translateY(0);
+  transition-duration: 0.1s;
+}
+
+/* Focus state for accessibility */
+.hero-cta-primary:focus {
+  outline: 2px solid var(--accent1);
+  outline-offset: 2px;
+}
+
+/* 5. RESPONSIVE & ACCESSIBILITY */
+@media (max-width: 992px) { 
+  .about-img-wrap { 
+    width: 100%; 
+    border-radius: 14px;
+  } 
+  
+  .about-text { 
+    max-width: 100%; 
+    font-size: 1rem; /* Slightly smaller on tablet */
+  } 
+  
+  .about-section { 
+    padding-top: 60px; /* Reduced padding on smaller screens */
+    padding-bottom: 60px;
+  }
+  
+  .about-title {
+    font-size: 2rem; /* Fixed size on tablet */
+  }
+}
+
+@media (max-width: 768px) {
+  .about-section {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+  
+  .about-title {
+    font-size: 1.75rem;
+  }
+  
+  .about-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  
+  .hero-cta-primary {
+    padding: 12px 20px;
+    width: 100%; /* Full width on mobile */
+    text-align: center;
+  }
+}
+
+/* 6. LIGHT MODE OVERRIDES */
+@media (prefers-color-scheme: light) { 
+  :root {
+    --text-primary: #061428;
+    --text-muted: #496681;
+    --shadow-dark: rgba(4, 12, 24, 0.12);
+  }
+  
+  .about-section { 
+    color: var(--text-primary);
+    background-color: var(--bg-light, #ffffff); /* Use light background */
+  }
+  
+  .about-title { 
+    color: var(--text-primary); 
+  }
+  
+  .about-text { 
+    color: var(--text-muted); 
+  }
+
+  .about-img-wrap {
+    box-shadow: 0 16px 40px var(--shadow-dark);
+  }
+  
+  @media (hover: hover) and (pointer: fine) {
+    .about-img-wrap:hover {
+      /* Lighter blue shadow on hover for light mode */
+      box-shadow: 0 36px 70px rgba(13, 110, 253, 0.18); 
+    }
+  }
+  
+  /* Remove dark gradient overlay in light mode */
+  .about-img-wrap::after {
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+}
+
+/* 7. REDUCED MOTION SUPPORT */
+@media (prefers-reduced-motion: reduce) {
+  .about-img-wrap,
+  .hero-cta-primary,
+  .about-img {
+    transition: none !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  
+  .about-img-wrap::after {
+    transition: none !important;
+  }
+}
+
+/* 8. HIGH CONTRAST MODE SUPPORT */
+@media (prefers-contrast: high) {
+  .about-img-wrap {
+    border: 2px solid currentColor;
+  }
+  
+  .hero-cta-primary {
+    border: 2px solid currentColor !important;
+    background: var(--accent2) !important;
+  }
+}
+
+/* 9. PRINT STYLES */
+@media print {
+  .about-section {
+    background: white !important;
+    color: black !important;
+    padding: 40px 0 !important;
+  }
+  
+  .about-img-wrap {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+  
+  .about-img-wrap::after {
+    display: none !important;
+  }
+  
+  .hero-cta-primary {
+    display: none !important;
+  }
+}
+
+/* 10. TOUCH DEVICE OPTIMIZATIONS */
+@media (hover: none) and (pointer: coarse) {
+  .about-img-wrap:active {
+    transform: translateY(-4px) scale(0.98);
+    box-shadow: 0 20px 40px rgba(13, 110, 253, 0.25);
+    transition-duration: 0.1s;
+  }
+  
+  .hero-cta-primary:active {
+    transform: translateY(0) scale(0.98);
+    transition-duration: 0.1s;
+  }
+}

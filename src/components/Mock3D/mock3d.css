@@ -1,4 +1,11 @@
-/* mock3d.css - stack + robot, optimized */
+/* mock3d.css - stack + robot, FINAL optimized */
+
+/* ---------- Keyframes for subtle floating animation ---------- */
+@keyframes robot-float {
+    0% { transform: translateY(0) translateZ(32px) translateX(6px); }
+    50% { transform: translateY(-4px) translateZ(32px) translateX(6px); }
+    100% { transform: translateY(0) translateZ(32px) translateX(6px); }
+}
 
 .mock-3d {
   position: relative;
@@ -10,59 +17,186 @@
   justify-content: center;
 }
 
-/* stacked cards */
+/* 1. Stacked Cards */
 .mock-stack {
   position: relative;
   width: 220px;
   height: 170px;
   transform-style: preserve-3d;
-  transition: transform 600ms cubic-bezier(.2,.9,.2,1);
+  transition: transform 600ms cubic-bezier(0.2, 0.9, 0.2, 1); /* Smooth spring-like transition */
   z-index: 6;
 }
+
 .mock-card {
   position: absolute;
   width: 220px;
   height: 170px;
   border-radius: 12px;
-  box-shadow: 0 18px 42px rgba(4,12,24,0.18);
-  border: 1px solid rgba(255,255,255,0.03);
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  box-shadow: 0 16px 40px rgba(4, 12, 24, 0.22); /* Stronger shadow */
+  border: 1px solid rgba(255, 255, 255, 0.05); /* Slightly more visible border */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)); /* Clearer translucent background */
   transform-origin: center;
   color: #e6eef8;
+  /* Ensure card transitions are smooth */
+  transition: transform 600ms cubic-bezier(0.2, 0.9, 0.2, 1), opacity 300ms ease;
+  backface-visibility: hidden; /* Added for better 3D performance */
 }
-.mock-card.back { transform: translateZ(-40px) rotateX(6deg) rotateY(-8deg); opacity:0.86; left: -18px; top: -6px; }
-.mock-card.mid { transform: translateZ(-18px) rotateX(4deg) rotateY(-4deg); left: -8px; top: 0; opacity:0.95;}
-.mock-card.front { transform: translateZ(0); left: 0; top: 8px; padding: 14px; }
 
-/* front content */
-.front-top { height: 10px; width: 58%; border-radius: 6px; background: linear-gradient(90deg,#0d6efd33,#0dcaf033); margin-bottom:12px; }
-.front-mid { display:flex; flex-direction:column; gap:8px; }
-.fm-line { height: 10px; background: rgba(255,255,255,0.03); border-radius:6px; }
-.fm-line.short { width: 48%; }
+.mock-card.back { 
+  transform: translateZ(-50px) rotateX(8deg) rotateY(-10deg); 
+  opacity: 0.8; 
+  left: -22px; 
+  top: -10px; 
+}
 
-/* CTA */
-.front-cta { margin-top: 10px; height: 34px; width: 60%; background: linear-gradient(90deg,#0d6efd,#0dcaf0); border-radius:8px; box-shadow: 0 10px 26px rgba(13,110,253,0.12); }
+.mock-card.mid { 
+  transform: translateZ(-25px) rotateX(5deg) rotateY(-5deg); 
+  left: -10px; 
+  top: -2px; 
+  opacity: 0.9; 
+}
 
-/* robot container */
+.mock-card.front { 
+  transform: translateZ(0); 
+  left: 0; 
+  top: 8px; 
+  padding: 14px; 
+  z-index: 3; /* Ensure front card stays on top */
+}
+
+/* Front Card Content (Slight refinements) */
+.front-top { 
+  height: 10px; 
+  width: 65%; 
+  border-radius: 6px; 
+  background: linear-gradient(90deg, #0d6efd40, #0dcaf040); 
+  margin-bottom: 12px; 
+}
+
+.front-mid { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+}
+
+.fm-line { 
+  height: 10px; 
+  background: rgba(255, 255, 255, 0.04); 
+  border-radius: 6px; 
+}
+
+.fm-line.short { 
+  width: 55%; 
+}
+
+/* CTA (Enhanced shadow and width) */
+.front-cta { 
+  margin-top: 14px; 
+  height: 34px; 
+  width: 70%; 
+  background: linear-gradient(90deg, #0d6efd, #0dcaf0); 
+  border-radius: 8px; 
+  box-shadow: 0 12px 30px rgba(13, 110, 253, 0.18); 
+}
+
+/* 2. Robot Container */
 .robot-container {
   position: absolute;
-  right: -10px;
-  bottom: -6px;
+  right: -15px; /* Adjusted position */
+  bottom: -10px; /* Adjusted position */
   z-index: 8;
-  transform: translateZ(32px) translateX(6px);
+  /* Apply continuous float animation */
+  animation: robot-float 4s ease-in-out infinite;
+  will-change: transform; /* Performance optimization */
 }
-.robot { width: 160px; height: auto; display:block; transition: transform 700ms cubic-bezier(.2,.9,.2,1); }
 
-/* hover effects (desktop) */
-.mock-3d:hover .mock-stack { transform: translateY(-10px) rotateX(4deg) rotateY(6deg) translateZ(8px); }
-.mock-3d:hover .robot { transform: translateY(-8px) rotateZ(-4deg) scale(1.02); filter: drop-shadow(0 16px 34px rgba(13,110,253,0.12)); }
+.robot { 
+  width: 160px; 
+  height: auto; 
+  display: block; 
+  transition: transform 700ms cubic-bezier(0.2, 0.9, 0.2, 1), filter 700ms ease; /* Added filter transition */
+  /* Initial shadow for visual separation */
+  filter: drop-shadow(0 10px 20px rgba(4, 12, 24, 0.1));
+  transform-style: preserve-3d; /* Added for better 3D transforms */
+}
 
-/* hide on small screens */
+/* 3. Hover Effects (desktop) */
+@media (hover: hover) and (pointer: fine) {
+  .mock-3d:hover .mock-stack { 
+    transform: translateY(-12px) rotateX(4deg) rotateY(8deg) translateZ(12px); 
+  }
+  
+  .mock-3d:hover .robot-container { 
+    /* Override continuous animation during hover, apply hover transform */
+    animation-play-state: paused; 
+    transform: translateY(-10px) rotateZ(-4deg) scale(1.04) translateZ(32px) translateX(6px); 
+    transition: transform 700ms cubic-bezier(0.2, 0.9, 0.2, 1); /* Added smooth transition */
+  }
+  
+  .mock-3d:hover .robot { 
+    filter: drop-shadow(0 18px 40px rgba(13, 110, 253, 0.2)); 
+  }
+}
+
+/* 4. Hide on small screens */
 @media (max-width: 880px) {
-  .mock-3d { display:none; }
+  .mock-3d { 
+    display: none; 
+  }
 }
 
-/* reduced motion */
+/* 5. Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  .mock-stack, .robot { transition: none !important; transform: none !important; }
+  .mock-stack, 
+  .robot,
+  .robot-container { 
+    transition: none !important; 
+    animation: none !important; 
+    transform: none !important; 
+  }
+  
+  .mock-3d:hover .mock-stack,
+  .mock-3d:hover .robot-container,
+  .mock-3d:hover .robot {
+    transform: none !important;
+    filter: none !important;
+    animation-play-state: running !important;
+  }
+}
+
+/* 6. Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .mock-3d {
+    touch-action: manipulation; /* Prevent scroll on touch interaction */
+  }
+  
+  .mock-3d:active .mock-stack {
+    transform: translateY(-12px) rotateX(4deg) rotateY(8deg) translateZ(12px) scale(0.98); /* Slight scale on touch */
+  }
+  
+  .mock-3d:active .robot-container {
+    animation-play-state: paused;
+    transform: translateY(-10px) rotateZ(-4deg) scale(1.04) translateZ(32px) translateX(6px);
+  }
+}
+
+/* 7. Light mode support */
+@media (prefers-color-scheme: light) {
+  .mock-card {
+    background: linear-gradient(180deg, rgba(6, 20, 40, 0.03), rgba(6, 20, 40, 0.01));
+    border-color: rgba(6, 20, 40, 0.08);
+    color: #061428;
+  }
+  
+  .fm-line {
+    background: rgba(6, 20, 40, 0.03);
+  }
+  
+  .robot {
+    filter: drop-shadow(0 10px 20px rgba(6, 20, 40, 0.08));
+  }
+  
+  .mock-3d:hover .robot {
+    filter: drop-shadow(0 18px 40px rgba(13, 110, 253, 0.15));
+  }
 }

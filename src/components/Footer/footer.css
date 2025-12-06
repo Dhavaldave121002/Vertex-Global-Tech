@@ -1,33 +1,35 @@
 /* =========================================================
-   FOOTER.CSS — Premium Footer with Logo Support
+   FOOTER.CSS — Premium Footer with Logo Support (Final)
    ========================================================= */
 
 /* ---------- Variables ---------- */
 :root {
+  /* Dark Mode */
   --f-bg: #021826;
   --f-text: #eaf6ff;
   --f-muted: #9fb8cf;
-  --accent: linear-gradient(90deg,#0d6efd,#0dcaf0);
-  --panel: rgba(255,255,255,0.03);
-  --btn-bg: linear-gradient(90deg,#0d6efd,#0dcaf0);
+  --f-strong-border: rgba(255, 255, 255, 0.06);
+  --accent1: #0d6efd;
+  --accent2: #0dcaf0;
+  --btn-bg: linear-gradient(90deg, var(--accent1), var(--accent2));
 }
 
 /* ---------- Base Footer ---------- */
 .vg-footer {
   background: var(--f-bg);
   color: var(--f-text);
-  border-top: 1px solid rgba(255,255,255,0.04);
+  border-top: 1px solid var(--f-strong-border);
+  font-size: 0.95rem;
+  box-sizing: border-box; /* Added for better box model */
 }
 
 /* ---------- Brand Section ---------- */
-
-/* LOGO IMAGE */
 .footer-logo {
   height: 45px;
   width: auto;
   object-fit: contain;
   border-radius: 6px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   background: #fff;
   padding: 3px;
 }
@@ -35,59 +37,103 @@
 .f-title {
   font-weight: 900;
   color: #fff;
-  font-size: 1.02rem;
+  font-size: 1.1rem;
+  margin: 0; /* Added to prevent default margins */
 }
 
 .f-sub {
-  color: rgba(234,246,255,0.72);
+  color: rgba(234, 246, 255, 0.72);
   font-size: 0.78rem;
   margin-top: 2px;
+  margin-bottom: 0; /* Added to prevent default margins */
 }
 
 .f-desc {
   color: var(--f-muted);
-  max-width: 46ch;
-  line-height: 1.6;
+  max-width: 50ch;
+  line-height: 1.7;
   margin-top: 10px;
+  margin-bottom: 0; /* Added to prevent default margins */
+}
+
+.f-contact a {
+  color: var(--f-text);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-weight: 700;
+}
+
+.f-contact a:hover {
+  color: var(--accent2);
 }
 
 /* ---------- Footer Headings ---------- */
-
 .f-head {
   color: #fff;
   font-weight: 900;
-  margin-bottom: 8px;
+  margin-bottom: 15px;
+  position: relative;
+  margin-top: 0; /* Added to prevent default margins */
+}
+
+/* Subtle underline effect for headings */
+.f-head::after {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 3px;
+  background: var(--accent2);
+  border-radius: 999px;
+  margin-top: 8px;
 }
 
 /* ---------- Footer Links ---------- */
 .f-links a {
   color: var(--f-text);
   display: block;
-  padding: 6px 0;
-  font-weight: 700;
+  padding: 4px 0;
+  font-weight: 600;
   text-decoration: none;
   opacity: 0.95;
-  transition: 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease, opacity 0.2s ease; /* Added opacity to transition */
+  font-size: 0.9rem;
+  line-height: 1.4; /* Added for better spacing */
 }
 
 .f-links a:hover,
 .f-links a:focus {
-  color: #fff;
+  color: var(--accent2);
   opacity: 1;
-  text-decoration: underline;
+  text-decoration: none;
+  transform: translateX(4px);
 }
 
-/* ---------- Newsletter ---------- */
+/* ---------- Newsletter & Form Styling ---------- */
+.f-muted-text {
+  color: var(--f-muted);
+  font-size: 0.9rem;
+  margin: 0 0 10px 0; /* Added for spacing */
+}
+
 .f-input {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--f-strong-border);
   color: var(--f-text);
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
+  height: 48px;
+  width: 100%; /* Added for better form control */
+  box-sizing: border-box; /* Added for better box model */
+}
+
+.f-input:focus {
+  outline: none;
+  border-color: var(--accent2); /* Added focus state */
+  box-shadow: 0 0 0 2px rgba(13, 202, 240, 0.1); /* Added focus indicator */
 }
 
 .f-input::placeholder {
-  color: rgba(234,246,255,0.44);
+  color: rgba(234, 246, 255, 0.44);
 }
 
 .f-btn {
@@ -95,15 +141,22 @@
   color: #fff;
   font-weight: 800;
   padding: 8px 12px;
-  border-radius: 10px;
-  box-shadow: 0 10px 28px rgba(13,110,253,0.12);
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(13, 110, 253, 0.3);
   border: none;
-  transition: 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  height: 48px;
+  min-width: 100px;
+  cursor: pointer; /* Added for better UX */
 }
 
 .f-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(13,110,253,0.26);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4);
+}
+
+.f-btn:active {
+  transform: translateY(0); /* Added active state */
 }
 
 /* ---------- Social Links ---------- */
@@ -111,32 +164,63 @@
   color: var(--f-text);
   text-decoration: none;
   font-weight: 800;
-  opacity: 0.95;
-  transition: 0.2s ease;
+  opacity: 0.9;
+  transition: color 0.2s ease, opacity 0.2s ease; /* Added opacity to transition */
 }
 
 .f-social .social:hover {
   opacity: 1;
-  text-decoration: underline;
+  color: var(--accent2);
 }
 
 /* ---------- Bottom Section ---------- */
 .footer-bottom {
-  border-top: 1px solid rgba(255,255,255,0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.02);
   color: var(--f-muted);
   padding-top: 12px;
+  font-size: 0.8rem;
 }
 
-/* ---------- Responsive ---------- */
+.footer-bottom a {
+  color: var(--f-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-bottom a:hover {
+  color: var(--accent2);
+}
+
+/* ---------- Responsive Adjustments ---------- */
 @media (max-width: 767px) {
   .f-desc {
     max-width: 100%;
   }
-  .footer-bottom {
+  
+  /* Center bottom text stack on small screens */
+  .footer-bottom .container {
     text-align: center;
+    padding-left: 15px; /* Reduced from 30px for better mobile spacing */
+    padding-right: 15px;
   }
+  
   .footer-logo {
-    height: 36px;
+    height: 38px;
+  }
+  
+  .f-head::after {
+    margin-left: 0;
+  }
+  
+  /* Stack form elements on mobile */
+  .f-input,
+  .f-btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .f-btn {
+    margin-top: 5px;
   }
 }
 
@@ -145,23 +229,67 @@
   :root {
     --f-bg: #f7fbfe;
     --f-text: #061428;
-    --f-muted: #32506b;
-    --btn-bg: linear-gradient(90deg,#0d6efd,#0dcaf0);
+    --f-muted: #496681;
+    --f-strong-border: rgba(6, 20, 40, 0.08);
   }
 
   .vg-footer {
     background: var(--f-bg);
     color: var(--f-text);
-    border-top-color: rgba(6,20,40,0.06);
+    border-top-color: var(--f-strong-border);
+  }
+
+  .f-title {
+    color: var(--f-text);
   }
 
   .f-links a {
     color: var(--f-text);
   }
+  
+  .f-links a:hover {
+    color: var(--accent1);
+  }
+
+  .f-contact a {
+    color: var(--f-text);
+  }
+  
+  .f-contact a:hover {
+    color: var(--accent1);
+  }
 
   .f-input {
     background: #fff;
-    border-color: rgba(6,20,40,0.06);
+    border-color: var(--f-strong-border);
     color: var(--f-text);
+  }
+  
+  .f-input:focus {
+    border-color: var(--accent1);
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
+  }
+
+  .f-social .social {
+    color: var(--f-text);
+  }
+  
+  .f-social .social:hover {
+    color: var(--accent1);
+  }
+
+  .footer-bottom {
+    border-top-color: var(--f-strong-border);
+  }
+  
+  .footer-bottom a:hover {
+    color: var(--accent1);
+  }
+}
+
+/* ---------- Print Styles ---------- */
+@media print {
+  .vg-footer {
+    display: none; /* Typically hide footer when printing */
   }
 }

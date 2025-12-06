@@ -1,22 +1,501 @@
-/* expertise.css */
-.expertise-section { --card-radius: 14px; color: #e6eef8; }
+/* expertise.css - FINAL professional, high-performance 3D flip card styling */
 
-.section-title { font-weight: 800; font-size: 1.5rem; margin-bottom: 6px; color: #fff; }
-.section-intro { max-width: 64ch; margin: 0 auto; color: #b9cbe0; }
+/* ---------- Dark Mode Variables (Default) ---------- */
+:root {
+  /* Core Theming */
+  --bg-section: #0f172a; 
+  --text-primary: #e6eef8; 
+  --text-muted: #9fb8cf;
+  --accent1: #0dcaf0; 
+  --accent2: #0d6efd; 
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-card: 0 16px 40px rgba(4, 12, 24, 0.3);
+  --card-radius: 16px;
+}
 
-/* flipping */
-.flip-card { width: 100%; perspective: 1100px; cursor: pointer; padding: 6px; outline: none; }
-.flip-card:focus { box-shadow: 0 12px 40px rgba(13,110,253,0.12); transform: translateY(-2px); }
-.flip-card-inner { position: relative; width: 100%; min-height: 220px; transform-style: preserve-3d; transition: transform 550ms cubic-bezier(.2,.9,.2,1); border-radius: calc(var(--card-radius) - 6px); }
-.flip-card.is-flipped .flip-card-inner { transform: rotateY(180deg); }
-.flip-card-face { position:absolute; inset:0; backface-visibility: hidden; display:flex; flex-direction:column; justify-content:center; padding:22px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow: 0 12px 30px rgba(4,12,24,0.12); color: #e6eef8; border: 1px solid rgba(255,255,255,0.03); }
-.flip-card-front { transform: translateZ(0); }
-.flip-card-back { transform: rotateY(180deg); }
+/* 1. General Section Styling */
+.expertise-section { 
+  background-color: var(--bg-section);
+  color: var(--text-primary); 
+  padding-top: 60px;
+  padding-bottom: 60px;
+  box-sizing: border-box; /* Added for consistent sizing */
+}
 
-.icon-wrap { width:56px; height:56px; display:flex; align-items:center; justify-content:center; border-radius:10px; background: linear-gradient(90deg,#0d6efd15,#0dcaf015); margin-bottom:12px; }
-.card-title { font-size:1.125rem; font-weight:700; margin:0 0 6px; }
-.card-sub { margin:0; color:#b9cbe0; }
-.back-list { margin:0; padding-left:1.1rem; color:#dbeefe; line-height:1.65; }
-.link-cta { color: rgba(255,255,255,0.85); font-size:0.9rem; }
-@media (max-width:575px){ .flip-card-inner{ min-height:240px; } }
-@media (prefers-reduced-motion: reduce){ .flip-card-inner{ transition:none } }
+.section-title { 
+  font-weight: 900; 
+  font-size: clamp(1.8rem, 2.8vw, 2.4rem); 
+  margin-bottom: 12px; /* Increased spacing */
+  margin-top: 0; /* Reset default */
+  color: var(--text-primary); 
+  text-align: center; /* Ensure center alignment */
+}
+
+.section-intro { 
+  max-width: 68ch; 
+  margin: 0 auto 40px; /* Added bottom margin */
+  color: var(--text-muted); 
+  line-height: 1.7; /* Improved line height */
+  font-size: 1.05rem;
+  text-align: center; /* Ensure center alignment */
+}
+
+/* ---------------------------------------------------- */
+/* 2. 3D FLIP CARD CORE STYLING */
+/* ---------------------------------------------------- */
+.flip-card { 
+  width: 100%; 
+  height: 100%; /* Important for d-flex in parent */
+  perspective: 1400px; /* Enhanced depth perspective */
+  cursor: pointer; 
+  padding: 8px; /* Padding for hover glow/shadow */
+  outline: none;
+  transition: transform 300ms ease, box-shadow 300ms ease; /* Added transition */
+}
+
+/* Hover effects - only on hover-capable devices */
+@media (hover: hover) and (pointer: fine) {
+  .flip-card:focus, 
+  .flip-card:hover:not(.is-flipped) { 
+    box-shadow: 0 12px 40px rgba(13, 110, 253, 0.1); 
+    transform: translateY(-4px); 
+  }
+}
+
+/* The element that flips */
+.flip-card-inner { 
+  position: relative; 
+  width: 100%; 
+  height: 100%; /* Take up 100% of parent height */
+  min-height: 240px; /* Minimum height ensures content fits */
+  transform-style: preserve-3d; 
+  transition: transform 700ms cubic-bezier(0.2, 0.9, 0.2, 1); /* Fixed decimal notation */
+  border-radius: var(--card-radius); 
+}
+
+/* Flipped state */
+.flip-card.is-flipped .flip-card-inner { 
+  transform: rotateY(180deg); 
+}
+
+/* Card Faces */
+.flip-card-face { 
+  position: absolute; 
+  inset: 0; /* top: 0; right: 0; bottom: 0; left: 0; */
+  backface-visibility: hidden; 
+  display: flex; 
+  flex-direction: column; 
+  padding: 30px; /* Increased padding */
+  border-radius: var(--card-radius);
+  
+  /* Consistent dark theme styling */
+  background: var(--card-bg); 
+  box-shadow: var(--shadow-card); 
+  border: 1px solid var(--border-color);
+  box-sizing: border-box; /* Added for consistent sizing */
+  overflow: hidden; /* Prevent content overflow */
+}
+
+.flip-card-front { 
+  justify-content: space-between; /* Push 'Tap to view' to the bottom */
+  align-items: flex-start;
+  transform: translateZ(0); 
+}
+
+.flip-card-back { 
+  justify-content: flex-start;
+  transform: rotateY(180deg); 
+  overflow-y: auto; /* Allow scrolling if content is long */
+}
+
+/* 3. Front Face Content */
+.icon-wrap { 
+  width: 64px; 
+  height: 64px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  border-radius: 12px; 
+  background: linear-gradient(90deg, rgba(13, 110, 253, 0.15), rgba(13, 202, 240, 0.1));
+  margin-bottom: 16px; /* Increased spacing */
+}
+
+/* Ensure SVG icons inherit colors properly */
+.icon-wrap svg {
+  width: 32px;
+  height: 32px;
+}
+
+.icon-wrap svg path,
+.icon-wrap svg rect,
+.icon-wrap svg circle,
+.icon-wrap svg polygon {
+  fill: currentColor !important; /* Force SVG to use CSS color */
+  stroke: currentColor !important; /* Include stroke elements */
+  color: var(--accent2);
+  opacity: 1 !important;
+}
+
+.card-title { 
+  font-size: 1.35rem; /* Larger title */
+  font-weight: 800; 
+  margin: 0 0 8px 0; /* Consistent margin */
+  color: var(--text-primary);
+}
+
+.card-sub { 
+  margin: 0 0 16px; 
+  color: var(--text-muted); 
+  font-size: 1.05rem;
+  line-height: 1.6; /* Added line height */
+}
+
+.learn-more { 
+  margin-top: auto; 
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+}
+
+.link-cta { 
+  color: var(--accent1); /* Use accent color for CTA text */
+  font-size: 1rem; 
+  transition: color 200ms ease;
+  text-decoration: none; /* Remove underline */
+}
+
+.link-cta:hover,
+.link-cta:focus {
+  color: var(--accent2); /* Change color on hover/focus */
+}
+
+/* Arrow icon for CTA */
+.link-cta i,
+.link-cta svg {
+  transition: transform 200ms ease;
+}
+
+.link-cta:hover i,
+.link-cta:hover svg,
+.link-cta:focus i,
+.link-cta:focus svg {
+  transform: translateX(4px); /* Slide effect */
+}
+
+/* 4. Back Face Content */
+.card-back-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-back-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0 0 16px 0;
+  color: var(--text-primary);
+}
+
+.back-list { 
+  margin: 0 0 20px 0; 
+  padding-left: 0; /* Reset default */
+  color: var(--text-primary); 
+  line-height: 1.8; /* Slightly reduced from 2 */
+  list-style-type: none;
+  flex-grow: 1; /* Take available space */
+}
+
+.back-list li {
+  position: relative;
+  font-weight: 500;
+  padding-left: 24px; /* Space for checkmark */
+  margin-bottom: 12px; /* Spacing between items */
+}
+
+.back-list li::before {
+  content: '✓';
+  color: var(--accent1);
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+
+/* CTA Button */
+.flip-card-back .btn-primary {
+  background: linear-gradient(90deg, var(--accent2), var(--accent1)) !important;
+  border: none !important;
+  font-weight: 700;
+  padding: 12px 24px !important;
+  border-radius: 8px;
+  box-shadow: 0 6px 15px rgba(13, 110, 253, 0.2);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+  color: #fff !important;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  margin-top: auto; /* Push to bottom */
+  width: 100%; /* Full width */
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .flip-card-back .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3);
+  }
+}
+
+.flip-card-back .btn-primary:focus {
+  outline: 2px solid var(--accent1);
+  outline-offset: 2px;
+}
+
+.flip-card-back .btn-primary:active {
+  transform: translateY(0);
+  transition-duration: 0.1s;
+}
+
+/* ---------------------------------------------------- */
+/* 5. Light Mode Overrides */
+/* ---------------------------------------------------- */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-section: #ffffff;
+    --text-primary: #061428;
+    --text-muted: #496681;
+    --card-bg: #f5f9fc;
+    --border-color: rgba(6, 20, 40, 0.1);
+    --shadow-card: 0 12px 30px rgba(4, 12, 24, 0.1);
+  }
+  
+  .expertise-section {
+    background-color: var(--bg-section);
+    color: var(--text-primary);
+  }
+  
+  .flip-card-face {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+  }
+  
+  @media (hover: hover) and (pointer: fine) {
+    .flip-card:focus, 
+    .flip-card:hover:not(.is-flipped) {
+      box-shadow: 0 12px 40px rgba(13, 110, 253, 0.12); 
+    }
+  }
+
+  .icon-wrap {
+    background: rgba(13, 110, 253, 0.08);
+  }
+  
+  .back-list li {
+    color: var(--text-primary); /* Darker text for better contrast */
+  }
+  
+  .icon-wrap svg path,
+  .icon-wrap svg rect,
+  .icon-wrap svg circle,
+  .icon-wrap svg polygon {
+    color: var(--accent2);
+  }
+}
+
+/* ---------------------------------------------------- */
+/* 6. Accessibility & Reduced Motion */
+/* ---------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) { 
+  .flip-card,
+  .flip-card-inner,
+  .flip-card-face,
+  .btn-primary,
+  .link-cta {
+    transition: none !important;
+  }
+  
+  .flip-card-inner { 
+    transition: none; 
+    transform: none !important; 
+  } 
+  
+  .flip-card:focus, 
+  .flip-card:hover { 
+    transform: none; 
+    box-shadow: none; 
+  }
+  
+  .flip-card.is-flipped .flip-card-back { 
+    transform: rotateY(0deg); 
+  }
+  
+  /* Stack both faces without flipping */
+  .flip-card-back { 
+    position: static !important; 
+    backface-visibility: visible !important; 
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+  }
+  
+  .flip-card-front { 
+    position: static !important; 
+    backface-visibility: visible !important; 
+  }
+  
+  .flip-card.is-flipped .flip-card-back {
+    opacity: 1;
+    height: auto;
+    margin-top: 16px;
+    position: relative !important;
+  }
+  
+  .flip-card.is-flipped .flip-card-front {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+  
+  .flip-card-face { 
+    box-shadow: none; 
+  }
+  
+  .flip-card-front .learn-more { 
+    display: none; 
+  }
+}
+
+/* ---------------------------------------------------- */
+/* 7. Responsive Design */
+/* ---------------------------------------------------- */
+@media (max-width: 992px) {
+  .expertise-section {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+  
+  .flip-card-inner {
+    min-height: 220px; /* Slightly smaller on tablets */
+  }
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 1.6rem;
+  }
+  
+  .section-intro {
+    font-size: 1rem;
+  }
+  
+  .flip-card {
+    padding: 4px;
+  }
+  
+  .flip-card-face {
+    padding: 20px;
+  }
+  
+  .icon-wrap {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .card-title,
+  .card-back-title {
+    font-size: 1.2rem;
+  }
+  
+  .card-sub {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 575px) { 
+  .flip-card-inner { 
+    min-height: 280px; /* Taller on mobile for better touch targets */
+  }
+  
+  .back-list li {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+}
+
+/* ---------------------------------------------------- */
+/* 8. Touch Device Optimizations */
+/* ---------------------------------------------------- */
+@media (hover: none) and (pointer: coarse) {
+  .flip-card:active:not(.is-flipped) {
+    transform: translateY(-2px) scale(0.98);
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.1);
+    transition-duration: 0.1s;
+  }
+  
+  .flip-card-back .btn-primary:active {
+    transform: scale(0.98);
+    transition-duration: 0.1s;
+  }
+  
+  .link-cta:active {
+    opacity: 0.7;
+  }
+}
+
+/* ---------------------------------------------------- */
+/* 9. High Contrast Mode Support */
+/* ---------------------------------------------------- */
+@media (prefers-contrast: high) {
+  .flip-card-face {
+    border: 2px solid currentColor !important;
+  }
+  
+  .icon-wrap {
+    border: 1px solid currentColor !important;
+  }
+  
+  .back-list li::before {
+    font-weight: 900;
+  }
+  
+  .flip-card-back .btn-primary {
+    border: 2px solid currentColor !important;
+  }
+}
+
+/* ---------------------------------------------------- */
+/* 10. Print Styles */
+/* ---------------------------------------------------- */
+@media print {
+  .expertise-section {
+    background: white !important;
+    color: black !important;
+    padding: 20px 0 !important;
+  }
+  
+  .flip-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  
+  .flip-card-face {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    position: relative !important;
+    transform: none !important;
+  }
+  
+  .flip-card-back {
+    transform: none !important;
+    display: block !important;
+  }
+  
+  .flip-card-front {
+    display: none !important;
+  }
+}

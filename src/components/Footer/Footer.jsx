@@ -3,92 +3,95 @@ import { Link } from 'react-router-dom'
 import './footer.css'
 
 export default function Footer(){
-  const year = new Date().getFullYear()
-  return (
-    <footer className="vg-footer" role="contentinfo">
-      <div className="footer-top py-5">
-        <div className="container">
-          <div className="row gy-4">
+  const year = new Date().getFullYear()
+  return (
+    <footer className="vg-footer" role="contentinfo">
+      <div className="footer-top py-5">
+        <div className="container">
+          <div className="row gy-5"> {/* Increased gutter spacing (gy-5) for mobile */}
 
-            {/* Brand + Logo */}
-            <div className="col-12 col-md-4">
-              <Link to="/" className="footer-brand d-flex align-items-center mb-3">
+            {/* 1. Brand + Contact Details */}
+            <div className="col-12 col-md-6 col-lg-4">
+              <Link to="/" className="footer-brand d-flex align-items-center mb-4"> {/* Increased margin bottom (mb-4) */}
 
-                {/* LOGO IMAGE */}
-                <img 
-                  src="/src/assets/vglogo.jpg" 
-                  alt="Vertex Global Tech Logo" 
-                  className="footer-logo"
-                />
+                {/* LOGO IMAGE */}
+                <img 
+                  src="/src/assets/vglogo.jpg" 
+                  alt="Vertex Global Tech Logo" 
+                  className="footer-logo"
+                />
 
-                <div className="ms-3">
-                  <div className="f-title">Vertex Global Tech</div>
-                  <div className="f-sub">Design • Engineering • Scale</div>
-                </div>
-              </Link>
+                <div className="ms-3">
+                  <div className="f-title">Vertex Global Tech</div>
+                  <div className="f-sub">Design • Engineering • Scale</div>
+                </div>
+              </Link>
 
-              <p className="f-desc">
-                We design and build fast, secure, high-converting websites and apps. 
-                Production-ready engineering with clear timelines.
-              </p>
+              <p className="f-desc">
+                We design and build fast, secure, high-converting websites and apps. 
+                Production-ready engineering with clear timelines.
+              </p>
 
-              <p className="mb-1">
-                <strong>Email:</strong> 
-                <a href="mailto:hello@vertexglobaltech.com"> hello@vertexglobaltech.com</a>
-              </p>
+              <p className="mt-4 mb-2 f-contact"> {/* Added margin-top (mt-4) for spacing */}
+                <strong>Email:</strong> 
+                <a href="mailto:hello@vertexglobaltech.com"> hello@vertexglobaltech.com</a>
+              </p>
 
-              <p className="mb-0">
-                <strong>Phone:</strong> 
-                <a href="tel:+919876543210"> +91 98765 43210</a>
-              </p>
-            </div>
+              <p className="mb-0 f-contact">
+                <strong>Phone:</strong> 
+                <a href="tel:+919876543210"> +91 98765 43210</a>
+              </p>
+            </div>
 
-            <div className="col-6 col-md-2">
-              <h6 className="f-head">Company</h6>
-              <ul className="list-unstyled f-links">
-                <li><Link to="/about">About</Link></li>
-                <li><Link to="/career">Career</Link></li>
-                <li><Link to="/referral">Referral</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
-              </ul>
-            </div>
+            {/* 2. Company Links */}
+            <div className="col-12 col-md-6 col-lg-4 "> {/* Added offset for better desktop spacing */}
+              <h6 className="f-head">Company</h6>
+              <ul className="list-unstyled f-links">
+                <li><Link to="/about">About</Link></li>
+                <li><Link to="/career">Career</Link></li>
+                <li><Link to="/referral">Referral</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
+              </ul>
+            </div>
 
-            <div className="col-6 col-md-3">
-              <h6 className="f-head">Services</h6>
-              <ul className="list-unstyled f-links">
-                <li><Link to="/services/informative">Informative Website</Link></li>
-                <li><Link to="/services/dynamic">Dynamic Website</Link></li>
-                <li><Link to="/services/ecommerce">E-Commerce</Link></li>
-                <li><Link to="/services/application">Application Dev</Link></li>
-                <li><Link to="/services/uiux">UI/UX</Link></li>
-              </ul>
-            </div>
+            {/* 3. Services Links */}
+            <div className="col-12 col-md-6 col-lg-4">
+              <h6 className="f-head">Services</h6>
+              <ul className="list-unstyled f-links">
+                <li><Link to="/services/informative">Informative Website</Link></li>
+                <li><Link to="/services/dynamic">Dynamic Website</Link></li>
+                <li><Link to="/services/ecommerce">E-Commerce</Link></li>
+                <li><Link to="/services/application">Application Dev</Link></li>
+                <li><Link to="/services/uiux">UI/UX</Link></li>
+              </ul>
+            </div>
 
-            <div className="col-12 col-md-3">
-              <h6 className="f-head">Newsletter</h6>
-              <p className="text-muted">Join our updates — product releases and special offers. No spam.</p>
+            {/* 4. Newsletter & Social */}
+            <div className="col-12 col-md-6 col-lg-4 offset-lg-1 mt-5 mt-lg-0"> {/* Added offset and margin-top for better spacing */}
+              <h6 className="f-head">Stay Updated</h6> {/* Renamed for better marketing feel */}
+              <p className="f-muted-text mb-3">Join our updates — product releases and special offers. No spam.</p>
 
-              <form className="d-flex" onSubmit={(e)=>e.preventDefault()}>
-                <input className="form-control f-input me-2" type="email" placeholder="Your work email" />
-                <button className="btn f-btn" type="submit">Subscribe</button>
-              </form>
+              <form className="d-flex f-form" onSubmit={(e)=>e.preventDefault()}> {/* Added f-form class */}
+                <input className="form-control f-input me-2" type="email" placeholder="Your work email" />
+                <button className="btn f-btn" type="submit">Subscribe</button>
+              </form>
 
-              <div className="f-social mt-3">
-                <a className="social" href="#">LinkedIn</a>
-                <a className="social ms-3" href="#">Twitter</a>
-              </div>
-            </div>
+              <div className="f-social mt-4 pt-3 border-top border-secondary opacity-75"> {/* Added border and spacing */}
+                <a className="social" href="#">LinkedIn</a>
+                <a className="social ms-4" href="#">Twitter</a> {/* Increased margin */}
+              </div>
+            </div>
 
-          </div>
-        </div>
-      </div>
+          </div>
+        </div>
+      </div>
 
-      <div className="footer-bottom py-3">
-        <div className="container d-flex flex-column flex-md-row justify-content-between align-items-center">
-          <small>© {year} Vertex Global Tech — All rights reserved.</small>
-          <small>Built with care in Ahmedabad</small>
-        </div>
-      </div>
-    </footer>
-  )
+      <div className="footer-bottom py-3">
+        <div className="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+          <small className="mb-2 mb-md-0">© {year} Vertex Global Tech — All rights reserved.</small>
+          <small className="f-muted-text">Built with care in Ahmedabad</small>
+        </div>
+      </div>
+    </footer>
+  )
 }

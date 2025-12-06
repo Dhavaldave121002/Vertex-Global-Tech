@@ -1,75 +1,677 @@
-/* contact.css — styles for Contact page (component-level) */
+/* contact.css — ULTRA PREMIUM professional, high-contrast, high-visibility styles */
 
-:root{
-  --accent1: #0dcaf0;
-  --accent2: #0d6efd;
-  --muted: #9fb8cf;
-  --card-bg: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+/* ---------- 1. ENHANCED VARIABLES (Dark Mode Default) ---------- */
+:root {
+  /* Core Theming - MAXIMUM CONTRAST */
+  --bg-page: #0b1220; /* Darker background for better contrast */
+  --text-primary: #ffffff; /* Pure white for maximum visibility */
+  --text-secondary: #e2e8f0; /* Very light gray for secondary text */
+  --text-muted: #94a3b8; /* Brighter muted text */
+  --accent1: #00d8ff; /* Neon cyan - extremely bright */
+  --accent2: #3b82f6; /* Bright blue */
+  --accent-glow: rgba(0, 216, 255, 0.4); /* Glow effect */
+  
+  /* UI Elements - MORE VISIBLE */
+  --card-bg: rgba(255, 255, 255, 0.1); /* Much more visible */
+  --card-bg-gradient: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.12), 
+    rgba(255, 255, 255, 0.06));
+  --border-color: rgba(255, 255, 255, 0.25); /* Much stronger borders */
+  --border-glow: rgba(59, 130, 246, 0.3);
+  --input-bg: rgba(255, 255, 255, 0.1);
+  --input-border-focus: var(--accent1);
+  --error-color: #ff6b6b; /* Brighter red */
+  --success-color: #00c853; /* Brighter green for WhatsApp */
+  
+  /* Shadows - MORE DEPTH */
+  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 15px 40px rgba(0, 0, 0, 0.4);
+  --shadow-accent: 0 15px 40px rgba(59, 130, 246, 0.4);
+  
+  /* Spacing */
+  --radius-lg: 20px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
 }
 
-/* page base */
-.contact-page { color: #eaf6ff; background: transparent; }
+/* 2. Page Base - ENHANCED */
+.contact-page { 
+  color: var(--text-primary); 
+  background: var(--bg-page);
+  min-height: 100vh;
+  padding-top: 80px;
+  padding-bottom: 100px;
+  position: relative;
+  overflow-x: hidden;
+}
 
-/* cards */
-.form-card, .contact-card, .map-card {
+/* Background Gradient Overlay */
+.contact-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: linear-gradient(180deg, 
+    rgba(59, 130, 246, 0.2) 0%,
+    transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.contact-page .container {
+  position: relative;
+  z-index: 1;
+}
+
+.contact-page .lead { 
+  color: var(--text-secondary); 
+  max-width: 600px;
+  font-size: 1.15rem; /* Larger */
+  line-height: 1.8; /* Better line height */
+  margin: 0 auto 40px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+}
+
+.contact-page a {
+  color: var(--accent1);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.contact-page a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent1);
+  transition: width 0.3s ease;
+}
+
+.contact-page a:hover {
+  color: var(--accent2);
+}
+
+.contact-page a:hover::after {
+  width: 100%;
+}
+
+/* 3. Cards & Structure - ENHANCED */
+.form-card, 
+.contact-card, 
+.map-card {
   background: var(--card-bg);
-  border: 1px solid rgba(255,255,255,0.03);
-  border-radius: 12px;
-  box-shadow: 0 18px 40px rgba(2,10,22,0.36);
-  color: #eaf6ff;
+  border: 2px solid var(--border-color); /* Thicker border */
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  color: var(--text-primary);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
 }
 
-/* inputs (higher contrast) */
-.form-control, .form-select {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  color: #eaf6ff;
+.form-card::before,
+.contact-card::before,
+.map-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  opacity: 0.8;
 }
-.form-control::placeholder { color: rgba(234,246,255,0.46); }
-.form-label { font-weight:700; color:#fff; }
-.invalid-feedback { color: #ffcccb; font-weight:700; }
 
-/* buttons */
+.form-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent1);
+  box-shadow: var(--shadow-accent), 0 0 30px var(--accent-glow);
+}
+
+/* Typography in Cards - ENHANCED */
+.card h4, 
+.card h5, 
+.card h6 { 
+  color: var(--text-primary); 
+  font-weight: 800; /* Bolder */
+  margin-bottom: 20px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.card h4 {
+  font-size: 1.8rem;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.card h4::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: var(--accent1);
+  border-radius: 2px;
+}
+
+.contact-card p, 
+.contact-card a {
+  color: var(--text-secondary);
+  font-size: 1.05rem; /* Larger */
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+
+.contact-card strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Contact Info Icons */
+.contact-card .d-flex {
+  margin-bottom: 20px;
+}
+
+.contact-card .d-flex svg,
+.contact-card .d-flex i {
+  color: var(--accent1);
+  font-size: 1.3rem;
+  width: 24px;
+  text-align: center;
+  margin-right: 15px;
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
+/* 4. Form Controls - ENHANCED */
+.form-control, 
+.form-select {
+  background: var(--input-bg);
+  border: 2px solid var(--border-color); /* Thicker border */
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  padding: 14px 16px;
+  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  min-height: 52px; /* Larger for better touch targets */
+}
+
+.form-control::placeholder { 
+  color: rgba(255, 255, 255, 0.5); 
+  font-weight: 400;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2300d8ff' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  padding-right: 45px;
+}
+
+.form-label { 
+  font-weight: 700; 
+  color: var(--text-primary); 
+  margin-bottom: 10px; /* Increased spacing */
+  font-size: 1.05rem;
+  display: block;
+}
+
+.form-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* Focus and Validation Styles - ENHANCED */
+.form-control:focus, 
+.form-select:focus {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 4px rgba(0, 216, 255, 0.25);
+  outline: none;
+}
+
+.form-control.is-invalid, 
+.form-select.is-invalid {
+  border-color: var(--error-color);
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.invalid-feedback { 
+  color: var(--error-color); 
+  font-weight: 600; 
+  font-size: 0.95rem;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.invalid-feedback::before {
+  content: '⚠';
+  font-size: 1.1rem;
+}
+
+.form-control.is-invalid:focus {
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.25);
+}
+
+/* 5. Buttons - ENHANCED */
+
+/* Primary Button (Send via Email) */
 .btn-primary {
-  background: linear-gradient(90deg,var(--accent2),var(--accent1));
+  background: linear-gradient(90deg, var(--accent2), var(--accent1));
   border: none;
-  font-weight:800;
-  box-shadow: 0 10px 30px rgba(13,110,253,0.12);
+  font-weight: 800;
+  box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3);
+  padding: 16px 32px;
+  border-radius: var(--radius-md);
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
 }
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.4), 0 0 20px var(--accent-glow);
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+/* Outline Secondary (Email/Call in Hero) */
+.contact-page .btn-outline-secondary {
+  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  transition: all 0.3s ease;
+  background: transparent;
+}
+
+.contact-page .btn-outline-secondary:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: var(--accent2);
+  color: var(--accent1);
+  transform: translateY(-2px);
+}
+
+/* WhatsApp Button - ENHANCED */
 .btn-outline-success {
-  border: 1px solid rgba(46,204,113,0.12);
-  color: #dff7ea;
+  border: 2px solid var(--success-color);
+  color: var(--success-color);
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+  background: transparent;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
 }
 
-/* map placeholder */
+.btn-outline-success::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--success-color);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: -1;
+}
+
+.btn-outline-success:hover {
+  color: #ffffff;
+  border-color: var(--success-color);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 200, 83, 0.3);
+}
+
+.btn-outline-success:hover::before {
+  transform: translateY(0);
+}
+
+/* 6. Map Placeholder - ENHANCED */
 .map-placeholder {
-  height: 220px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-  border-radius: 0 0 12px 12px;
-  text-align:center;
-  padding: 24px;
-  color: #cfe8fb;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-bg-gradient);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  border-top: 2px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
 }
 
-/* helper */
-.lead { color: #cfe8fb; }
-.card h4, .card h5, .card h6 { color: #fff; }
-
-/* small screens */
-@media (max-width: 991px) {
-  .map-placeholder { height: 180px; }
+.map-placeholder::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(45deg, 
+    transparent 30%, 
+    rgba(59, 130, 246, 0.1) 50%, 
+    transparent 70%);
+  animation: shimmer 3s infinite;
 }
 
-/* light mode */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.map-placeholder svg {
+  margin-bottom: 20px;
+  width: 60px;
+  height: 60px;
+  color: var(--accent1);
+  filter: drop-shadow(0 0 15px var(--accent-glow));
+}
+
+.map-placeholder p {
+  font-size: 1rem;
+  max-width: 300px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* 7. Light Mode Overrides - ENHANCED */
 @media (prefers-color-scheme: light) {
-  :root { --card-bg: #fff; }
-  .contact-page { color: #061428; }
-  .form-card, .contact-card, .map-card { background: #fff; color: #061428; border-color: rgba(6,20,40,0.06); box-shadow: 0 8px 26px rgba(6,20,40,0.06); }
-  .form-control, .form-select { background:#fff; color:#061428; border-color: rgba(6,20,40,0.06); }
-  .btn-primary { color: #fff; }
-  .btn-outline-success { color: #164a1a; }
+  :root { 
+    --bg-page: #ffffff;
+    --text-primary: #0f172a; /* Very dark for maximum contrast */
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --card-bg: #ffffff;
+    --card-bg-gradient: linear-gradient(180deg, #ffffff, #f8fafc);
+    --border-color: rgba(15, 23, 42, 0.2);
+    --border-glow: rgba(59, 130, 246, 0.15);
+    --input-bg: #f1f5f9;
+    --shadow-xl: 0 20px 50px rgba(15, 23, 42, 0.15);
+    --shadow-lg: 0 15px 40px rgba(15, 23, 42, 0.1);
+    --shadow-accent: 0 15px 40px rgba(59, 130, 246, 0.2);
+  }
+  
+  .contact-page { 
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    color: var(--text-primary);
+  }
+  
+  .contact-page::before {
+    background: linear-gradient(180deg, 
+      rgba(59, 130, 246, 0.1) 0%,
+      transparent 100%);
+  }
+  
+  .contact-page .lead {
+    background: rgba(15, 23, 42, 0.03);
+    border-color: var(--border-color);
+  }
+
+  .form-card, 
+  .contact-card, 
+  .map-card { 
+    background: var(--card-bg); 
+    color: var(--text-primary); 
+    border-color: var(--border-color); 
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .form-control, 
+  .form-select { 
+    background: var(--input-bg); 
+    color: var(--text-primary); 
+    border-color: var(--border-color);
+  }
+  
+  .form-control::placeholder {
+    color: rgba(15, 23, 42, 0.5);
+  }
+  
+  .form-label { 
+    color: var(--text-primary); 
+  }
+  
+  .form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%233b82f6' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  }
+  
+  .map-placeholder { 
+    background: linear-gradient(180deg, #f1f5f9, #e2e8f0); 
+    border-top-color: var(--border-color);
+    color: var(--text-secondary);
+  }
+
+  .btn-primary { 
+    color: #ffffff; 
+  }
+  
+  .btn-outline-success { 
+    color: #166534; 
+    border-color: #166534;
+  }
+  
+  .btn-outline-success::before {
+    background: #166534;
+  }
+  
+  .btn-outline-success:hover {
+    color: #ffffff;
+  }
+  
+  .contact-card .d-flex svg,
+  .contact-card .d-flex i {
+    color: var(--accent2);
+    filter: none;
+  }
+}
+
+/* 8. Responsive Adjustments - ENHANCED */
+@media (max-width: 1200px) {
+  .contact-page {
+    padding-top: 60px;
+    padding-bottom: 80px;
+  }
+}
+
+@media (max-width: 991px) {
+  .contact-page {
+    padding-top: 40px;
+    padding-bottom: 60px;
+  }
+  
+  .map-placeholder { 
+    height: 250px; 
+  }
+  
+  .form-card,
+  .contact-card {
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 767px) {
+  .contact-page {
+    padding-top: 30px;
+    padding-bottom: 40px;
+  }
+  
+  .contact-page .lead {
+    padding: 20px;
+    font-size: 1.05rem;
+  }
+  
+  .card h4 {
+    font-size: 1.5rem;
+  }
+  
+  .form-control,
+  .form-select {
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+  
+  .btn-primary,
+  .btn-outline-success,
+  .contact-page .btn-outline-secondary {
+    padding: 14px 24px;
+    font-size: 1rem;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .contact-page .row.align-items-center { 
+    text-align: center; 
+  }
+  
+  .contact-page .col-md-5 { 
+    text-align: center !important; 
+    margin-bottom: 30px;
+  }
+  
+  .contact-page .btn-outline-secondary { 
+    display: block; 
+    margin: 10px 0 !important; 
+  }
+  
+  .col-12.d-flex.gap-2 { 
+    flex-direction: column; 
+    gap: 10px !important;
+  }
+  
+  .col-12.d-flex.gap-2 button { 
+    width: 100%; 
+  }
+  
+  .col-12.d-flex.gap-2 small { 
+    margin-top: 15px; 
+    text-align: center; 
+    order: 3;
+  }
+  
+  .map-placeholder {
+    padding: 30px 20px;
+    height: 200px;
+  }
+}
+
+@media (max-width: 575px) {
+  .contact-page .lead {
+    font-size: 1rem;
+    padding: 15px;
+  }
+  
+  .form-card,
+  .contact-card,
+  .map-card {
+    border-radius: var(--radius-md);
+  }
+  
+  .card h4 {
+    font-size: 1.3rem;
+  }
+}
+
+/* 9. Accessibility Features */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .map-placeholder::before {
+    animation: none;
+  }
+  
+  .btn-primary::before,
+  .btn-outline-success::before {
+    display: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --text-primary: #ffffff;
+    --text-secondary: #ffffff;
+    --border-color: #ffffff;
+    --accent1: #00ffff;
+    --accent2: #0000ff;
+  }
+  
+  .form-card,
+  .contact-card,
+  .map-card {
+    border-width: 3px;
+    background: #000000 !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .contact-page {
+    background: white !important;
+    color: black !important;
+    padding: 20px 0 !important;
+  }
+  
+  .map-placeholder,
+  .btn-primary,
+  .btn-outline-success,
+  .btn-outline-secondary {
+    display: none !important;
+  }
+  
+  .form-card,
+  .contact-card,
+  .map-card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    background: white !important;
+    color: black !important;
+    break-inside: avoid;
+  }
 }
