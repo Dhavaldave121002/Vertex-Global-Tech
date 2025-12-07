@@ -132,7 +132,7 @@ export default function Referral() {
           <div className="col-md-7">
             <p className="eyebrow">Referral Program</p>
             <h1>Earn for Referrals — partner with Vertex Global Tech</h1>
-            <p className="lead text-muted">Recommend clients or candidates and earn rewards when they convert. Clear tiers, transparent payouts.</p>
+            <p className="lead text-white">Recommend clients or candidates and earn rewards when they convert. Clear tiers, transparent payouts.</p>
           </div>
           <div className="col-md-5 text-md-end mt-3 mt-md-0">
             <a className="btn btn-primary me-2" href="#form">Refer someone</a>
@@ -146,7 +146,7 @@ export default function Referral() {
 
             <article className="card p-4 sp-card mb-3">
               <h4>How it works</h4>
-              <p className="text-muted">Send a qualified lead (company/client) or candidate. When the lead converts (signed contract) we pay the referral as per the tier. Payments are processed after the first successful invoice and project onboarding.</p>
+              <p className="text-white">Send a qualified lead (company/client) or candidate. When the lead converts (signed contract) we pay the referral as per the tier. Payments are processed after the first successful invoice and project onboarding.</p>
 
               <div className="row mt-3">
                 <div className="col-12 col-md-6">
@@ -160,14 +160,14 @@ export default function Referral() {
                 </div>
                 <div className="col-12 col-md-6">
                   <h6>Candidate referrals</h6>
-                  <p className="text-muted mb-0">Refer engineering or design candidates. For successful hires, we pay a finder’s fee depending on role & seniority — contact HR for details.</p>
+                  <p className="text-white mb-0">Refer engineering or design candidates. For successful hires, we pay a finder’s fee depending on role & seniority — contact HR for details.</p>
                 </div>
               </div>
             </article>
 
             <article className="card p-4 sp-card mb-3">
               <h5>Referral earnings calculator</h5>
-              <p className="text-muted">Enter an expected project value to see potential earnings by tier.</p>
+              <p className="text-white">Enter an expected project value to see potential earnings by tier.</p>
 
               <div className="row align-items-center g-2">
                 <div className="col-8 col-md-6">
@@ -190,7 +190,7 @@ export default function Referral() {
                         <div className="earn-box p-2 text-center">
                           <div className="earn-title">{t.name}</div>
                           <div className="earn-amt">{calculateEarning(t.percent)}</div>
-                          <div className="earn-sub text-muted small">{t.percent}%</div>
+                          <div className="earn-sub text-white small">{t.percent}%</div>
                         </div>
                       </div>
                     ))}
@@ -204,23 +204,23 @@ export default function Referral() {
 
               <details className="mb-2">
                 <summary>When do I get paid?</summary>
-                <p className="text-muted small mb-0">Payments are processed within 30 days after the client’s first invoice is paid and the project onboarding completes.</p>
+                <p className="text-white small mb-0">Payments are processed within 30 days after the client’s first invoice is paid and the project onboarding completes.</p>
               </details>
 
               <details className="mb-2">
                 <summary>Who qualifies as a valid referral?</summary>
-                <p className="text-muted small mb-0">Valid referrals are new clients or candidates not previously in our pipeline. For clients, introduction must be in writing (email) before we contact them.</p>
+                <p className="text-white small mb-0">Valid referrals are new clients or candidates not previously in our pipeline. For clients, introduction must be in writing (email) before we contact them.</p>
               </details>
 
               <details className="mb-2">
                 <summary>Terms & conditions</summary>
-                <p className="text-muted small mb-0">See full program terms below. By participating you agree to our referral program terms. Vertex Global Tech reserves the right to modify terms with notice.</p>
+                <p className="text-white small mb-0">See full program terms below. By participating you agree to our referral program terms. Vertex Global Tech reserves the right to modify terms with notice.</p>
               </details>
             </article>
 
             <article className="card p-4 sp-card mb-3">
               <h5>Program Terms (Short)</h5>
-              <ol className="text-muted small">
+              <ol className="text-white small">
                 <li>Referral is valid only for new clients not previously contacted by Vertex Global Tech.</li>
                 <li>Referral payout is a percentage of the first project invoice (as per tier).</li>
                 <li>Payout occurs after invoice payment and project onboarding.</li>
@@ -236,7 +236,7 @@ export default function Referral() {
             {/* SHARE */}
             <div id="share" className="card p-4 sp-card mb-3">
               <h5>Create & share your referral link</h5>
-              <p className="text-muted small">Generate a short share code and share it — we will track referrals based on the code or the email introduction.</p>
+              <p className="text-white small">Generate a short share code and share it — we will track referrals based on the code or the email introduction.</p>
 
               <div className="mb-2">
                 <label className="form-label small">Your name (for code)</label>
@@ -261,7 +261,7 @@ export default function Referral() {
                     <button className="btn btn-sm btn-outline-primary" onClick={shareLinkedIn}>LinkedIn</button>
                   </div>
 
-                  <div className="text-muted small">Share your link in messages or social channels. We recommend sharing a short note about the services you recommend.</div>
+                  <div className="text-white small">Share your link in messages or social channels. We recommend sharing a short note about the services you recommend.</div>
                 </>
               )}
             </div>
@@ -269,7 +269,7 @@ export default function Referral() {
             {/* SUBMIT REFERRAL FORM */}
             <div id="form" className="card p-4 sp-card mb-3">
               <h5>Submit a referral</h5>
-              <p className="text-muted small mb-2">Use this form to introduce a client or candidate. We will follow up — or open your mail client to send the introduction immediately.</p>
+              <p className="text-white small mb-2">Use this form to introduce a client or candidate. We will follow up — or open your mail client to send the introduction immediately.</p>
 
               <form onSubmit={onSubmit} noValidate>
                 <div className="mb-2">
@@ -317,7 +317,7 @@ export default function Referral() {
 
             <div className="card p-3 sp-card">
               <h6 className="mb-1">Quick tips</h6>
-              <ul className="small text-muted">
+              <ul className="small text-white">
                 <li>Introduce via email and include your referral code (if you have one).</li>
                 <li>For client leads, include a short note about scope & timeline.</li>
                 <li>For candidate referrals, attach a CV when emailing from your client.</li>

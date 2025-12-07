@@ -43,13 +43,13 @@ export default function ExpertiseCards() {
   const toggle = (id) => setFlipped(s => ({ ...s, [id]: !s[id] }))
 
   return (
-    <section className="expertise-section py-5" aria-label="Our Core Expertise">
+    <section className="expertise-section container-fluid" aria-label="Our Core Expertise">
       <div className="text-center mb-4">
         <h3 className="section-title">Our Core Expertise</h3>
         <p className="section-intro text-muted">Focused services that scale your product — engineered for performance, UX and growth.</p>
       </div>
 
-      <div className="container-fluid">
+      <div className="container">
         <div className="row g-4">
           {cardsData.map(c => (
             <div key={c.id} className="col-12 col-md-6 col-lg-4 d-flex">

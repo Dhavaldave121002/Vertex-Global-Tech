@@ -7,11 +7,11 @@ export default function Footer(){
   return (
     <footer className="vg-footer" role="contentinfo">
       <div className="footer-top py-5">
-        <div className="container">
+        <div className="container-fluid px-4 px-md-5">
           <div className="row gy-5"> {/* Increased gutter spacing (gy-5) for mobile */}
 
             {/* 1. Brand + Contact Details */}
-            <div className="col-12 col-md-6 col-lg-4">
+            <div className="col-12 col-md-6 col-lg-3">
               <Link to="/" className="footer-brand d-flex align-items-center mb-4"> {/* Increased margin bottom (mb-4) */}
 
                 {/* LOGO IMAGE */}
@@ -44,7 +44,7 @@ export default function Footer(){
             </div>
 
             {/* 2. Company Links */}
-            <div className="col-12 col-md-6 col-lg-4 "> {/* Added offset for better desktop spacing */}
+            <div className="col-12 col-md-6 col-lg-3 "> {/* Added offset for better desktop spacing */}
               <h6 className="f-head">Company</h6>
               <ul className="list-unstyled f-links">
                 <li><Link to="/about">About</Link></li>
@@ -55,7 +55,7 @@ export default function Footer(){
             </div>
 
             {/* 3. Services Links */}
-            <div className="col-12 col-md-6 col-lg-4">
+            <div className="col-12 col-md-6 col-lg-3">
               <h6 className="f-head">Services</h6>
               <ul className="list-unstyled f-links">
                 <li><Link to="/services/informative">Informative Website</Link></li>
@@ -67,7 +67,7 @@ export default function Footer(){
             </div>
 
             {/* 4. Newsletter & Social */}
-            <div className="col-12 col-md-6 col-lg-4 offset-lg-1 mt-5 mt-lg-0"> {/* Added offset and margin-top for better spacing */}
+            <div className="col-12 col-md-6 col-lg-3"> {/* Added offset and margin-top for better spacing */}
               <h6 className="f-head">Stay Updated</h6> {/* Renamed for better marketing feel */}
               <p className="f-muted-text mb-3">Join our updates — product releases and special offers. No spam.</p>
 

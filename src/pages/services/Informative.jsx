@@ -1,6 +1,6 @@
 // src/pages/services/Informative.jsx
 import React, { useState } from 'react'
-import '../../pages/informative.css'   // ensure this path/file exists
+import '../..//components/Services/Informative/informative.css'   // ensure this path/file exists
 
 import Hero from '../../components/Services/Informative/Hero'
 import Benefits from '../../components/Services/Informative/Benefits'

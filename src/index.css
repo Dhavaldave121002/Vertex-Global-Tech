@@ -1,7 +1,143 @@
-/* global helpers */
-html, body, #root { height: 100%; }
-body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: #f8fafc; color: #0f1724; }
-main:focus { outline: none; }
-html { scroll-behavior: smooth; }
-.section { padding: 64px 0; }
-a { text-decoration: none; }
+/* src/styles/global.css — FINAL Comprehensive Global Stylesheet (Dark Theme Optimized) */
+
+/* =======================================================
+   1. GLOBAL RESET & BASE VARIABLES (Dark Mode First)
+   ======================================================= */
+
+:root {
+    /* Theme Colors (Base Dark) */
+    --color-primary: #0d6efd;   /* Bootstrap Blue */
+    --color-secondary: #6c757d;
+    --color-success: #198754;
+    --color-danger: #dc3545;
+    --color-warning: #ffc107;
+    --color-info: #0dcaf0;      /* Cyan */
+
+    /* Text & Background */
+    --color-bg: #0f172a;        /* Deep Slate Blue - Main Background */
+    --color-text: #eaf6ff;      /* Light Text */
+    --color-muted: #9fb8cf;     /* Muted Text */
+    --color-surface: #1e293b;   /* Components/Cards Background */
+    --color-border: rgba(255, 255, 255, 0.12); /* Light border on dark background */
+    --color-focus-ring: rgba(13, 110, 253, 0.4); /* Focus accessibility ring */
+
+    /* Typography */
+    --font-family-base: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --spacing-section: 80px;
+}
+
+/* The universal selector reset: 
+   This ensures padding and borders are calculated inside the element's total width and height.
+*/
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Set up the main application containers */
+html, body, #root { 
+    height: 100%; 
+}
+
+/* Base Body Styles */
+body { 
+    font-family: var(--font-family-base); 
+    background: var(--color-bg); 
+    color: var(--color-text); 
+    line-height: 1.6;
+    margin: 0;
+    -webkit-font-smoothing: antialiased; 
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessibility and Layout */
+html { 
+    scroll-behavior: smooth; 
+}
+/* Ensure elements that are focused have a clear outline for accessibility */
+*:focus:not(.no-focus-outline) {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+}
+main:focus { 
+    outline: none; 
+}
+
+/* Dark Mode Scrollbar Styling (Webkit only) */
+body::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+body::-webkit-scrollbar-track {
+    background: var(--color-surface);
+}
+body::-webkit-scrollbar-thumb {
+    background-color: var(--color-muted);
+    border-radius: 4px;
+    border: 2px solid var(--color-surface);
+}
+
+
+/* =======================================================
+   2. REUSABLE UTILITIES
+   ======================================================= */
+
+/* Standardized Section Padding */
+.section { 
+    padding: var(--spacing-section) 0; 
+}
+
+/* Link Resets */
+a { 
+    color: var(--color-primary); 
+    text-decoration: none; 
+    transition: color 0.2s;
+}
+a:hover {
+    color: var(--color-info); 
+    text-decoration: underline;
+}
+
+
+/* Heading Base Style */
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.2;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+/* Text Utilities */
+.text-muted {
+    color: var(--color-muted) !important;
+}
+
+
+/* =======================================================
+   3. LIGHT MODE OVERRIDES
+   ======================================================= */
+
+@media (prefers-color-scheme: light) {
+    :root {
+        /* Text & Background (Light Theme) */
+        --color-bg: #f8fafc;      
+        --color-text: #0f1724;    
+        --color-muted: #64748b;   
+        --color-surface: #ffffff; 
+        --color-border: rgba(0, 0, 0, 0.1); 
+        --color-focus-ring: rgba(13, 110, 253, 0.6);
+    }
+
+    body {
+        background: var(--color-bg); 
+        color: var(--color-text); 
+    }
+    
+    /* Light Mode Scrollbar Styling (Webkit only) */
+    body::-webkit-scrollbar-thumb {
+        background-color: var(--color-muted);
+        border: 2px solid var(--color-bg);
+    }
+    body::-webkit-scrollbar-track {
+        background: var(--color-bg);
+    }
+}
