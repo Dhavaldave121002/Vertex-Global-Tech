@@ -1,6 +1,6 @@
 // src/pages/services/UIUX.jsx
 import React, { useEffect, useState } from 'react'
-import '../../pages/uiux.css'
+import '../../components/Services/UIUX/uiux.css' // Import the new CSS
 
 import Hero from '../../components/Services/UIUX/Hero'
 import Offerings from '../../components/Services/UIUX/Offerings'

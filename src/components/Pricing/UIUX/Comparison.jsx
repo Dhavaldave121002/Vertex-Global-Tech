@@ -1,29 +1,38 @@
 // src/components/Pricing/UIUX/Comparison.jsx
 import React from 'react'
+import '../../../pages/pricing/pricing.css' // Import the new CSS
 
 export default function Comparison() {
-  return (
-    <section className="py-5 bg-soft">
-      <div className="container">
-        <div className="text-center mb-3">
-          <h4>Deliverables at a glance</h4>
-          <p className="text-muted">What to expect with each package.</p>
-        </div>
+    const Check = <span className="comparison-check">✓</span>
+    const Dash = <span className="comparison-text">—</span>
+    const Clickable = <span className="comparison-highlight">Clickable (Hi-Fi)</span>
+    const FullSystem = <span className="comparison-highlight">Full Component Library</span>
 
-        <div className="table-responsive">
-          <table className="table table-borderless pricing-table">
-            <thead>
-              <tr><th>Deliverable</th><th>Workshop</th><th>Product</th><th>System</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Discovery</td><td>Included</td><td>Included</td><td>Included</td></tr>
-              <tr><td>Wireframes</td><td>—</td><td>Included</td><td>Included</td></tr>
-              <tr><td>Prototype</td><td>—</td><td>Clickable</td><td>Design tokens</td></tr>
-              <tr><td>Dev Handoff</td><td>—</td><td>Figma/Zeplin</td><td>Component library</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  )
+  return (
+    <section className="uiux-comparison-section" id="comparison-table">
+      <div className="container">
+        <div className="text-center mb-4">
+          <h4>Design Deliverables at a Glance 📐</h4>
+          <p className="lead text-white">A clear comparison of the core design outputs and documentation provided with each package.</p>
+        </div>
+
+        <div className="table-responsive">
+          <table className="table table-borderless pricing-table text-center">
+            <thead>
+              <tr><th>Deliverable</th><th>Discovery Workshop</th><th>Product UI/UX</th><th>Design System</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>User Discovery & Research</td><td>{Check}</td><td>{Check}</td><td>{Check}</td></tr>
+              <tr><td>Low-Fidelity Wireframes</td><td>{Dash}</td><td>{Check}</td><td>{Check}</td></tr>
+              <tr><td>High-Fidelity Mockups (UI)</td><td>{Dash}</td><td>{Check}</td><td>{Check}</td></tr>
+              <tr><td>Interactive Prototype</td><td>{Dash}</td><td>{Clickable}</td><td>{FullSystem} (Reusable)</td></tr>
+              <tr><td>Design Tokens & Specs</td><td>{Dash}</td><td>{Dash}</td><td><span className="comparison-highlight">Included</span></td></tr>
+              <tr><td>Developer Handoff Files</td><td>{Dash}</td><td>Figma/Zeplin Ready</td><td>{FullSystem} + Documentation</td></tr>
+            </tbody>
+          </table>
+        </div>
+        
+      </div>
+    </section>
+  )
 }

@@ -1,6 +1,6 @@
 // src/pages/services/Application.jsx
 import React, { useEffect, useState } from 'react'
-import '../../pages/application.css'
+import '../../components/Services/Application/application.css' // Import the new CSS
 
 import Hero from '../../components/Services/Application/Hero'
 import Features from '../../components/Services/Application/Features'

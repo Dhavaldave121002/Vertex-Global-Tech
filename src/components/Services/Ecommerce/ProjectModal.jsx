@@ -1,10 +1,23 @@
 // ProjectModal.jsx
 import React from 'react'
+import './ecommerce.css' // Import the new CSS
 
 export default function ProjectModal({ project, onClose }) {
   if (!project) return null
+
+  // Function to close modal when clicking the backdrop
+  const handleBackdropClick = (e) => {
+    // Only close if the click is directly on the modal container (backdrop)
+    if (e.target.classList.contains('modal')) {
+      onClose()
+    }
+  }
+  
+  const stackText = Array.isArray(project.stack) ? project.stack.join(', ') : project.stack
+
   return (
-    <div className="modal fade show d-block" tabIndex="-1" role="dialog" aria-modal="true">
+    // Add onClick handler to the modal container (backdrop)
+    <div className="modal fade show d-block" tabIndex="-1" role="dialog" aria-modal="true" onClick={handleBackdropClick}>
       <div className="modal-dialog modal-lg modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header">
@@ -12,13 +25,22 @@ export default function ProjectModal({ project, onClose }) {
             <button className="btn-close" onClick={onClose} aria-label="Close"></button>
           </div>
           <div className="modal-body">
+            {/* Image */}
             <img src={project.thumb} alt={project.title} className="img-fluid mb-3 rounded" />
-            <p className="text-muted">{project.description || project.excerpt}</p>
-            {project.stack && <p className="small text-muted">Tech: {Array.isArray(project.stack) ? project.stack.join(', ') : project.stack}</p>}
+            
+            {/* Description */}
+            <p className="text-white">{project.description || project.excerpt}</p>
+            
+            {/* Tech Stack */}
+            {project.stack && (
+              <p className="small text-white">
+                Technology Stack: <span>{stackText}</span>
+              </p>
+            )}
           </div>
           <div className="modal-footer">
-            <a href="/contact" className="btn btn-primary">Enquire</a>
-            <button className="btn btn-outline-secondary" onClick={onClose}>Close</button>
+            <a href="/contact" className="btn btn-primary">Enquire about this project</a>
+            <button className="btn btn-outline-secondary" onClick={onClose}>Close Preview</button>
           </div>
         </div>
       </div>

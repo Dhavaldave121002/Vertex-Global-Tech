@@ -1,6 +1,6 @@
 // src/pages/services/Dynamic.jsx
 import React, { useEffect, useState } from 'react'
-import '../../pages/dynamic.css'
+import '../../components/Services/Dynamic/dynamic.css' // Import the new CSS
 
 import Hero from '../../components/Services/Dynamic/Hero'
 import Features from '../../components/Services/Dynamic/Features'

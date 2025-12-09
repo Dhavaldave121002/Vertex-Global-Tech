@@ -1,6 +1,6 @@
 // src/pages/services/Ecommerce.jsx
 import React, { useEffect, useState } from 'react'
-import '../../pages/ecommerce.css'
+import '../../components/Services/Ecommerce/ecommerce.css' // Import the new CSS
 
 import Hero from '../../components/Services/Ecommerce/Hero'
 import Features from '../../components/Services/Ecommerce/Features'

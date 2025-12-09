@@ -1,59 +1,67 @@
 // src/components/Pricing/Application/Tiers.jsx
 import React from 'react'
+import '../../../pages/pricing/pricing.css' // Import the new CSS
 
 export default function Tiers() {
-  return (
-    <section className="py-5">
-      <div className="container">
-        <div className="text-center mb-4">
-          <h3>App packages</h3>
-          <p className="text-muted">Transparent starting prices. Final costs vary with integrations, platforms and backend needs.</p>
-        </div>
+    
+  return (
+    <section className="app-tiers-section" id="packages-section">
+      <div className="container">
+        <div className="text-center mb-5">
+          <h3>Application Development Tiers 📈</h3>
+          <p className="lead text-white">Transparent starting prices for development phases. Final costs are estimated based on **complexity, platforms, and third-party integrations**.</p>
+        </div>
 
-        <div className="row g-3">
-          <div className="col-md-4">
-            <div className="price-card p-4 text-center">
-              <h5 className="mb-1">Prototype</h5>
-              <div className="price">₹60,000</div>
-              <p className="small text-muted mb-3">Clickable prototype or small MVP demo app.</p>
-              <ul className="list-unstyled text-start mb-3">
-                <li>✓ Prototype screens</li>
-                <li>✓ Basic backend mock</li>
-                <li>✓ Usability testing</li>
-              </ul>
-              <a className="btn btn-primary" href="/contact">Request</a>
-            </div>
-          </div>
+        <div className="row g-4 justify-content-center">
+          <div className="col-md-6 col-lg-4">
+            <div className="price-card h-100 text-center">
+              <h5 className="mb-1">1. Prototype (Discovery)</h5>
+              <div className="price">₹60,000+</div>
+              <p className="small text-white mb-3">Validate your idea with a clickable design or minimal test app (no production code).</p>
+              <ul className="list-unstyled text-start mb-3">
+                <li>**Detailed Wireframes & UI/UX**</li>
+                <li>Clickable Prototype (Figma/Sketch)</li>
+                <li>User Flow Mapping</li>
+                <li>Basic Backend Mockup</li>
+                <li>1 Round of Usability Testing</li>
+              </ul>
+              <a className="btn btn-primary w-100" href="/contact">Request Prototype</a>
+            </div>
+          </div>
 
-          <div className="col-md-4">
-            <div className="price-card p-4 text-center featured">
-              <h5 className="mb-1">Startup</h5>
-              <div className="price">₹1,80,000</div>
-              <p className="small text-muted mb-3">Production-ready app (Android + iOS) with backend and analytics.</p>
-              <ul className="list-unstyled text-start mb-3">
-                <li>✓ Native or cross-platform</li>
-                <li>✓ Backend & APIs</li>
-                <li>✓ Store submission</li>
-              </ul>
-              <a className="btn btn-primary" href="/contact">Choose</a>
-            </div>
-          </div>
+          <div className="col-md-6 col-lg-4">
+            <div className="price-card h-100 text-center featured">
+              <h5 className="mb-1">2. Startup (MVP/Production)</h5>
+              <div className="price">₹1,80,000+</div>
+              <p className="small text-white mb-3">Production-ready Minimum Viable Product (MVP) ready for launch on app stores.</p>
+              <ul className="list-unstyled text-start mb-3">
+                <li>**Single Platform Development** (iOS or Android)</li>
+                <li>Live Backend and Database Setup</li>
+                <li>User Authentication & Basic Features</li>
+                <li>Basic Analytics & Reporting</li>
+                <li>App Store/Play Store Submission</li>
+              </ul>
+              <a className="btn btn-primary w-100" href="/contact">Choose MVP Plan</a>
+            </div>
+          </div>
 
-          <div className="col-md-4">
-            <div className="price-card p-4 text-center">
-              <h5 className="mb-1">Enterprise</h5>
-              <div className="price">Custom</div>
-              <p className="small text-muted mb-3">Large-scale app with integrations, SSO, offline sync and SLAs.</p>
-              <ul className="list-unstyled text-start mb-3">
-                <li>✓ Advanced security</li>
-                <li>✓ Multi-region backend</li>
-                <li>✓ Dedicated support</li>
-              </ul>
-              <a className="btn btn-primary" href="/contact">Get Quote</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
+          <div className="col-md-6 col-lg-4">
+            <div className="price-card h-100 text-center">
+              <h5 className="mb-1">3. Enterprise (Custom Scale)</h5>
+              <div className="price">Custom Quote</div>
+              <p className="small text-white mb-3">Large-scale, high-availability solution with complex integrations and security.</p>
+              <ul className="list-unstyled text-start mb-3">
+                <li>Multi-Platform Native Development</li>
+                <li>**Advanced Security & SSO** Integration</li>
+                <li>Complex API & Third-Party Integration</li>
+                <li>High-Availability/Multi-Region Backend</li>
+                <li>Dedicated Support & SLA Agreement</li>
+              </ul>
+              <a className="btn btn-primary w-100" href="/contact">Get Enterprise Quote</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
 }

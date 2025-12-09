@@ -1,62 +1,67 @@
 // src/components/Pricing/Website/Tiers.jsx
 import React from 'react'
+import '../../../pages/pricing/pricing.css' // Import the new CSS
 
 export default function Tiers() {
-  return (
-    <section className="py-5">
-      <div className="container">
-        <div className="text-center mb-4">
-          <h3>Choose a plan</h3>
-          <p className="text-muted">Three common packages — each can be customised to your exact needs.</p>
-        </div>
+    
+  return (
+    <section className="website-tiers-section" id="packages-section">
+      <div className="container">
+        <div className="text-center mb-5">
+          <h3>Website Development Packages 🚀</h3>
+          <p className="lead text-white">Three common starting points — each can be fully **customised and scaled** to your exact business goals and feature requirements.</p>
+        </div>
 
-        <div className="row g-3">
-          <div className="col-md-4">
-            <div className="price-card p-4 text-center">
-              <h5 className="mb-1">Informative</h5>
-              <div className="price">₹12,000</div>
-              <p className="small text-muted mb-3">Single page / small brochure site — fast & SEO friendly.</p>
-              <ul className="list-unstyled text-start mb-3">
-                <li>✓ Responsive template</li>
-                <li>✓ 5 pages</li>
-                <li>✓ Basic SEO</li>
-                <li>✓ Contact form</li>
-              </ul>
-              <a className="btn btn-primary" href="/contact">Get Started</a>
-            </div>
-          </div>
+        <div className="row g-4 justify-content-center">
+          <div className="col-md-6 col-lg-4">
+            <div className="price-card h-100 text-center">
+              <h5 className="mb-1">1. Informative (Starter)</h5>
+              <div className="price">₹12,000</div>
+              <p className="small text-white mb-3">Single page or small brochure site — fast, secure & SEO friendly.</p>
+              <ul className="list-unstyled text-start mb-3">
+                <li>Fully **Responsive Design**</li>
+                <li>Up to **5** Static Pages</li>
+                <li>Basic On-Page SEO Setup</li>
+                <li>Contact Form Integration</li>
+                <li>1 Month Post-Launch Support</li>
+              </ul>
+              <a className="btn btn-primary w-100" href="/contact">Get Started</a>
+            </div>
+          </div>
 
-          <div className="col-md-4">
-            <div className="price-card p-4 text-center featured">
-              <h5 className="mb-1">Dynamic</h5>
-              <div className="price">₹40,000</div>
-              <p className="small text-muted mb-3">CMS-powered website for blogs, content and moderate scale.</p>
-              <ul className="list-unstyled text-start mb-3">
-                <li>✓ Headless / WordPress CMS</li>
-                <li>✓ Up to 25 pages</li>
-                <li>✓ SEO + Analytics</li>
-                <li>✓ Admin panel & training</li>
-              </ul>
-              <a className="btn btn-primary" href="/contact">Choose Plan</a>
-            </div>
-          </div>
+          <div className="col-md-6 col-lg-4">
+            <div className="price-card h-100 text-center featured">
+              <h5 className="mb-1">2. Dynamic (CMS Core)</h5>
+              <div className="price">₹40,000+</div>
+              <p className="small text-white mb-3">CMS-powered website for blogs, content marketing, and moderate scale.</p>
+              <ul className="list-unstyled text-start mb-3">
+                <li>**Headless CMS** or WordPress</li>
+                <li>Up to **25** Dynamic Pages</li>
+                <li>Advanced SEO & Google Analytics</li>
+                <li>Admin Training & Documentation</li>
+                <li>2 Months Post-Launch Support</li>
+              </ul>
+              <a className="btn btn-primary w-100" href="/contact">Choose Plan</a>
+            </div>
+          </div>
 
-          <div className="col-md-4">
-            <div className="price-card p-4 text-center">
-              <h5 className="mb-1">E-commerce</h5>
-              <div className="price">₹75,000</div>
-              <p className="small text-muted mb-3">Full e-commerce store with payments, shipping and product management.</p>
-              <ul className="list-unstyled text-start mb-3">
-                <li>✓ Product catalog</li>
-                <li>✓ Cart & Checkout</li>
-                <li>✓ Payment & Shipping</li>
-                <li>✓ Order management</li>
-              </ul>
-              <a className="btn btn-primary" href="/contact">Get Quote</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
+          <div className="col-md-6 col-lg-4">
+            <div className="price-card h-100 text-center">
+              <h5 className="mb-1">3. E-commerce (Custom)</h5>
+              <div className="price">Custom Quote</div>
+              <p className="small text-white mb-3">Full e-commerce store with payments, shipping, and order management features.</p>
+              <ul className="list-unstyled text-start mb-3">
+                <li>Custom Product Catalog Design</li>
+                <li>Secure Cart & Checkout Flow</li>
+                <li>Payment Gateway Integration (Stripe/Razorpay)</li>
+                <li>Inventory & Order Management</li>
+                <li>3 Months Post-Launch Support</li>
+              </ul>
+              <a className="btn btn-primary w-100" href="/contact">Get Custom Quote</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
 }

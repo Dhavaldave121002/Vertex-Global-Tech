@@ -1,44 +1,45 @@
 // src/components/Services/Application/Pricing.jsx
 import React from 'react'
+import './application.css' // Import the new CSS
 
 export default function Pricing() {
-  return (
-    <section id="pricing" className="py-5">
-      <div className="container">
-        <div className="text-center mb-4">
-          <h3>Pricing (indicative)</h3>
-          <p className="text-muted">Representative packages. Final cost depends on integrations, features and platform choices.</p>
-        </div>
+  return (
+    <section id="pricing" className="app-pricing-section"> {/* Use new section class */}
+      <div className="container">
+        <div className="text-center mb-5">
+          <h3>Application Development Pricing (Indicative) 💰</h3>
+          <p className="lead text-white">Choose a starting point. Final cost depends on detailed requirements, complex integrations, and selected platform choices.</p>
+        </div>
 
-        <div className="row g-3 justify-content-center">
-          <div className="col-md-4">
-            <div className="price-card p-3 text-center">
-              <h5>Prototype</h5>
-              <div className="price">₹60,000</div>
-              <p className="small text-muted">MVP prototype, basic flows, demo-ready.</p>
-              <a className="btn btn-sm btn-primary" href="#contact">Get Started</a>
-            </div>
-          </div>
+        <div className="row g-4 justify-content-center"> {/* Increased gap */}
+          <div className="col-md-4">
+            <div className="price-card p-3 text-center h-100">
+              <h5>Prototype & Discovery</h5>
+              <div className="price">₹1,50,000</div> {/* Updated price */}
+              <p className="small text-white">Detailed wireframes, UI/UX conceptual design, basic clickable MVP prototype for testing/pitching, and final scope documentation.</p>
+              <a className="btn btn-primary" href="#contact-form-section">Start Discovery</a>
+            </div>
+          </div>
 
-          <div className="col-md-4">
-            <div className="price-card p-3 text-center featured">
-              <h5>Startup</h5>
-              <div className="price">₹1,80,000</div>
-              <p className="small text-muted">Full app, backend & store submission.</p>
-              <a className="btn btn-sm btn-primary" href="#contact">Choose</a>
-            </div>
-          </div>
+          <div className="col-md-4">
+            <div className="price-card p-3 text-center featured h-100">
+              <h5>Standard MVP Launch</h5>
+              <div className="price">₹4,00,000+</div> {/* Updated price */}
+              <p className="small text-white">Development of a single-platform, full-featured **Minimum Viable Product (MVP)**, including backend API, QA testing, and initial App Store submission.</p>
+              <a className="btn btn-primary" href="#contact-form-section">Start Project</a>
+            </div>
+          </div>
 
-          <div className="col-md-4">
-            <div className="price-card p-3 text-center">
-              <h5>Enterprise</h5>
-              <div className="price">Custom</div>
-              <p className="small text-muted">Scaled architecture, integrations, SLAs.</p>
-              <a className="btn btn-sm btn-primary" href="#contact">Get Quote</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
+          <div className="col-md-4">
+            <div className="price-card p-3 text-center h-100">
+              <h5>Enterprise / Scaled</h5>
+              <div className="price">Custom</div>
+              <p className="small text-white">Advanced security, custom cloud architecture (AWS/Azure), deep third-party integrations, multi-language support, and strict Service Level Agreements (SLAs).</p>
+              <a className="btn btn-primary" href="#contact-form-section">Get Consultation</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
 }
