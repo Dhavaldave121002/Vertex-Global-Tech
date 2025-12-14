@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 export default function ContactCTA() {
   return (
-    <section className="sections contact-cta py-5" aria-label="Contact call to action">
+    <section className="sections contact-cta py-5 mt-0" aria-label="Contact call to action">
       <div className="container">
         <div className="cta-inner rounded-3 p-4 d-flex flex-column flex-md-row align-items-center justify-content-between">
           <div>
