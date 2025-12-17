@@ -1,25 +1,61 @@
-/* floating-actions.css - Complete Professional Styles */
-
 /* ===== CSS Variables ===== */
 :root {
-  --primary: #0d6efd;
-  --primary-dark: #0b5ed7;
-  --secondary: #0dcaf0;
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #818cf8;
+  --primary-glow: rgba(99, 102, 241, 0.3);
+  
   --whatsapp: #25D366;
   --whatsapp-dark: #128C7E;
-  --phone: #FF5722;
-  --success: #198754;
-  --danger: #dc3545;
-  --warning: #ffc107;
-  --dark: #041226;
-  --light: #f8f9fa;
-  --gray: #6c757d;
+  --whatsapp-light: #4ade80;
+  --whatsapp-glow: rgba(37, 211, 102, 0.3);
+  
+  --phone: #ef4444;
+  --phone-dark: #dc2626;
+  --phone-light: #f87171;
+  --phone-glow: rgba(239, 68, 68, 0.3);
+  
+  --email: #8b5cf6;
+  --email-dark: #7c3aed;
+  --email-light: #a78bfa;
+  --email-glow: rgba(139, 92, 246, 0.3);
+  
+  --success: #10b981;
+  --success-light: #34d399;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  
+  --dark: #111827;
+  --dark-light: #1f2937;
+  --light: #f9fafb;
+  --gray: #6b7280;
+  --gray-light: #e5e7eb;
+  --gray-dark: #374151;
   --white: #ffffff;
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.3);
-  --border-radius: 16px;
+  --black: #000000;
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.2);
+  
+  --border-radius-sm: 12px;
+  --border-radius: 20px;
+  --border-radius-lg: 28px;
+  --border-radius-xl: 36px;
+  
+  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  
   --backdrop-blur: blur(20px);
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  --gradient-whatsapp: linear-gradient(135deg, var(--whatsapp), var(--whatsapp-dark));
+  --gradient-phone: linear-gradient(135deg, var(--phone), var(--phone-dark));
+  --gradient-email: linear-gradient(135deg, var(--email), var(--email-dark));
+  --gradient-dark: linear-gradient(135deg, var(--dark), var(--dark-light));
 }
 
 /* ===== Base Container ===== */
@@ -28,228 +64,125 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
-  z-index: 9999;
+  gap: 24px;
+  z-index: 99999;
   pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* Position Variations */
 .floating-actions-container.right {
-  right: 30px;
-  bottom: 30px;
+  right: 32px;
+  bottom: 32px;
 }
 
 .floating-actions-container.left {
-  left: 30px;
-  bottom: 30px;
+  left: 32px;
+  bottom: 32px;
 }
 
-/* ===== Base Button Styles ===== */
+/* ===== Enhanced Button Styles ===== */
 .floating-btn {
   position: relative;
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   border: none;
   border-radius: 50%;
-  background: var(--white);
-  color: var(--dark);
+  background: var(--gradient-primary);
+  color: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: var(--transition);
   pointer-events: auto;
-  box-shadow: var(--shadow);
-  font-size: 22px;
+  box-shadow: var(--shadow-xl), var(--shadow-glow);
+  font-size: 26px;
   transform-origin: center;
-  z-index: 100;
+  z-index: 1000;
+  overflow: hidden;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  animation: float 6s ease-in-out infinite;
 }
 
 .floating-btn:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: var(--shadow-hover);
+  transform: translateY(-8px) scale(1.1);
+  box-shadow: var(--shadow-xl), 0 0 60px rgba(99, 102, 241, 0.4);
 }
 
 .floating-btn:active {
-  transform: translateY(-1px) scale(0.98);
+  transform: translateY(-4px) scale(0.98);
 }
 
 .floating-btn:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.3);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3), var(--shadow-xl);
 }
 
-.btn-icon {
-  transition: var(--transition);
-}
-
-.floating-btn:hover .btn-icon {
-  transform: scale(1.1);
-}
-
-/* ===== Button Tooltip ===== */
-.btn-tooltip {
-  position: absolute;
-  right: 70px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--dark);
-  color: var(--white);
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition: var(--transition);
-  pointer-events: none;
-  z-index: 99;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.btn-tooltip::after {
-  content: '';
-  position: absolute;
-  right: -6px;
-  top: 50%;
-  transform: translateY(-50%);
-  border-width: 6px 0 6px 6px;
-  border-style: solid;
-  border-color: transparent transparent transparent var(--dark);
-}
-
-.floating-btn:hover .btn-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(-50%) translateX(-5px);
-}
-
-/* Left position tooltip */
-.floating-actions-container.left .btn-tooltip {
-  right: auto;
-  left: 70px;
-}
-
-.floating-actions-container.left .btn-tooltip::after {
-  right: auto;
-  left: -6px;
-  border-width: 6px 6px 6px 0;
-  border-color: transparent var(--dark) transparent transparent;
-}
-
-/* ===== WhatsApp Button ===== */
-.whatsapp-btn {
-  background: var(--whatsapp);
-  color: var(--white);
-  animation: float 6s ease-in-out infinite;
-}
-
-.whatsapp-btn:hover {
-  background: var(--whatsapp-dark);
-}
-
-/* Pulse Animation */
-.pulse-animation {
-  position: relative;
-}
-
-.pulse-animation::before {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: var(--whatsapp);
-  z-index: -1;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
-}
-
-/* ===== Contact Button ===== */
-.contact-btn {
-  background: var(--primary);
-  color: var(--white);
-}
-
-.contact-btn:hover {
-  background: var(--primary-dark);
-}
-
-.contact-btn.active {
-  background: var(--danger);
-  transform: rotate(90deg);
-}
-
-.contact-btn.active:hover {
-  background: #c82333;
-}
-
-/* ===== Back to Top Button ===== */
-.top-btn {
-  background: var(--dark);
-  color: var(--white);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(20px);
-  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
-}
-
-.top-btn.visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.top-btn:hover {
-  background: #000;
-}
-
-/* Progress Ring */
-.progress-ring {
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: 64px;
-  height: 64px;
-  pointer-events: none;
-  transform: rotate(-90deg);
-}
-
-.progress-ring-track {
-  stroke: rgba(255, 255, 255, 0.1);
-}
-
-.progress-ring-fill {
-  stroke: var(--white);
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.1s linear;
+.floating-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
 }
 
 /* ===== Contact Menu ===== */
 .contact-menu {
   position: absolute;
-  bottom: 80px;
+  bottom: 100px;
   right: 0;
-  width: 300px;
-  background: var(--white);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-hover);
-  padding: 20px;
-  z-index: 99;
+  width: 420px;
+  max-width: 90vw;
+  max-height: 85vh;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xl), 0 20px 60px rgba(0, 0, 0, 0.15);
+  padding: 0;
+  z-index: 999;
   pointer-events: auto;
-  animation: slideUp 0.3s ease-out;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-menu.compact-menu {
+  width: 380px;
+  max-height: 75vh;
+}
+
+.contact-menu.email-menu {
+  width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.contact-menu.email-menu.compact-menu {
+  width: 420px;
+  max-height: 80vh;
+}
+
+.animated-menu {
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.contact-menu.closing {
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+  pointer-events: none;
 }
 
 /* Left position menu */
@@ -258,148 +191,287 @@
   left: 0;
 }
 
+/* Menu Header */
 .menu-header {
-  margin-bottom: 20px;
+  padding: 28px 32px;
+  background: var(--gradient-dark);
+  color: var(--white);
+  position: relative;
   text-align: center;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.menu-header.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.compact-menu .menu-header {
+  padding: 24px 28px;
+}
+
+.company-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.header-content {
+  margin-top: 10px;
 }
 
 .menu-header h4 {
-  margin: 0 0 5px 0;
-  color: var(--dark);
-  font-size: 18px;
+  margin: 0 0 12px 0;
+  color: var(--white);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.compact-menu .menu-header h4 {
+  font-size: 22px;
+  margin-bottom: 8px;
 }
 
 .menu-header p {
   margin: 0;
-  color: var(--gray);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.compact-menu .menu-header p {
   font-size: 14px;
 }
 
-.menu-items {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+.device-indicator {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
+/* Back Button */
+.back-button {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: var(--white);
+  padding: 10px 18px;
+  border-radius: var(--border-radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  z-index: 1;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.compact-menu .back-button {
+  top: 24px;
+  left: 24px;
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.back-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-4px);
+}
+
+.back-icon {
+  transform: rotate(180deg);
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+/* Menu Items Container */
+.menu-items {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.compact-menu .menu-items {
+  padding: 24px;
+  gap: 16px;
+}
+
+/* Menu Item Base Styles */
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 15px;
-  border-radius: 12px;
+  gap: 20px;
+  padding: 22px;
+  border-radius: var(--border-radius);
   text-decoration: none;
   color: var(--dark);
   transition: var(--transition);
-  background: var(--light);
-  border: 1px solid transparent;
-}
-
-.menu-item:hover {
   background: var(--white);
-  border-color: rgba(13, 110, 253, 0.2);
-  transform: translateX(5px);
+  border: 2px solid var(--gray-light);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
 }
 
-.menu-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+.compact-menu .menu-item {
+  padding: 18px;
+  gap: 16px;
+}
+
+.hover-lift:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg), 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.menu-item:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Email Form Container */
+.email-form-container {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.compact-menu .email-form-container {
+  padding: 24px;
+  gap: 20px;
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.compact-menu .form-group {
+  margin-bottom: 16px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--gray-light);
+  border-radius: var(--border-radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  transition: var(--transition);
+  background: var(--white);
+  color: var(--dark);
+  resize: vertical;
+}
+
+.compact-menu .form-group input,
+.compact-menu .form-group textarea {
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--email);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.compact-menu .form-row {
+  gap: 12px;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.compact-menu .form-actions {
+  flex-direction: column;
+  gap: 10px;
+}
+
+.copy-email-btn,
+.send-email-btn {
+  flex: 1;
+  padding: 16px 24px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  color: var(--white);
-  flex-shrink: 0;
+  gap: 10px;
 }
 
-.whatsapp-item .menu-icon {
-  background: var(--whatsapp);
+.compact-menu .copy-email-btn,
+.compact-menu .send-email-btn {
+  padding: 14px 20px;
+  font-size: 14px;
 }
 
-.call-item .menu-icon {
-  background: var(--phone);
+/* Scrollbar Styling */
+.contact-menu::-webkit-scrollbar,
+.email-menu::-webkit-scrollbar {
+  width: 8px;
 }
 
-.menu-content {
-  flex: 1;
-  min-width: 0;
+.contact-menu::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.menu-content strong {
-  display: block;
-  font-size: 16px;
-  margin-bottom: 3px;
+.contact-menu::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
 }
 
-.menu-content span {
-  display: block;
-  font-size: 13px;
-  color: var(--gray);
-}
-
-/* ===== Scroll Progress Indicator ===== */
-.scroll-progress-indicator {
-  position: fixed;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 200px;
-  background: rgba(13, 110, 253, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
-  z-index: 9998;
-}
-
-.progress-bar {
-  width: 100%;
-  background: linear-gradient(to bottom, var(--primary), var(--secondary));
-  border-radius: 2px;
-  transition: height 0.1s linear;
-}
-
-/* Left position indicator */
-.floating-actions-container.left ~ .scroll-progress-indicator {
-  right: auto;
-  left: 10px;
-}
-
-/* ===== Animations ===== */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-  70% {
-    transform: scale(0.9);
-  }
-  100% {
-    transform: scale(1);
-  }
+.contact-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* ===== Mobile Responsive ===== */
@@ -415,205 +487,207 @@
   }
   
   .floating-btn {
-    width: 56px;
-    height: 56px;
-    font-size: 20px;
+    width: 70px;
+    height: 70px;
+    font-size: 24px;
   }
   
   .contact-menu {
-    width: 280px;
-    right: -10px;
-    bottom: 70px;
+    width: calc(100vw - 40px);
+    max-width: none;
+    bottom: 88px;
+    right: 20px;
+    left: 20px;
+    margin: 0 auto;
   }
   
   .floating-actions-container.left .contact-menu {
-    right: auto;
-    left: -10px;
+    right: 20px;
+    left: 20px;
+  }
+  
+  .contact-menu.email-menu {
+    width: calc(100vw - 40px);
   }
   
   .btn-tooltip {
-    display: none; /* Hide tooltips on mobile */
+    display: none;
   }
   
-  .scroll-progress-indicator {
-    display: none; /* Hide on mobile */
+  .menu-header {
+    padding: 24px 20px;
   }
   
-  .progress-ring {
-    width: 60px;
-    height: 60px;
+  .menu-header h4 {
+    font-size: 22px;
   }
   
-  .progress-ring circle {
-    r: 27;
+  .menu-items {
+    padding: 20px;
+    gap: 16px;
+  }
+  
+  .menu-item {
+    padding: 18px;
+    gap: 16px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-height: 700px) and (max-width: 768px) {
+  .contact-menu {
+    max-height: 70vh;
+  }
+  
+  .email-form-container {
+    padding: 20px;
+  }
+  
+  .enhanced-email-section {
+    padding: 16px;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    padding: 12px 14px;
+  }
+  
+  .form-group textarea {
+    rows: 3;
   }
 }
 
 @media (max-width: 480px) {
-  .floating-actions-container.right {
-    right: 15px;
-    bottom: 15px;
-  }
-  
-  .floating-actions-container.left {
-    left: 15px;
-    bottom: 15px;
-  }
-  
   .floating-btn {
-    width: 52px;
-    height: 52px;
-    font-size: 18px;
+    width: 65px;
+    height: 65px;
+    font-size: 22px;
   }
   
   .contact-menu {
-    width: 260px;
-    padding: 15px;
+    width: calc(100vw - 32px);
+    bottom: 84px;
+    right: 16px;
+    left: 16px;
+  }
+  
+  .menu-header {
+    padding: 20px 16px;
+  }
+  
+  .menu-header h4 {
+    font-size: 20px;
+  }
+  
+  .back-button {
+    top: 20px;
+    left: 16px;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  
+  .menu-items {
+    padding: 16px;
+    gap: 12px;
   }
   
   .menu-item {
-    padding: 12px;
+    padding: 16px;
+    gap: 14px;
   }
   
-  .menu-icon {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
+  .email-form-container {
+    padding: 16px;
+  }
+  
+  .copy-email-btn,
+  .send-email-btn {
+    padding: 14px 16px;
+    font-size: 14px;
   }
 }
 
-/* ===== Touch Device Optimizations ===== */
-@media (hover: none) and (pointer: coarse) {
+/* ===== Small Phone Support ===== */
+@media (max-width: 360px) {
   .floating-btn {
-    min-width: 44px;
-    min-height: 44px;
-  }
-  
-  .floating-btn:active {
-    transform: scale(0.95);
-  }
-  
-  .btn-tooltip {
-    display: none;
+    width: 60px;
+    height: 60px;
+    font-size: 20px;
   }
   
   .contact-menu {
-    border: 2px solid rgba(13, 110, 253, 0.1);
-  }
-}
-
-/* ===== Reduced Motion Support ===== */
-@media (prefers-reduced-motion: reduce) {
-  .floating-btn,
-  .contact-menu,
-  .btn-tooltip,
-  .progress-ring-fill,
-  .progress-bar {
-    transition: none !important;
-    animation: none !important;
+    width: calc(100vw - 24px);
+    right: 12px;
+    left: 12px;
+    bottom: 80px;
   }
   
-  .pulse-animation::before {
-    animation: none;
-    display: none;
+  .menu-header {
+    padding: 16px 14px;
   }
   
-  .whatsapp-btn {
-    animation: none;
+  .menu-header h4 {
+    font-size: 18px;
+  }
+  
+  .company-badge {
+    font-size: 11px;
+    padding: 5px 12px;
+  }
+  
+  .menu-item {
+    padding: 14px;
+    gap: 12px;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    padding: 10px 12px;
+    font-size: 14px;
   }
 }
 
 /* ===== Dark Mode Support ===== */
 @media (prefers-color-scheme: dark) {
   .contact-menu {
-    background: #1a1a1a;
-    border-color: #333;
-  }
-  
-  .menu-header h4 {
-    color: var(--white);
-  }
-  
-  .menu-header p {
-    color: #999;
+    background: rgba(31, 41, 55, 0.98);
+    border-color: rgba(255, 255, 255, 0.1);
   }
   
   .menu-item {
-    background: #2d2d2d;
+    background: rgba(55, 65, 81, 0.8);
+    border-color: rgba(255, 255, 255, 0.15) !important;
     color: var(--white);
   }
   
-  .menu-content span {
-    color: #999;
-  }
-  
-  .menu-item:hover {
-    background: #333;
-    border-color: rgba(13, 110, 253, 0.3);
-  }
-  
-  .btn-tooltip {
-    background: #1a1a1a;
+  .form-group input,
+  .form-group textarea {
+    background: rgba(55, 65, 81, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
     color: var(--white);
   }
   
-  .btn-tooltip::after {
-    border-color: transparent transparent transparent #1a1a1a;
-  }
-  
-  .floating-actions-container.left .btn-tooltip::after {
-    border-color: transparent #1a1a1a transparent transparent;
-  }
-}
-
-/* ===== Print Styles ===== */
-@media print {
-  .floating-actions-container,
-  .scroll-progress-indicator {
-    display: none !important;
+  .email-preview,
+  .enhanced-email-section,
+  .email-option {
+    background: rgba(55, 65, 81, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--white);
   }
 }
 
 /* ===== Accessibility ===== */
-.floating-btn:focus-visible {
+.floating-btn:focus-visible,
+.menu-item:focus-visible,
+.back-button:focus-visible {
   outline: 3px solid var(--primary);
-  outline-offset: 3px;
-}
-
-/* ===== Loading States ===== */
-.floating-btn.loading {
-  position: relative;
-  color: transparent;
-}
-
-.floating-btn.loading::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--white);
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ===== High Contrast Mode ===== */
-@media (prefers-contrast: high) {
-  .floating-btn {
-    border: 2px solid currentColor;
-  }
-  
-  .contact-menu {
-    border: 2px solid currentColor;
-  }
-  
-  .menu-item {
-    border: 1px solid currentColor;
-  }
+  outline-offset: 2px;
 }
