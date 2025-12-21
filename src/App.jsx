@@ -74,10 +74,82 @@ export default function App() {
 
         <Footer />
 
+        {/* You can use either FloatingActions or FloatingActions, or both */}
+        {/* Option 1: Use only FloatingActions (recommended - more feature-rich) */}
         <FloatingActions
+          position="right"
+          floatingButtonSize="medium"
+          darkMode={false}
+          zIndex={999999}
+          enablePulse={true}
+          showCallButton={true}
+          showEmailButton={true}
+          enableRipple={true}
+          showBadgeCount={true}
+          autoClose={true}
+          whatsappNumbers={[
+            { 
+              number: '+919876543210', 
+              label: 'Sales Team', 
+              icon: '👔',
+              description: 'For sales inquiries and pricing'
+            },
+            { 
+              number: '+919876543211', 
+              label: 'Support Team', 
+              icon: '🛠️',
+              description: 'For technical support'
+            },
+            { 
+              number: '+919876543212', 
+              label: 'General Inquiry', 
+              icon: '💬',
+              description: 'For general questions'
+            }
+          ]}
+          phoneNumbers={[
+            { 
+              number: '+919876543210', 
+              label: 'Sales Team', 
+              icon: '📞',
+              description: 'Mon-Fri, 9AM-6PM'
+            },
+            { 
+              number: '+919876543211', 
+              label: 'Support Team', 
+              icon: '🔧',
+              description: '24/7 support available'
+            }
+          ]}
+          emailAddress="contact@vertexglobaltech.com"
+          emailSubject="Inquiry from Website Visitor"
+          whatsappMessage="Hello Vertex Global Tech! I am interested in your services and would like to know more information. Please contact me at your earliest convenience."
+        />
+
+        {/* Option 2: Use both components with different positions */}
+        {/*
+        <FloatingActions
+          position="left"
           whatsappNumber="919876543210"
           whatsappMessage="Hi%20Vertex%20Global%20Tech!%20I%20am%20interested%20in%20your%20services."
         />
+        
+        <FloatingActions
+          position="right"
+          floatingButtonSize="medium"
+          darkMode={false}
+          zIndex={999998}
+          enablePulse={true}
+          showCallButton={true}
+          showEmailButton={true}
+          whatsappNumbers={[
+            { number: '+919876543210', label: 'Support', icon: '🛠️' }
+          ]}
+          phoneNumbers={[
+            { number: '+919876543210', label: 'Call Us', icon: '📞' }
+          ]}
+        />
+        */}
       </div>
     </BrowserRouter>
   )

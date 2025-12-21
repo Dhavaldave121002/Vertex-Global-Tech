@@ -1,850 +1,674 @@
-import React, { useEffect, useState, useRef } from 'react';
+// src/components/FloatingContactPro/FloatingContactPro.jsx
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   FaWhatsapp,
   FaPhone,
   FaCommentAlt,
   FaTimes,
+  FaEnvelope,
   FaChevronRight,
   FaSpinner,
-  FaEnvelope,
   FaCopy,
   FaCheck,
-  FaExclamationCircle,
-  FaPaperPlane,
-  FaDesktop,
-  FaMobileAlt
+  FaPaperPlane
 } from 'react-icons/fa';
 import './floating-actions.css';
 
-export default function FloatingActions({
+export default function FloatingContactPro({
+  // WhatsApp configuration
   whatsappNumbers = [
     { number: '+919876543210', label: 'Sales Team', icon: '👔' },
     { number: '+919876543211', label: 'Support Team', icon: '🛠️' }
   ],
   whatsappMessage = 'Hello, I would like to know more about your services!',
+  
+  // Phone configuration
   phoneNumbers = [
     { number: '+919876543210', label: 'Sales Team', icon: '📞' },
     { number: '+919876543211', label: 'Support Team', icon: '🔧' }
   ],
+  
+  // Email configuration
   emailAddress = 'contact@vertexglobaltech.com',
   emailSubject = 'Inquiry from Website',
+  
+  // Settings
   enablePulse = true,
   position = 'right',
   showCallButton = true,
   showEmailButton = true,
-  companyName = 'Vertex Global Tech'
+  floatingButtonSize = 'medium',
+  autoClose = true,
+  enableRipple = true,
+  showBadgeCount = true,
+  darkMode = false,
+  zIndex = 999999
 }) {
-  const [mounted, setMounted] = useState(false);
-  const [activeMenu, setActiveMenu] = useState(null);
+  // State
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState('main');
   const [loading, setLoading] = useState(false);
-  const [selectedType, setSelectedType] = useState(null);
-  const [isClosing, setIsClosing] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [emailForm, setEmailForm] = useState({
-    subject: emailSubject,
-    message: '',
-    name: '',
-    phone: '',
-    email: ''
-  });
-  const [emailStatus, setEmailStatus] = useState(null);
-  const [deviceType, setDeviceType] = useState('desktop');
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-
-  const contactRef = useRef(null);
+  const [copied, setCopied] = useState(null);
+  const [notification, setNotification] = useState(null);
+  const [ripple, setRipple] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [touchStartY, setTouchStartY] = useState(0);
+  const [menuHeight, setMenuHeight] = useState('auto');
+  const [mounted, setMounted] = useState(false);
+  
+  // Refs
+  const containerRef = useRef(null);
   const menuRef = useRef(null);
-  const closeTimeoutRef = useRef(null);
-  const copyTimeoutRef = useRef(null);
-  const notificationRef = useRef(null);
-  const emailFormRef = useRef(null);
-
+  const timeoutRef = useRef(null);
+  const rippleTimeoutRef = useRef(null);
+  const notificationTimeoutRef = useRef(null);
+  
+  // Initialize component
   useEffect(() => {
     setMounted(true);
     
-    const detectDevice = () => {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      setDeviceType(isMobile ? 'mobile' : 'desktop');
-      setViewportHeight(window.innerHeight);
+    const checkDevice = () => {
+      const width = window.innerWidth;
+      setIsMobile(width <= 768);
+      
+      if (width <= 768 && menuRef.current) {
+        const viewportHeight = window.innerHeight;
+        const maxHeight = viewportHeight * 0.7;
+        setMenuHeight(`${maxHeight}px`);
+      } else {
+        setMenuHeight('auto');
+      }
     };
     
-    detectDevice();
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
     
-    const handleResize = () => {
-      detectDevice();
-      setViewportHeight(window.innerHeight);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
-    // Preload animations
-    const preloadStyles = document.createElement('style');
-    preloadStyles.textContent = `
-      @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
-      @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.6); opacity: 0; } }
-      @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-      @keyframes shimmer { 0% { background-position: -468px 0; } 100% { background-position: 468px 0; } }
-    `;
-    document.head.appendChild(preloadStyles);
-
     return () => {
-      [closeTimeoutRef, copyTimeoutRef].forEach(ref => {
-        if (ref.current) clearTimeout(ref.current);
-      });
-      document.head.removeChild(preloadStyles);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', checkDevice);
+      clearAllTimeouts();
     };
   }, []);
-
-  useEffect(() => {
-    // Auto-scroll email form into view on mobile
-    if (activeMenu === 'email' && deviceType === 'mobile' && emailFormRef.current) {
-      setTimeout(() => {
-        emailFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
-    }
-  }, [activeMenu, deviceType]);
-
-  const closeAllMenus = (immediate = false) => {
-    if (immediate) {
-      setActiveMenu(null);
-      setSelectedType(null);
-      setIsClosing(false);
-      setEmailStatus(null);
-      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-    } else {
-      setIsClosing(true);
-      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = setTimeout(() => {
-        setActiveMenu(null);
-        setSelectedType(null);
-        setIsClosing(false);
-        setEmailStatus(null);
-      }, 300);
-    }
-  };
-
-  const handleMainButtonClick = (e) => {
-    e.stopPropagation();
-    if (isClosing) return;
-    
-    if (activeMenu === 'main') {
-      closeAllMenus();
-    } else {
-      setActiveMenu('main');
-      setEmailForm({
-        subject: emailSubject,
-        message: '',
-        name: '',
-        phone: '',
-        email: ''
-      });
-      setEmailStatus(null);
-    }
-  };
-
-  const handleWhatsAppClick = (e) => {
-    e.stopPropagation();
-    if (whatsappNumbers.length === 1) {
-      const encodedMessage = encodeURIComponent(whatsappMessage);
-      window.open(`https://wa.me/${whatsappNumbers[0].number.replace(/\D/g, '')}?text=${encodedMessage}`, '_blank');
-      closeAllMenus(true);
-    } else {
-      setActiveMenu('whatsapp');
-      setSelectedType('whatsapp');
-    }
-  };
-
-  const handleCallClick = (e) => {
-    e.stopPropagation();
-    if (phoneNumbers.length === 1) {
-      window.location.href = `tel:${phoneNumbers[0].number.replace(/\D/g, '')}`;
-      closeAllMenus(true);
-    } else {
-      setActiveMenu('call');
-      setSelectedType('call');
-    }
-  };
-
-  const handleEmailClick = (e) => {
-    e.stopPropagation();
-    setActiveMenu('email');
-  };
-
-  const handleBackClick = (e) => {
-    e.stopPropagation();
-    setActiveMenu('main');
-    setSelectedType(null);
-    setEmailStatus(null);
-  };
-
-  const handleNumberSelect = async (number, type, e) => {
-    e.stopPropagation();
-    setLoading(true);
-    setSelectedType(type);
-    
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
-    if (type === 'whatsapp') {
-      const encodedMessage = encodeURIComponent(whatsappMessage);
-      window.open(`https://wa.me/${number.replace(/\D/g, '')}?text=${encodedMessage}`, '_blank');
-    } else if (type === 'call') {
-      window.location.href = `tel:${number.replace(/\D/g, '')}`;
-    }
-    
-    setLoading(false);
-    closeAllMenus(true);
-  };
-
-  const copyToClipboard = async (text, type) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(type);
-      
-      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
-      copyTimeoutRef.current = setTimeout(() => {
-        setCopied(null);
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
-  const handleEmailFormChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'message' && value.length > 500) return;
-    setEmailForm(prev => ({ ...prev, [name]: value }));
-  };
-
-  const openMailClient = (mailtoUrl) => {
-    const link = document.createElement('a');
-    link.href = mailtoUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    
-    if (deviceType === 'mobile') {
-      link.style.display = 'none';
-      document.body.appendChild(link);
-    }
-    
-    link.click();
-    
-    if (deviceType === 'mobile') {
-      setTimeout(() => {
-        document.body.removeChild(link);
-      }, 100);
-    }
-  };
-
-  const sendEnhancedEmail = async (e) => {
-    if (e) e.stopPropagation();
-    
-    setEmailStatus('sending');
-    
-    try {
-      const body = emailForm.message || `Hello,\n\nI would like to get in touch with you.\n\nBest regards,\n${emailForm.name || 'Website Visitor'}`;
-      const enhancedSubject = `${emailForm.subject || emailSubject}${emailForm.name ? ` - From ${emailForm.name}` : ''}`;
-      
-      let enhancedBody = body;
-      
-      const contactInfo = [];
-      if (emailForm.name) contactInfo.push(`Name: ${emailForm.name}`);
-      if (emailForm.email) contactInfo.push(`Email: ${emailForm.email}`);
-      if (emailForm.phone) contactInfo.push(`Phone: ${emailForm.phone}`);
-      
-      if (contactInfo.length > 0) {
-        enhancedBody += `\n\n---\nContact Information:\n${contactInfo.join('\n')}`;
-      }
-      
-      enhancedBody += `\n\n---\nSent via ${companyName} Contact Widget`;
-      
-      let mailtoUrl = `mailto:${emailAddress}?subject=${encodeURIComponent(enhancedSubject)}&body=${encodeURIComponent(enhancedBody)}`;
-      
-      if (emailForm.email) {
-        mailtoUrl += `&cc=${encodeURIComponent(emailForm.email)}`;
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      openMailClient(mailtoUrl);
-      
-      setEmailStatus('success');
-      
-      setTimeout(() => {
-        closeAllMenus(true);
-      }, 1500);
-      
-    } catch (error) {
-      console.error('Email error:', error);
-      setEmailStatus('error');
-    }
-  };
-
-  const sendEmailDirectly = () => {
-    const mailtoUrl = `mailto:${emailAddress}?subject=${encodeURIComponent(emailSubject)}`;
-    openMailClient(mailtoUrl);
-    closeAllMenus(true);
-  };
-
+  
+  // Clear all timeouts
+  const clearAllTimeouts = useCallback(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (rippleTimeoutRef.current) clearTimeout(rippleTimeoutRef.current);
+    if (notificationTimeoutRef.current) clearTimeout(notificationTimeoutRef.current);
+  }, []);
+  
+  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
+        containerRef.current && 
+        !containerRef.current.contains(event.target) &&
         menuRef.current && 
-        contactRef.current &&
-        !menuRef.current.contains(event.target) &&
-        !contactRef.current.contains(event.target) &&
-        activeMenu !== null &&
-        !event.target.closest('.notification-toast')
+        !menuRef.current.contains(event.target)
       ) {
-        closeAllMenus();
+        closeMenu();
       }
     };
-
-    const handleEscapeKey = (event) => {
-      if (event.key === 'Escape' && activeMenu !== null) {
-        closeAllMenus();
+    
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+      
+      if (isMobile) {
+        document.documentElement.style.overflow = 'hidden';
       }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
-    document.addEventListener('keydown', handleEscapeKey);
+    }
     
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
-      document.removeEventListener('keydown', handleEscapeKey);
+      document.documentElement.style.overflow = '';
     };
-  }, [activeMenu]);
-
-  if (!mounted) return null;
-
-  const isSmallScreen = viewportHeight < 700 || deviceType === 'mobile';
-
-  return (
-    <div className={`floating-actions-container ${position}`}>
-      <button
-        ref={contactRef}
-        className={`floating-btn contact-btn ${activeMenu !== null ? 'active' : ''} ${
-          enablePulse ? 'pulse-animation' : ''
-        } ${isClosing ? 'closing' : ''} glow-effect`}
-        onClick={handleMainButtonClick}
-        onMouseDown={(e) => e.preventDefault()}
-        disabled={loading}
-        aria-label={activeMenu !== null ? "Close contact menu" : "Open contact menu"}
-        aria-expanded={activeMenu !== null}
-      >
-        <div className="btn-inner">
-          {loading ? (
-            <FaSpinner className="spinner-icon" />
-          ) : activeMenu !== null ? (
-            <FaTimes className="close-icon" />
-          ) : (
-            <FaCommentAlt className="comment-icon" />
-          )}
-        </div>
-        <span className="btn-tooltip">
-          {loading ? 'Loading...' : activeMenu !== null ? 'Close Menu' : 'Contact Options'}
-        </span>
+  }, [isOpen, isMobile]);
+  
+  // Handle escape key
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        closeMenu();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => document.removeEventListener('keydown', handleEscapeKey);
+  }, [isOpen]);
+  
+  // Handle touch swipe to close on mobile
+  const handleTouchStart = useCallback((e) => {
+    if (isOpen && isMobile && menuRef.current) {
+      setTouchStartY(e.touches[0].clientY);
+    }
+  }, [isOpen, isMobile]);
+  
+  const handleTouchMove = useCallback((e) => {
+    if (!isOpen || !isMobile || !menuRef.current || touchStartY === 0) return;
+    
+    const touchY = e.touches[0].clientY;
+    const diff = touchY - touchStartY;
+    
+    if (diff > 100) {
+      closeMenu();
+    }
+  }, [isOpen, isMobile, touchStartY]);
+  
+  // Ripple effect
+  const createRipple = useCallback((e) => {
+    if (!enableRipple) return;
+    
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+    
+    setRipple({ x, y, size });
+    
+    if (rippleTimeoutRef.current) clearTimeout(rippleTimeoutRef.current);
+    rippleTimeoutRef.current = setTimeout(() => {
+      setRipple(null);
+    }, 600);
+  }, [enableRipple]);
+  
+  // Show notification
+  const showNotification = useCallback((message, duration = 2000) => {
+    setNotification(message);
+    
+    if (notificationTimeoutRef.current) clearTimeout(notificationTimeoutRef.current);
+    notificationTimeoutRef.current = setTimeout(() => {
+      setNotification(null);
+    }, duration);
+  }, []);
+  
+  // Close menu
+  const closeMenu = useCallback(() => {
+    setIsOpen(false);
+    setTimeout(() => {
+      setActiveMenu('main');
+      setLoading(false);
+    }, 300);
+  }, []);
+  
+  // Handle main button click
+  const handleMainButtonClick = useCallback((e) => {
+    createRipple(e);
+    setIsOpen(!isOpen);
+    if (isOpen) {
+      setTimeout(() => setActiveMenu('main'), 300);
+    }
+  }, [isOpen, createRipple]);
+  
+  // Handle menu item click
+  const handleMenuItemClick = useCallback((type) => {
+    if (type === 'whatsapp') {
+      if (whatsappNumbers.length === 1) {
+        openWhatsApp(whatsappNumbers[0].number);
+      } else {
+        setActiveMenu('whatsapp');
+      }
+    } else if (type === 'call') {
+      if (phoneNumbers.length === 1) {
+        makePhoneCall(phoneNumbers[0].number);
+      } else {
+        setActiveMenu('call');
+      }
+    } else if (type === 'email') {
+      sendEmail();
+    }
+  }, [whatsappNumbers, phoneNumbers]);
+  
+  // Handle back button
+  const handleBackClick = useCallback(() => {
+    setActiveMenu('main');
+  }, []);
+  
+  // Open WhatsApp
+  const openWhatsApp = useCallback((number) => {
+    setLoading(true);
+    const cleanedNumber = number.replace(/\D/g, '');
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    const whatsappUrl = `https://wa.me/${cleanedNumber}?text=${encodedMessage}`;
+    
+    showNotification('Opening WhatsApp...');
+    
+    setTimeout(() => {
+      const newWindow = window.open(whatsappUrl, '_blank');
+      
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        window.location.href = whatsappUrl;
+      }
+      
+      setLoading(false);
+      if (autoClose) closeMenu();
+    }, 300);
+  }, [whatsappMessage, autoClose, closeMenu, showNotification]);
+  
+  // Make phone call
+  const makePhoneCall = useCallback((number) => {
+    setLoading(true);
+    const cleanedNumber = number.replace(/\D/g, '');
+    
+    showNotification('Initiating call...');
+    
+    setTimeout(() => {
+      if (isMobile) {
+        window.location.href = `tel:${cleanedNumber}`;
+      } else {
+        copyToClipboard(cleanedNumber, 'call-desktop');
+        showNotification(`Call ${formatPhoneNumber(number)} (Number copied)`);
+      }
+      setLoading(false);
+      if (autoClose) closeMenu();
+    }, 300);
+  }, [isMobile, autoClose, closeMenu, showNotification]);
+  
+  // Send email
+  const sendEmail = useCallback(() => {
+    setLoading(true);
+    const encodedSubject = encodeURIComponent(emailSubject);
+    const mailtoUrl = `mailto:${emailAddress}?subject=${encodedSubject}`;
+    
+    showNotification('Opening Email Client...');
+    
+    setTimeout(() => {
+      const newWindow = window.open(mailtoUrl, '_blank');
+      
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        window.location.href = mailtoUrl;
+      }
+      
+      setLoading(false);
+      if (autoClose) closeMenu();
+    }, 300);
+  }, [emailAddress, emailSubject, autoClose, closeMenu, showNotification]);
+  
+  // Copy to clipboard
+  const copyToClipboard = useCallback((text, type) => {
+    const fallbackCopy = () => {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          setCopied(type);
+          showNotification('Copied to clipboard!');
+        } else {
+          showNotification('Failed to copy');
+        }
+      } catch (err) {
+        showNotification('Failed to copy');
+      }
+      
+      document.body.removeChild(textArea);
+    };
+    
+    if (!navigator.clipboard) {
+      fallbackCopy();
+      return;
+    }
+    
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        setCopied(type);
+        showNotification('Copied to clipboard!');
         
-        <div className="btn-rings">
-          <div className="ring ring-1"></div>
-          <div className="ring ring-2"></div>
-          <div className="ring ring-3"></div>
-        </div>
-      </button>
-
-      {activeMenu === 'main' && (
-        <div 
-          ref={menuRef} 
-          className={`contact-menu main-menu ${isClosing ? 'closing' : ''} animated-menu ${isSmallScreen ? 'compact-menu' : ''}`}
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          role="dialog"
-          aria-label="Contact options"
-        >
-          <div className="menu-header">
-            <div className="header-content">
-              <div className="company-badge">{companyName}</div>
-              <h4>Get in Touch</h4>
-              <p>Choose how you'd like to contact us</p>
-            </div>
-          </div>
-
-          <div className="menu-items">
-            <button
-              className="menu-item whatsapp-item hover-lift"
-              onClick={handleWhatsAppClick}
-              onMouseDown={(e) => e.preventDefault()}
-              disabled={loading}
-              aria-label={`Open WhatsApp ${whatsappNumbers.length > 1 ? 'number selection' : 'chat'}`}
-            >
-              <div className="menu-icon-animated">
-                <FaWhatsapp />
-                <div className="icon-pulse"></div>
-              </div>
-              <div className="menu-content">
-                <strong>WhatsApp Chat</strong>
-                <span>Instant messaging {whatsappNumbers.length > 1 ? `(${whatsappNumbers.length} options)` : ''}</span>
-              </div>
-              {whatsappNumbers.length > 1 && (
-                <div className="menu-badge animated-badge">
-                  {whatsappNumbers.length}
-                </div>
-              )}
-              <div className="menu-arrow animated-arrow">
-                <FaChevronRight />
-              </div>
-            </button>
-
-            {showCallButton && (
-              <button
-                className="menu-item call-item hover-lift"
-                onClick={handleCallClick}
-                onMouseDown={(e) => e.preventDefault()}
-                disabled={loading}
-                aria-label={`Call ${phoneNumbers.length > 1 ? 'number selection' : 'us'}`}
-              >
-                <div className="menu-icon-animated">
-                  <FaPhone />
-                  <div className="icon-pulse"></div>
-                </div>
-                <div className="menu-content">
-                  <strong>Phone Call</strong>
-                  <span>Direct phone call {phoneNumbers.length > 1 ? `(${phoneNumbers.length} options)` : ''}</span>
-                </div>
-                {phoneNumbers.length > 1 && (
-                  <div className="menu-badge animated-badge">
-                    {phoneNumbers.length}
-                  </div>
-                )}
-                <div className="menu-arrow animated-arrow">
-                  <FaChevronRight />
-                </div>
-              </button>
-            )}
-
-            {showEmailButton && (
-              <button
-                className="menu-item email-item hover-lift"
-                onClick={handleEmailClick}
-                onMouseDown={(e) => e.preventDefault()}
-                disabled={loading}
-                aria-label="Send email"
-              >
-                <div className="menu-icon-animated">
-                  <FaEnvelope />
-                  <div className="icon-pulse"></div>
-                </div>
-                <div className="menu-content">
-                  <strong>Send Email</strong>
-                  <span>{deviceType === 'mobile' ? 'Enhanced form' : 'Quick email'}</span>
-                </div>
-                <div className="menu-arrow animated-arrow">
-                  <FaChevronRight />
-                </div>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeMenu === 'whatsapp' && (
-        <div 
-          ref={menuRef} 
-          className={`contact-menu selection-menu ${isClosing ? 'closing' : ''} animated-menu ${isSmallScreen ? 'compact-menu' : ''}`}
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          role="dialog"
-          aria-label="WhatsApp number selection"
-        >
-          <div className="menu-header">
-            <button
-              className="back-button hover-lift"
-              onClick={handleBackClick}
-              onMouseDown={(e) => e.preventDefault()}
-              disabled={loading}
-              aria-label="Go back to main menu"
-            >
-              <FaChevronRight className="back-icon" />
-              <span>Back</span>
-            </button>
-            <div className="header-content">
-              <h4>Select WhatsApp Number</h4>
-              <p>Choose which team to contact</p>
-            </div>
-          </div>
-
-          <div className="menu-items">
-            {whatsappNumbers.map((item, index) => (
-              <button
-                key={index}
-                className="menu-item whatsapp-number-item hover-lift"
-                onClick={(e) => handleNumberSelect(item.number, 'whatsapp', e)}
-                onMouseDown={(e) => e.preventDefault()}
-                disabled={loading}
-                aria-label={`Contact ${item.label} on WhatsApp`}
-              >
-                <div className="number-avatar-animated">
-                  <div className="avatar-icon">{item.icon || <FaWhatsapp />}</div>
-                  <div className="avatar-glow"></div>
-                </div>
-                <div className="menu-content">
-                  <strong>{item.label}</strong>
-                  <div className="number-display-container">
-                    <span className="number-display">{formatPhoneNumber(item.number)}</span>
-                    <button
-                      className="copy-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyToClipboard(item.number, `whatsapp-${index}`);
-                      }}
-                      aria-label="Copy number"
-                    >
-                      {copied === `whatsapp-${index}` ? (
-                        <FaCheck className="copy-success" />
-                      ) : (
-                        <FaCopy />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                {loading && selectedType === 'whatsapp' ? (
-                  <div className="loading-spinner-animated">
-                    <FaSpinner />
-                  </div>
-                ) : (
-                  <div className="menu-arrow animated-arrow">
-                    <FaChevronRight />
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {activeMenu === 'call' && (
-        <div 
-          ref={menuRef} 
-          className={`contact-menu selection-menu ${isClosing ? 'closing' : ''} animated-menu ${isSmallScreen ? 'compact-menu' : ''}`}
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          role="dialog"
-          aria-label="Phone number selection"
-        >
-          <div className="menu-header">
-            <button
-              className="back-button hover-lift"
-              onClick={handleBackClick}
-              onMouseDown={(e) => e.preventDefault()}
-              disabled={loading}
-              aria-label="Go back to main menu"
-            >
-              <FaChevronRight className="back-icon" />
-              <span>Back</span>
-            </button>
-            <div className="header-content">
-              <h4>Select Phone Number</h4>
-              <p>Choose which team to call</p>
-            </div>
-          </div>
-
-          <div className="menu-items">
-            {phoneNumbers.map((item, index) => (
-              <button
-                key={index}
-                className="menu-item call-number-item hover-lift"
-                onClick={(e) => handleNumberSelect(item.number, 'call', e)}
-                onMouseDown={(e) => e.preventDefault()}
-                disabled={loading}
-                aria-label={`Call ${item.label}`}
-              >
-                <div className="number-avatar-animated">
-                  <div className="avatar-icon">{item.icon || <FaPhone />}</div>
-                  <div className="avatar-glow"></div>
-                </div>
-                <div className="menu-content">
-                  <strong>{item.label}</strong>
-                  <div className="number-display-container">
-                    <span className="number-display">{formatPhoneNumber(item.number)}</span>
-                    <button
-                      className="copy-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyToClipboard(item.number, `call-${index}`);
-                      }}
-                      aria-label="Copy number"
-                    >
-                      {copied === `call-${index}` ? (
-                        <FaCheck className="copy-success" />
-                      ) : (
-                        <FaCopy />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                {loading && selectedType === 'call' ? (
-                  <div className="loading-spinner-animated">
-                    <FaSpinner />
-                  </div>
-                ) : (
-                  <div className="menu-arrow animated-arrow">
-                    <FaChevronRight />
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {activeMenu === 'email' && (
-        <div 
-          ref={menuRef} 
-          className={`contact-menu email-menu ${isClosing ? 'closing' : ''} animated-menu ${isSmallScreen ? 'compact-menu' : ''}`}
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          role="dialog"
-          aria-label="Email form"
-          style={isSmallScreen ? { maxHeight: `${viewportHeight - 100}px`, overflowY: 'auto' } : {}}
-        >
-          <div className="menu-header sticky-header">
-            <button
-              className="back-button hover-lift"
-              onClick={handleBackClick}
-              onMouseDown={(e) => e.preventDefault()}
-              disabled={loading || emailStatus === 'sending'}
-              aria-label="Go back to main menu"
-            >
-              <FaChevronRight className="back-icon" />
-              <span>Back</span>
-            </button>
-            <div className="header-content">
-              <h4>Send Email</h4>
-              <p>We'll get back to you soon</p>
-              <div className="device-indicator">
-                {deviceType === 'desktop' ? (
-                  <span><FaDesktop /> Desktop Mode</span>
-                ) : (
-                  <span><FaMobileAlt /> Mobile Mode</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="email-form-container" ref={emailFormRef}>
-            {emailStatus === 'success' ? (
-              <div className="email-success animated-success">
-                <div className="success-icon">
-                  <FaPaperPlane />
-                </div>
-                <h4>Email Ready!</h4>
-                <p>Your email client will open shortly</p>
-                <div className="success-message">
-                  <p><strong>Subject:</strong> {emailForm.subject}</p>
-                  <p><strong>To:</strong> {emailAddress}</p>
-                </div>
-              </div>
-            ) : emailStatus === 'error' ? (
-              <div className="email-error">
-                <FaExclamationCircle />
-                <h4>Oops!</h4>
-                <p>Couldn't open email client. Try the copy option below.</p>
-              </div>
-            ) : (
-              <>
-                <div className="email-options">
-                  <button
-                    className="email-option quick-email hover-lift"
-                    onClick={sendEmailDirectly}
-                    disabled={emailStatus === 'sending'}
-                  >
-                    <div className="option-icon">
-                      <FaPaperPlane />
-                    </div>
-                    <div className="option-content">
-                      <strong>Quick Email</strong>
-                      <span>Open email client directly</span>
-                    </div>
-                  </button>
-                  
-                  <div className="option-divider">
-                    <span>OR</span>
-                  </div>
-                  
-                  <div className="enhanced-email-section">
-                    <h5>Enhanced Email</h5>
-                    <p className="section-description">Fill the form below for a personalized email</p>
-                    
-                    <div className="form-group">
-                      <label htmlFor="emailSubject">Subject *</label>
-                      <input
-                        type="text"
-                        id="emailSubject"
-                        name="subject"
-                        value={emailForm.subject}
-                        onChange={handleEmailFormChange}
-                        placeholder="Email subject"
-                        disabled={emailStatus === 'sending'}
-                        required
-                      />
-                    </div>
-
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label htmlFor="emailName">Your Name</label>
-                        <input
-                          type="text"
-                          id="emailName"
-                          name="name"
-                          value={emailForm.name}
-                          onChange={handleEmailFormChange}
-                          placeholder="Optional"
-                          disabled={emailStatus === 'sending'}
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label htmlFor="emailEmail">Your Email</label>
-                        <input
-                          type="email"
-                          id="emailEmail"
-                          name="email"
-                          value={emailForm.email}
-                          onChange={handleEmailFormChange}
-                          placeholder="Optional"
-                          disabled={emailStatus === 'sending'}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label htmlFor="emailPhone">Phone</label>
-                        <input
-                          type="tel"
-                          id="emailPhone"
-                          name="phone"
-                          value={emailForm.phone}
-                          onChange={handleEmailFormChange}
-                          placeholder="Optional"
-                          disabled={emailStatus === 'sending'}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="emailMessage">Message</label>
-                      <textarea
-                        id="emailMessage"
-                        name="message"
-                        value={emailForm.message}
-                        onChange={handleEmailFormChange}
-                        placeholder="Type your message here..."
-                        rows={isSmallScreen ? 3 : 4}
-                        disabled={emailStatus === 'sending'}
-                      />
-                      <div className="char-count">
-                        {emailForm.message.length}/500
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-actions">
-                  <button
-                    className="copy-email-btn hover-lift"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      copyToClipboard(emailAddress, 'email');
-                    }}
-                    disabled={emailStatus === 'sending'}
-                  >
-                    {copied === 'email' ? (
-                      <>
-                        <FaCheck /> Copied!
-                      </>
-                    ) : (
-                      <>
-                        <FaCopy /> Copy Email
-                      </>
-                    )}
-                  </button>
-                  <button
-                    className="send-email-btn hover-lift"
-                    onClick={sendEnhancedEmail}
-                    disabled={emailStatus === 'sending' || !emailForm.subject.trim()}
-                  >
-                    {emailStatus === 'sending' ? (
-                      <>
-                        <FaSpinner className="spinner" /> Preparing...
-                      </>
-                    ) : (
-                      <>
-                        <FaPaperPlane /> Send Enhanced Email
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                <div className="email-preview">
-                  <p className="preview-label">Preview:</p>
-                  <div className="preview-content">
-                    <p><strong>To:</strong> {emailAddress}</p>
-                    <p><strong>Subject:</strong> {emailForm.subject}</p>
-                    {emailForm.name && <p><strong>From:</strong> {emailForm.name}</p>}
-                    {emailForm.message && (
-                      <div className="message-preview">
-                        <strong>Message:</strong>
-                        <p>{emailForm.message.substring(0, 100)}{emailForm.message.length > 100 ? '...' : ''}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="email-tips">
-                  <p><strong>💡 Tip:</strong> {deviceType === 'mobile' ? 'This will open your default email app' : 'This will open your email client'}</p>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+          setCopied(null);
+        }, 2000);
+      })
+      .catch(() => {
+        fallbackCopy();
+      });
+  }, [showNotification]);
+  
+  // Format phone number
+  const formatPhoneNumber = useCallback((phoneNumber) => {
+    const cleaned = phoneNumber.replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      return `+91 ${cleaned.slice(0,5)} ${cleaned.slice(5)}`;
+    } else if (cleaned.length === 12) {
+      return `+${cleaned.slice(0,2)} ${cleaned.slice(2,5)} ${cleaned.slice(5,8)} ${cleaned.slice(8)}`;
+    } else if (cleaned.length === 11) {
+      return `+${cleaned.slice(0,1)} ${cleaned.slice(1,4)} ${cleaned.slice(4,7)} ${cleaned.slice(7)}`;
+    }
+    return phoneNumber;
+  }, []);
+  
+  // Get button size class
+  const getButtonSizeClass = useCallback(() => {
+    switch(floatingButtonSize) {
+      case 'small': return 'size-small';
+      case 'large': return 'size-large';
+      default: return 'size-medium';
+    }
+  }, [floatingButtonSize]);
+  
+  if (!mounted) return null;
+  
+  return (
+    <div 
+      ref={containerRef}
+      className={`floating-contact-pro ${position} ${getButtonSizeClass()} ${darkMode ? 'dark-mode' : ''}`}
+      style={{ zIndex }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+    >
+      {/* Loading Overlay */}
       {loading && (
-        <div className="skeleton-overlay animated-fade" onClick={(e) => e.stopPropagation()}>
-          <div className="skeleton-container animated-card">
+        <div className="floating-contact-skeleton">
+          <div className="skeleton-card">
             <div className="skeleton-header">
-              <div className="skeleton-avatar shimmer"></div>
+              <div className="skeleton-avatar"></div>
               <div className="skeleton-text">
-                <div className="skeleton-line shimmer" style={{ width: '120px' }}></div>
-                <div className="skeleton-line shimmer" style={{ width: '80px' }}></div>
+                <div className="skeleton-line"></div>
+                <div className="skeleton-line short"></div>
               </div>
             </div>
             <div className="skeleton-body">
-              <div className="skeleton-card shimmer"></div>
-              <div className="skeleton-card shimmer"></div>
-              <div className="skeleton-card shimmer"></div>
+              <div className="skeleton-item"></div>
+              <div className="skeleton-item"></div>
+              <div className="skeleton-item"></div>
             </div>
           </div>
         </div>
       )}
-
-      {copied && (
-        <div ref={notificationRef} className="notification-toast animated-toast">
-          <FaCheck />
-          <span>Copied to clipboard!</span>
+      
+      {/* Contact Menu */}
+      <div 
+        ref={menuRef}
+        className={`contact-menu ${isOpen ? 'show' : 'hide'} ${isMobile ? 'mobile' : ''}`}
+        aria-hidden={!isOpen}
+        role="dialog"
+        aria-label="Contact options"
+        style={{ maxHeight: menuHeight }}
+      >
+        {/* Main Menu */}
+        {activeMenu === 'main' && (
+          <>
+            <div className="menu-header">
+              <h3>Contact Options</h3>
+              <p>Choose how you'd like to reach us</p>
+            </div>
+            
+            <div className="menu-items">
+              {/* WhatsApp Option */}
+              <button 
+                className="menu-item whatsapp"
+                onClick={() => handleMenuItemClick('whatsapp')}
+                disabled={loading}
+                aria-label="Open WhatsApp chat options"
+              >
+                <div className="menu-icon">
+                  <FaWhatsapp aria-hidden="true" />
+                  <div className="icon-pulse"></div>
+                </div>
+                <div className="menu-content">
+                  <strong>WhatsApp Chat</strong>
+                  <span>Instant messaging with our team</span>
+                </div>
+                {showBadgeCount && whatsappNumbers.length > 1 && (
+                  <div className="menu-badge" aria-label={`${whatsappNumbers.length} options available`}>
+                    {whatsappNumbers.length}
+                  </div>
+                )}
+                <div className="menu-arrow">
+                  <FaChevronRight aria-hidden="true" />
+                </div>
+              </button>
+              
+              {/* Call Option */}
+              {showCallButton && (
+                <button 
+                  className="menu-item call"
+                  onClick={() => handleMenuItemClick('call')}
+                  disabled={loading}
+                  aria-label="Open phone call options"
+                >
+                  <div className="menu-icon">
+                    <FaPhone aria-hidden="true" />
+                    <div className="icon-pulse"></div>
+                  </div>
+                  <div className="menu-content">
+                    <strong>Phone Call</strong>
+                    <span>Speak directly with our team</span>
+                  </div>
+                  {showBadgeCount && phoneNumbers.length > 1 && (
+                    <div className="menu-badge" aria-label={`${phoneNumbers.length} options available`}>
+                      {phoneNumbers.length}
+                    </div>
+                  )}
+                  <div className="menu-arrow">
+                    <FaChevronRight aria-hidden="true" />
+                  </div>
+                </button>
+              )}
+              
+              {/* Email Option */}
+              {showEmailButton && (
+                <button 
+                  className="menu-item email"
+                  onClick={() => handleMenuItemClick('email')}
+                  disabled={loading}
+                  aria-label="Send email"
+                >
+                  <div className="menu-icon">
+                    <FaEnvelope aria-hidden="true" />
+                    <div className="icon-pulse"></div>
+                  </div>
+                  <div className="menu-content">
+                    <strong>Send Email</strong>
+                    <span>Email us directly</span>
+                  </div>
+                  <div className="menu-arrow">
+                    <FaChevronRight aria-hidden="true" />
+                  </div>
+                </button>
+              )}
+            </div>
+          </>
+        )}
+        
+        {/* WhatsApp Selection Menu */}
+        {activeMenu === 'whatsapp' && (
+          <>
+            <div className="menu-header">
+              <button 
+                className="back-btn"
+                onClick={handleBackClick}
+                disabled={loading}
+                aria-label="Go back to main menu"
+              >
+                <FaChevronRight className="back-icon" aria-hidden="true" />
+                <span>Back</span>
+              </button>
+              <h3>Select WhatsApp Number</h3>
+              <p>Choose which team to contact</p>
+            </div>
+            
+            <div className="menu-items number-selection-menu">
+              {whatsappNumbers.map((item, index) => (
+                <button
+                  key={index}
+                  className="number-item"
+                  onClick={() => openWhatsApp(item.number)}
+                  disabled={loading}
+                  aria-label={`Contact ${item.label} on WhatsApp`}
+                >
+                  <div className="number-avatar">
+                    <div className="avatar-glow"></div>
+                    <span className="avatar-icon">{item.icon || <FaWhatsapp aria-hidden="true" />}</span>
+                  </div>
+                  <div className="number-content">
+                    <strong>{item.label}</strong>
+                    <div className="number-row">
+                      <span className="number-display">
+                        {formatPhoneNumber(item.number)}
+                      </span>
+                      <button
+                        className="copy-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(item.number, `whatsapp-${index}`);
+                        }}
+                        aria-label="Copy phone number"
+                        type="button"
+                      >
+                        {copied === `whatsapp-${index}` ? (
+                          <FaCheck className="copy-success" aria-hidden="true" />
+                        ) : (
+                          <FaCopy aria-hidden="true" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  {loading ? (
+                    <FaSpinner className="loading-spinner" aria-hidden="true" />
+                  ) : (
+                    <FaChevronRight aria-hidden="true" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+        
+        {/* Call Selection Menu */}
+        {activeMenu === 'call' && (
+          <>
+            <div className="menu-header">
+              <button 
+                className="back-btn"
+                onClick={handleBackClick}
+                disabled={loading}
+                aria-label="Go back to main menu"
+              >
+                <FaChevronRight className="back-icon" aria-hidden="true" />
+                <span>Back</span>
+              </button>
+              <h3>Select Phone Number</h3>
+              <p>Choose which team to call</p>
+            </div>
+            
+            <div className="menu-items number-selection-menu">
+              {phoneNumbers.map((item, index) => (
+                <button
+                  key={index}
+                  className="number-item"
+                  onClick={() => makePhoneCall(item.number)}
+                  disabled={loading}
+                  aria-label={`Call ${item.label}`}
+                >
+                  <div className="number-avatar">
+                    <div className="avatar-glow"></div>
+                    <span className="avatar-icon">{item.icon || <FaPhone aria-hidden="true" />}</span>
+                  </div>
+                  <div className="number-content">
+                    <strong>{item.label}</strong>
+                    <div className="number-row">
+                      <span className="number-display">
+                        {formatPhoneNumber(item.number)}
+                      </span>
+                      <button
+                        className="copy-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(item.number, `call-${index}`);
+                        }}
+                        aria-label="Copy phone number"
+                        type="button"
+                      >
+                        {copied === `call-${index}` ? (
+                          <FaCheck className="copy-success" aria-hidden="true" />
+                        ) : (
+                          <FaCopy aria-hidden="true" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  {loading ? (
+                    <FaSpinner className="loading-spinner" aria-hidden="true" />
+                  ) : (
+                    <FaChevronRight aria-hidden="true" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+        
+        {/* Close button for mobile */}
+        {isMobile && (
+          <button 
+            className="mobile-close-btn"
+            onClick={closeMenu}
+            aria-label="Close contact menu"
+          >
+            <FaTimes aria-hidden="true" />
+            Close
+          </button>
+        )}
+      </div>
+      
+      {/* Main Button */}
+      <button
+        className={`floating-main-btn ${isOpen ? 'active' : ''} ${enablePulse ? 'pulse-enabled' : ''} ${getButtonSizeClass()}`}
+        onClick={handleMainButtonClick}
+        aria-label={isOpen ? "Close contact menu" : "Open contact menu"}
+        aria-expanded={isOpen}
+        aria-controls="contact-menu"
+      >
+        {isOpen ? (
+          <FaTimes aria-hidden="true" />
+        ) : (
+          <FaCommentAlt className="comment-icon" aria-hidden="true" />
+        )}
+        
+        {/* Ripple Effect */}
+        {ripple && (
+          <span 
+            className="ripple"
+            style={{
+              left: ripple.x + 'px',
+              top: ripple.y + 'px',
+              width: ripple.size + 'px',
+              height: ripple.size + 'px'
+            }}
+            aria-hidden="true"
+          />
+        )}
+        
+        {/* Tooltip */}
+        <span className="floating-tooltip">
+          {isOpen ? 'Close Menu' : 'Contact Us'}
+        </span>
+        
+        {/* Pulse Rings */}
+        {enablePulse && !isOpen && (
+          <>
+            <div className="pulse-ring pulse-ring-1" aria-hidden="true"></div>
+            <div className="pulse-ring pulse-ring-2" aria-hidden="true"></div>
+            <div className="pulse-ring pulse-ring-3" aria-hidden="true"></div>
+          </>
+        )}
+      </button>
+      
+      {/* Notification Toast */}
+      {notification && (
+        <div className="notification-toast show" role="alert">
+          <FaPaperPlane aria-hidden="true" />
+          <span>{notification}</span>
         </div>
       )}
     </div>
   );
-}
-
-function formatPhoneNumber(phoneNumber) {
-  const cleaned = phoneNumber.replace(/\D/g, '');
-  if (cleaned.length === 10) {
-    return `+91 ${cleaned.slice(0,5)} ${cleaned.slice(5)}`;
-  } else if (cleaned.length === 12) {
-    return `+${cleaned.slice(0,2)} ${cleaned.slice(2,5)} ${cleaned.slice(5,8)} ${cleaned.slice(8)}`;
-  }
-  return phoneNumber;
 }

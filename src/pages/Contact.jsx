@@ -19,29 +19,78 @@ const Contact = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [activeInput, setActiveInput] = useState(null);
   const [animatedStats, setAnimatedStats] = useState([0, 0, 0, 0]);
-  const [typingText, setTypingText] = useState('');
   
   const formRef = useRef(null);
-  const nameInputRef = useRef(null);
   const heroRef = useRef(null);
-  const statsRef = useRef(null);
+  const containerRef = useRef(null);
   
-  // Text for typing animation
-  const texts = ['Extraordinary', 'Amazing', 'Innovative', 'Successful'];
-  const [textIndex, setTextIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
+  // Text for creative animation
+  const heroTexts = [
+    { text: "Digital Solutions", color: "#6366f1" },
+    { text: "Creative Projects", color: "#10b981" },
+    { text: "Business Growth", color: "#3b82f6" },
+    { text: "Innovative Ideas", color: "#f59e0b" }
+  ];
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
   
   // Services data
   const services = [
-    { name: 'Website Development', icon: '🌐', desc: 'Responsive & Fast', color: '#6366f1' },
-    { name: 'E-Commerce Platform', icon: '🛒', desc: 'Shopify/WooCommerce', color: '#10b981' },
-    { name: 'Mobile Application', icon: '📱', desc: 'iOS & Android', color: '#3b82f6' },
-    { name: 'UI/UX Design', icon: '🎨', desc: 'User Experience', color: '#8b5cf6' },
-    { name: 'Brand Identity', icon: '🏷️', desc: 'Logo & Branding', color: '#f59e0b' },
-    { name: 'Digital Marketing', icon: '📈', desc: 'SEO & Social Media', color: '#ec4899' },
-    { name: 'Web Application', icon: '💻', desc: 'Custom Solutions', color: '#06b6d4' },
-    { name: 'Consultation', icon: '💬', desc: 'Strategy & Planning', color: '#84cc16' }
+    { 
+      name: 'Website Development', 
+      icon: '🌐', 
+      desc: 'Responsive & Fast Websites', 
+      color: '#6366f1',
+      details: 'Custom websites with modern frameworks, SEO optimization, and high performance.'
+    },
+    { 
+      name: 'E-Commerce Platform', 
+      icon: '🛒', 
+      desc: 'Shopify/WooCommerce Solutions', 
+      color: '#10b981',
+      details: 'Complete e-commerce solutions with payment integration and inventory management.'
+    },
+    { 
+      name: 'Mobile Application', 
+      icon: '📱', 
+      desc: 'iOS & Android Apps', 
+      color: '#3b82f6',
+      details: 'Native and cross-platform mobile apps with intuitive UX and robust backend.'
+    },
+    { 
+      name: 'UI/UX Design', 
+      icon: '🎨', 
+      desc: 'User Experience Design', 
+      color: '#8b5cf6',
+      details: 'User-centered design with wireframing, prototyping, and usability testing.'
+    },
+    { 
+      name: 'Brand Identity', 
+      icon: '🏷️', 
+      desc: 'Logo & Branding', 
+      color: '#f59e0b',
+      details: 'Complete brand identity including logo, style guides, and brand strategy.'
+    },
+    { 
+      name: 'Digital Marketing', 
+      icon: '📈', 
+      desc: 'SEO & Social Media', 
+      color: '#ec4899',
+      details: 'Comprehensive digital marketing strategies for maximum online presence.'
+    },
+    { 
+      name: 'Web Application', 
+      icon: '💻', 
+      desc: 'Custom Solutions', 
+      color: '#06b6d4',
+      details: 'Scalable web applications with modern architecture and cloud integration.'
+    },
+    { 
+      name: 'Consultation', 
+      icon: '💬', 
+      desc: 'Strategy & Planning', 
+      color: '#84cc16',
+      details: 'Expert consultation for digital transformation and technology roadmaps.'
+    }
   ];
   
   // Social links
@@ -56,115 +105,128 @@ const Contact = () => {
   
   // Target values for counting animation
   const targetStats = [
-    { value: 24, label: 'Hour Response', suffix: 'h' },
-    { value: 150, label: 'Projects Delivered', suffix: '+' },
-    { value: 98, label: 'Client Satisfaction', suffix: '%' },
-    { value: 5, label: 'Years Experience', suffix: '+' }
+    { value: 24, label: 'Hour Response', suffix: 'h', icon: '⏰' },
+    { value: 150, label: 'Projects Delivered', suffix: '+', icon: '🚀' },
+    { value: 98, label: 'Client Satisfaction', suffix: '%', icon: '⭐' },
+    { value: 5, label: 'Years Experience', suffix: '+', icon: '📅' }
   ];
 
   useEffect(() => {
     // Set page title
-    document.title = "Contact | Vertex Global Tech - Digital Excellence";
+    document.title = "Contact | Vertex Global Tech";
     
-    // Simulate loading with timeout
-    const loadingTimer = setTimeout(() => {
+    // Prevent body scroll issues
+    document.body.style.overflowX = 'hidden';
+    
+    // Simulate loading
+    const timer = setTimeout(() => {
       setIsLoading(false);
       
       // Start animations after loading
       setTimeout(() => {
-        // Start typing animation
-        startTypingAnimation();
-        
-        // Start counting animation
         startCountingAnimation();
-        
-        // Auto-scroll to form after skeleton disappears
-        if (formRef.current) {
-          setTimeout(() => {
-            formRef.current.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
-            
-            // Focus on name input with delay
-            setTimeout(() => {
-              if (nameInputRef.current) {
-                nameInputRef.current.focus();
-                nameInputRef.current.scrollIntoView({ 
-                  behavior: 'smooth', 
-                  block: 'center',
-                  inline: 'center'
-                });
-              }
-            }, 300);
-          }, 100);
-        }
-      }, 500);
-    }, 1800);
+        startTextRotation();
+        createBackgroundEffects();
+      }, 300);
+    }, 1200);
     
-    return () => clearTimeout(loadingTimer);
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflowX = '';
+    };
   }, []);
 
-  // Typing animation effect
+  // Text rotation effect
   useEffect(() => {
     if (isLoading) return;
     
-    const currentText = texts[textIndex];
-    const speed = isDeleting ? 50 : 100;
+    const interval = setInterval(() => {
+      setCurrentTextIndex((prev) => (prev + 1) % heroTexts.length);
+    }, 3000);
     
-    const timer = setTimeout(() => {
-      if (!isDeleting && charIndex < currentText.length) {
-        setTypingText(currentText.substring(0, charIndex + 1));
-        setCharIndex(charIndex + 1);
-      } else if (isDeleting && charIndex > 0) {
-        setTypingText(currentText.substring(0, charIndex - 1));
-        setCharIndex(charIndex - 1);
-      } else if (!isDeleting && charIndex === currentText.length) {
-        setTimeout(() => setIsDeleting(true), 1500);
-      } else if (isDeleting && charIndex === 0) {
-        setIsDeleting(false);
-        setTextIndex((textIndex + 1) % texts.length);
-      }
-    }, speed);
-    
-    return () => clearTimeout(timer);
-  }, [charIndex, isDeleting, textIndex, isLoading]);
-
-  const startTypingAnimation = () => {
-    setCharIndex(0);
-    setIsDeleting(false);
-    setTextIndex(0);
-  };
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const startCountingAnimation = () => {
-    const duration = 2000;
-    const steps = 60;
-    const stepDuration = duration / steps;
-    
     targetStats.forEach((target, index) => {
-      let current = 0;
-      const increment = target.value / steps;
+      let start = 0;
+      const end = target.value;
+      const duration = 2000;
+      const startTime = Date.now();
       
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= target.value) {
-          current = target.value;
-          clearInterval(timer);
-        }
+      const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+      
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutQuart(progress);
+        const current = Math.floor(end * eased);
         
         setAnimatedStats(prev => {
           const newStats = [...prev];
-          newStats[index] = Math.floor(current);
+          newStats[index] = current;
           return newStats;
         });
-      }, stepDuration);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+      
+      animate();
     });
+  };
+
+  const startTextRotation = () => {
+    const elements = document.querySelectorAll('.animate-on-load');
+    elements.forEach((el, index) => {
+      setTimeout(() => {
+        el.classList.add('loaded');
+      }, index * 100);
+    });
+  };
+
+  const createBackgroundEffects = () => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    // Clear existing dots
+    const existingDots = container.querySelectorAll('.floating-dot');
+    existingDots.forEach(dot => dot.remove());
+    
+    // Create floating dots
+    for (let i = 0; i < 15; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'floating-dot';
+      
+      const size = Math.random() * 3 + 1;
+      const x = Math.random() * 100;
+      const y = Math.random() * 100;
+      const duration = 15 + Math.random() * 15;
+      const delay = Math.random() * 5;
+      
+      dot.style.cssText = `
+        width: ${size}px;
+        height: ${size}px;
+        left: ${x}%;
+        top: ${y}%;
+        animation-duration: ${duration}s;
+        animation-delay: ${delay}s;
+        background: ${i % 2 === 0 ? 'rgba(99, 102, 241, 0.2)' : 'rgba(139, 92, 246, 0.2)'};
+      `;
+      
+      container.appendChild(dot);
+    }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: undefined }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleFocus = (fieldName) => {
@@ -179,7 +241,7 @@ const Contact = () => {
     const newErrors = {};
     
     if (!form.name.trim()) {
-      newErrors.name = 'Please enter your full name';
+      newErrors.name = 'Full name is required';
     } else if (form.name.trim().length < 2) {
       newErrors.name = 'Name must be at least 2 characters';
     }
@@ -195,7 +257,7 @@ const Contact = () => {
     }
     
     if (!form.message.trim()) {
-      newErrors.message = 'Please tell us about your project';
+      newErrors.message = 'Project details are required';
     } else if (form.message.trim().length < 20) {
       newErrors.message = 'Please provide more details (minimum 20 characters)';
     }
@@ -212,9 +274,13 @@ const Contact = () => {
       
       // Scroll to first error
       const firstErrorKey = Object.keys(validationErrors)[0];
-      const errorElement = document.querySelector(`.error-${firstErrorKey}`);
-      if (errorElement) {
-        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const inputElement = document.querySelector(`[name="${firstErrorKey}"]`);
+      if (inputElement) {
+        inputElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+        inputElement.focus();
       }
       
       return;
@@ -222,41 +288,22 @@ const Contact = () => {
 
     setSending(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Add loading animation
+    const submitBtn = document.querySelector('.submit-btn');
+    if (submitBtn) {
+      submitBtn.classList.add('loading');
+    }
     
-    // Success animation
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1800));
+    
+    // Success state
     setFormSubmitted(true);
     setSending(false);
     
-    // Prepare email data
-    const emailData = {
-      subject: `Project Inquiry: ${form.service} - ${form.company || form.name}`,
-      body: `
-Project Inquiry Details:
-
-👤 Contact Information:
-• Name: ${form.name}
-• Company: ${form.company || 'N/A'}
-• Email: ${form.email}
-• Phone: ${form.phone || 'N/A'}
-• Service: ${form.service}
-• Budget: ₹${parseInt(form.budget).toLocaleString('en-IN')}
-• Urgency: ${form.urgency}
-
-📋 Project Brief:
-${form.message}
-
-📅 Preferred Timeline: ${form.urgency === 'Urgent' ? 'ASAP' : 'Flexible'}
-
-Best regards,
-${form.name}
-${form.company ? `From ${form.company}` : ''}
-      `.trim()
-    };
-    
-    // Open email client
-    window.location.href = `mailto:hello@vertexglobaltech.com?subject=${encodeURIComponent(emailData.subject)}&body=${encodeURIComponent(emailData.body)}`;
+    if (submitBtn) {
+      submitBtn.classList.remove('loading');
+    }
     
     // Reset form after delay
     setTimeout(() => {
@@ -303,95 +350,188 @@ _Sent via Vertex Global Tech Website_
 
   const scrollToForm = () => {
     if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      
-      setTimeout(() => {
-        if (nameInputRef.current) {
-          nameInputRef.current.focus();
-        }
-      }, 300);
+      formRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
     }
   };
 
-  // Loading Skeleton
+  // Loading Skeleton - Professional Design
   if (isLoading) {
     return (
-      <div className="contact-page">
-        <div className="skeleton-overlay">
-          <div className="skeleton-hero">
-            <div className="skeleton-line title"></div>
-            <div className="skeleton-line subtitle"></div>
-            <div className="skeleton-line short"></div>
-          </div>
-          
-          <div className="skeleton-content">
-            <div className="skeleton-form">
-              <div className="skeleton-line"></div>
-              <div className="skeleton-grid">
-                {[1,2,3,4,5,6].map(i => (
-                  <div key={i} className="skeleton-input"></div>
+      <div className="contact-page loading">
+        {/* Background */}
+        <div className="skeleton-background"></div>
+        
+        {/* Hero Section Skeleton */}
+        <section className="skeleton-hero-section">
+          <div className="container">
+            <div className="skeleton-hero-content">
+              <div className="skeleton-badge"></div>
+              <div className="skeleton-title-container">
+                <div className="skeleton-title-line"></div>
+                <div className="skeleton-title-line short"></div>
+              </div>
+              <div className="skeleton-description">
+                <div className="skeleton-line"></div>
+                <div className="skeleton-line"></div>
+                <div className="skeleton-line short"></div>
+              </div>
+              
+              <div className="skeleton-stats-grid">
+                {[1,2,3,4].map(i => (
+                  <div key={i} className="skeleton-stat-card">
+                    <div className="skeleton-stat-icon"></div>
+                    <div className="skeleton-stat-value"></div>
+                    <div className="skeleton-stat-label"></div>
+                  </div>
                 ))}
               </div>
-            </div>
-            
-            <div className="skeleton-sidebar">
-              <div className="skeleton-card"></div>
-              <div className="skeleton-card"></div>
+              
+              <div className="skeleton-cta-buttons">
+                <div className="skeleton-cta-btn primary"></div>
+                <div className="skeleton-cta-btn secondary"></div>
+              </div>
             </div>
           </div>
+        </section>
+        
+        {/* Form Section Skeleton */}
+        <section className="skeleton-form-section">
+          <div className="container">
+            <div className="skeleton-section-header">
+              <div className="skeleton-section-badge"></div>
+              <div className="skeleton-section-title"></div>
+              <div className="skeleton-section-subtitle"></div>
+            </div>
+            
+            <div className="skeleton-content-grid">
+              <div className="skeleton-form-wrapper">
+                <div className="skeleton-form">
+                  <div className="skeleton-form-group">
+                    <div className="skeleton-label"></div>
+                    <div className="skeleton-input"></div>
+                  </div>
+                  <div className="skeleton-form-group">
+                    <div className="skeleton-label"></div>
+                    <div className="skeleton-input"></div>
+                  </div>
+                  <div className="skeleton-form-group">
+                    <div className="skeleton-label"></div>
+                    <div className="skeleton-input"></div>
+                  </div>
+                  <div className="skeleton-form-group">
+                    <div className="skeleton-label"></div>
+                    <div className="skeleton-input"></div>
+                  </div>
+                  
+                  <div className="skeleton-services-section">
+                    <div className="skeleton-label"></div>
+                    <div className="skeleton-services-grid">
+                      {[1,2,3,4].map(i => (
+                        <div key={i} className="skeleton-service-option"></div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="skeleton-budget-section">
+                    <div className="skeleton-label"></div>
+                    <div className="skeleton-slider"></div>
+                  </div>
+                  
+                  <div className="skeleton-message-section">
+                    <div className="skeleton-label"></div>
+                    <div className="skeleton-textarea"></div>
+                  </div>
+                  
+                  <div className="skeleton-submit-btn"></div>
+                </div>
+              </div>
+              
+              <div className="skeleton-sidebar">
+                <div className="skeleton-contact-card">
+                  <div className="skeleton-card-header">
+                    <div className="skeleton-card-title"></div>
+                  </div>
+                  <div className="skeleton-contact-info">
+                    <div className="skeleton-contact-item"></div>
+                    <div className="skeleton-contact-item"></div>
+                    <div className="skeleton-contact-item"></div>
+                  </div>
+                </div>
+                
+                <div className="skeleton-social-card">
+                  <div className="skeleton-card-title"></div>
+                  <div className="skeleton-social-icons">
+                    {[1,2,3,4,5,6].map(i => (
+                      <div key={i} className="skeleton-social-icon"></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Loading Indicator */}
+        <div className="loading-indicator">
+          <div className="loading-progress">
+            <div className="progress-fill"></div>
+          </div>
+          <div className="loading-text">Loading Experience...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="contact-page">
-      {/* Animated Background Elements */}
-      <div className="animated-bg">
-        <div className="bg-circle-1"></div>
-        <div className="bg-circle-2"></div>
-        <div className="bg-circle-3"></div>
-        <div className="bg-circle-4"></div>
+    <div className="contact-page" ref={containerRef}>
+      {/* Background Effects */}
+      <div className="background-effects">
+        <div className="gradient-circle circle-1"></div>
+        <div className="gradient-circle circle-2"></div>
+        <div className="gradient-circle circle-3"></div>
       </div>
       
-      {/* Floating Particles */}
-      <div className="floating-particles">
-        {[...Array(15)].map((_, i) => (
-          <div key={i} className="particle" style={{
-            '--delay': `${i * 0.2}s`,
-            '--size': `${Math.random() * 4 + 2}px`,
-            '--x': `${Math.random() * 100}vw`,
-            '--y': `${Math.random() * 100}vh`
-          }}></div>
-        ))}
-      </div>
-
       {/* Hero Section */}
       <section className="hero-section" ref={heroRef}>
+        <div className="hero-overlay"></div>
         <div className="container">
           <div className="hero-content">
-            <div className="hero-text">
-              <div className="badge animate-badge">
-                <span className="badge-icon">🚀</span>
-                <span className="badge-text">Ready to Launch?</span>
+            <div className="hero-text animate-on-load">
+              <div className="hero-badge">
+                <span className="badge-icon">✨</span>
+                <span className="badge-text">Let's Build Together</span>
               </div>
               
-              <h1 className="hero-title animate-title">
-                Let's Build Something 
-                <span className="typing-container">
-                  <span className="typing-text">{typingText}</span>
-                  <span className="cursor">|</span>
-                </span>
+              <h1 className="hero-title">
+                <span className="title-line">Create Amazing</span>
+                <div className="animated-text-container">
+                  <div className="animated-text-wrapper">
+                    {heroTexts.map((text, index) => (
+                      <span
+                        key={index}
+                        className={`animated-text ${index === currentTextIndex ? 'active' : ''}`}
+                        style={{ color: text.color }}
+                      >
+                        {text.text}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <span className="title-line">Digital Experiences</span>
               </h1>
               
-              <p className="hero-subtitle animate-subtitle">
-                Transform your ideas into digital excellence with our expert team. 
-                We craft solutions that drive results and exceed expectations.
+              <p className="hero-description animate-on-load">
+                Transform your vision into reality with our expert team. We craft digital 
+                solutions that drive growth, engagement, and exceptional results.
               </p>
               
-              <div className="hero-stats animate-stats" ref={statsRef}>
+              <div className="hero-stats animate-on-load">
                 {animatedStats.map((stat, index) => (
-                  <div key={index} className="stat-item">
+                  <div key={index} className="stat-card">
+                    <div className="stat-icon">{targetStats[index].icon}</div>
                     <div className="stat-value">
                       <span className="count">{stat}</span>
                       <span className="suffix">{targetStats[index].suffix}</span>
@@ -401,145 +541,145 @@ _Sent via Vertex Global Tech Website_
                 ))}
               </div>
               
-              <div className="hero-actions animate-actions">
-                <button className="btn-primary" onClick={scrollToForm}>
-                  <span className="btn-icon">📝</span>
+              <div className="hero-cta animate-on-load">
+                <button className="cta-btn primary" onClick={scrollToForm}>
+                  <span className="btn-icon">🚀</span>
                   Start Your Project
                 </button>
-                <a href="tel:+919876543210" className="btn-secondary">
+                <a href="tel:+919876543210" className="cta-btn secondary">
                   <span className="btn-icon">📞</span>
                   Call Now
                 </a>
               </div>
             </div>
-            
-            <div className="hero-visual">
-              <div className="floating-card">
-                <div className="card-icon">💡</div>
-                <h3>Innovation Starts Here</h3>
-                <p>Your vision + Our expertise = Success</p>
-                <div className="sparkle"></div>
-              </div>
-            </div>
           </div>
+        </div>
+        
+        {/* Scroll Indicator */}
+        <div className="scroll-indicator">
+          <div className="scroll-line">
+            <div className="scroll-dot"></div>
+          </div>
+          <span className="scroll-text">Scroll to Explore</span>
         </div>
       </section>
 
-      {/* Main Contact Form */}
+      {/* Main Contact Section */}
       <section className="contact-section" ref={formRef}>
         <div className="container">
           <div className="section-header">
             <div className="section-badge">01</div>
             <h2 className="section-title">Project Inquiry</h2>
             <p className="section-subtitle">
-              Complete the form below and we'll get back to you within 24 hours
+              Share your project details and we'll craft the perfect solution for you
             </p>
           </div>
           
-          <div className="contact-grid">
+          <div className="contact-content">
             {/* Main Form */}
-            <div className="contact-form-container">
+            <div className="contact-form-wrapper">
               <form onSubmit={handleSubmit} className="contact-form">
-                <div className="form-grid">
-                  {/* Name */}
-                  <div className={`form-group ${activeInput === 'name' ? 'active' : ''} animate-input`}>
-                    <label className="form-label">
-                      <span className="label-icon">👤</span>
-                      Full Name *
-                    </label>
-                    <input
-                      ref={nameInputRef}
-                      type="text"
-                      name="name"
-                      value={form.name}
-                      onChange={handleChange}
-                      onFocus={() => handleFocus('name')}
-                      onBlur={handleBlur}
-                      className={`form-input ${errors.name ? 'error' : ''}`}
-                      placeholder="Enter your full name"
-                      required
-                    />
-                    {errors.name && (
-                      <div className="error-message error-name">
-                        <span className="error-icon">⚠️</span>
-                        {errors.name}
-                      </div>
-                    )}
+                <div className="form-section">
+                  <h3 className="form-section-title">Personal Information</h3>
+                  <div className="form-grid">
+                    {/* Name */}
+                    <div className={`form-group ${activeInput === 'name' ? 'active' : ''}`}>
+                      <label className="form-label">
+                        <span className="label-icon">👤</span>
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus('name')}
+                        onBlur={handleBlur}
+                        className={`form-input ${errors.name ? 'error' : ''}`}
+                        placeholder="Enter your full name"
+                        required
+                      />
+                      {errors.name && (
+                        <div className="error-message">
+                          <span className="error-icon">!</span>
+                          {errors.name}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Email */}
+                    <div className={`form-group ${activeInput === 'email' ? 'active' : ''}`}>
+                      <label className="form-label">
+                        <span className="label-icon">📧</span>
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus('email')}
+                        onBlur={handleBlur}
+                        className={`form-input ${errors.email ? 'error' : ''}`}
+                        placeholder="your.email@company.com"
+                        required
+                      />
+                      {errors.email && (
+                        <div className="error-message">
+                          <span className="error-icon">!</span>
+                          {errors.email}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Company */}
+                    <div className={`form-group ${activeInput === 'company' ? 'active' : ''}`}>
+                      <label className="form-label">
+                        <span className="label-icon">🏢</span>
+                        Company
+                      </label>
+                      <input
+                        type="text"
+                        name="company"
+                        value={form.company}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus('company')}
+                        onBlur={handleBlur}
+                        className="form-input"
+                        placeholder="Your company (optional)"
+                      />
+                    </div>
+                    
+                    {/* Phone */}
+                    <div className={`form-group ${activeInput === 'phone' ? 'active' : ''}`}>
+                      <label className="form-label">
+                        <span className="label-icon">📱</span>
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={form.phone}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus('phone')}
+                        onBlur={handleBlur}
+                        className={`form-input ${errors.phone ? 'error' : ''}`}
+                        placeholder="+91 98765 43210"
+                      />
+                      {errors.phone && (
+                        <div className="error-message">
+                          <span className="error-icon">!</span>
+                          {errors.phone}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  
-                  {/* Company */}
-                  <div className={`form-group ${activeInput === 'company' ? 'active' : ''} animate-input`}>
-                    <label className="form-label">
-                      <span className="label-icon">🏢</span>
-                      Company
-                    </label>
-                    <input
-                      type="text"
-                      name="company"
-                      value={form.company}
-                      onChange={handleChange}
-                      onFocus={() => handleFocus('company')}
-                      onBlur={handleBlur}
-                      className="form-input"
-                      placeholder="Your company (optional)"
-                    />
-                  </div>
-                  
-                  {/* Email */}
-                  <div className={`form-group ${activeInput === 'email' ? 'active' : ''} animate-input`}>
-                    <label className="form-label">
-                      <span className="label-icon">📧</span>
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      onFocus={() => handleFocus('email')}
-                      onBlur={handleBlur}
-                      className={`form-input ${errors.email ? 'error' : ''}`}
-                      placeholder="your.email@company.com"
-                      required
-                    />
-                    {errors.email && (
-                      <div className="error-message error-email">
-                        <span className="error-icon">⚠️</span>
-                        {errors.email}
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Phone */}
-                  <div className={`form-group ${activeInput === 'phone' ? 'active' : ''} animate-input`}>
-                    <label className="form-label">
-                      <span className="label-icon">📱</span>
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={form.phone}
-                      onChange={handleChange}
-                      onFocus={() => handleFocus('phone')}
-                      onBlur={handleBlur}
-                      className={`form-input ${errors.phone ? 'error' : ''}`}
-                      placeholder="+91 98765 43210"
-                    />
-                    {errors.phone && (
-                      <div className="error-message error-phone">
-                        <span className="error-icon">⚠️</span>
-                        {errors.phone}
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Service Selection */}
-                  <div className="form-group full-width animate-input">
-                    <label className="form-label">
-                      <span className="label-icon">🎯</span>
-                      Service Needed *
-                    </label>
+                </div>
+                
+                {/* Service Selection */}
+                <div className="form-section">
+                  <h3 className="form-section-title">Service Requirements</h3>
+                  <div className="services-container">
                     <div className="services-grid">
                       {services.map((service, index) => (
                         <label
@@ -555,8 +695,10 @@ _Sent via Vertex Global Tech Website_
                             onChange={handleChange}
                             className="visually-hidden"
                           />
-                          <div className="service-content">
-                            <span className="service-icon">{service.icon}</span>
+                          <div className="service-card">
+                            <div className="service-icon-wrapper">
+                              <span className="service-icon">{service.icon}</span>
+                            </div>
                             <div className="service-info">
                               <div className="service-name">{service.name}</div>
                               <div className="service-desc">{service.desc}</div>
@@ -565,67 +707,76 @@ _Sent via Vertex Global Tech Website_
                         </label>
                       ))}
                     </div>
+                    <div className="service-tooltip">
+                      Currently selected: <strong>{form.service}</strong>
+                    </div>
                   </div>
-                  
-                  {/* Budget */}
-                  <div className="form-group full-width animate-input">
-                    <label className="form-label">
-                      <span className="label-icon">💰</span>
-                      Estimated Budget
-                    </label>
-                    <div className="budget-container">
-                      <input
-                        type="range"
-                        name="budget"
-                        min="50000"
-                        max="1000000"
-                        step="50000"
-                        value={form.budget}
-                        onChange={handleChange}
-                        className="budget-slider"
-                      />
-                      <div className="budget-display">
-                        <div className="budget-value">
+                </div>
+                
+                {/* Budget & Timeline */}
+                <div className="form-section">
+                  <h3 className="form-section-title">Project Specifications</h3>
+                  <div className="specs-grid">
+                    {/* Budget */}
+                    <div className="spec-item">
+                      <label className="spec-label">
+                        <span className="label-icon">💰</span>
+                        Estimated Budget
+                      </label>
+                      <div className="budget-slider-container">
+                        <div className="budget-display">
                           ₹{parseInt(form.budget).toLocaleString('en-IN')}
                         </div>
+                        <input
+                          type="range"
+                          name="budget"
+                          min="50000"
+                          max="1000000"
+                          step="50000"
+                          value={form.budget}
+                          onChange={handleChange}
+                          className="budget-slider"
+                        />
                         <div className="budget-scale">
                           <span>50K</span>
-                          <span>250K</span>
                           <span>500K</span>
                           <span>1M+</span>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* Urgency */}
-                  <div className="form-group full-width animate-input">
-                    <label className="form-label">
-                      <span className="label-icon">⏱️</span>
-                      Project Urgency
-                    </label>
-                    <div className="urgency-grid">
-                      {['Relaxed', 'Normal', 'Urgent', 'ASAP'].map((level) => (
-                        <label
-                          key={level}
-                          className={`urgency-option ${form.urgency === level ? 'selected' : ''}`}
-                        >
-                          <input
-                            type="radio"
-                            name="urgency"
-                            value={level}
-                            checked={form.urgency === level}
-                            onChange={handleChange}
-                            className="visually-hidden"
-                          />
-                          <span className="urgency-label">{level}</span>
-                        </label>
-                      ))}
+                    
+                    {/* Urgency */}
+                    <div className="spec-item">
+                      <label className="spec-label">
+                        <span className="label-icon">⏱️</span>
+                        Project Urgency
+                      </label>
+                      <div className="urgency-options">
+                        {['Relaxed', 'Normal', 'Urgent', 'ASAP'].map((level) => (
+                          <label
+                            key={level}
+                            className={`urgency-option ${form.urgency === level ? 'selected' : ''}`}
+                          >
+                            <input
+                              type="radio"
+                              name="urgency"
+                              value={level}
+                              checked={form.urgency === level}
+                              onChange={handleChange}
+                              className="visually-hidden"
+                            />
+                            <span className="urgency-label">{level}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* Message */}
-                  <div className="form-group full-width animate-input">
+                </div>
+                
+                {/* Project Details */}
+                <div className="form-section">
+                  <h3 className="form-section-title">Project Details</h3>
+                  <div className={`form-group ${activeInput === 'message' ? 'active' : ''}`}>
                     <label className="form-label">
                       <span className="label-icon">📝</span>
                       Project Details *
@@ -639,16 +790,16 @@ _Sent via Vertex Global Tech Website_
                       className={`form-textarea ${errors.message ? 'error' : ''}`}
                       placeholder="Tell us about your project goals, requirements, timeline, and any specific needs..."
                       rows="5"
-                      maxLength="500"
+                      maxLength="2000"
                       required
                     ></textarea>
                     <div className="textarea-footer">
                       <div className="char-count">
-                        {form.message.length}/500 characters
+                        {form.message.length}/2000 characters
                       </div>
                       {errors.message && (
-                        <div className="error-message error-message-text">
-                          <span className="error-icon">⚠️</span>
+                        <div className="error-message">
+                          <span className="error-icon">!</span>
                           {errors.message}
                         </div>
                       )}
@@ -657,7 +808,7 @@ _Sent via Vertex Global Tech Website_
                 </div>
                 
                 {/* Form Actions */}
-                <div className="form-actions animate-actions">
+                <div className="form-actions">
                   <button
                     type="submit"
                     className={`submit-btn ${sending ? 'sending' : ''}`}
@@ -670,40 +821,42 @@ _Sent via Vertex Global Tech Website_
                       </>
                     ) : (
                       <>
-                        <span className="btn-icon">✈️</span>
+                        <span className="btn-icon">🚀</span>
                         Send Project Brief
                       </>
                     )}
                   </button>
                   
-                  <div className="alternative-actions">
-                    <button
-                      type="button"
-                      className="whatsapp-btn"
-                      onClick={openWhatsApp}
-                    >
-                      <span className="btn-icon">💬</span>
-                      WhatsApp
-                    </button>
-                    
-                    <button
-                      type="button"
-                      className="schedule-btn"
-                      onClick={scheduleCall}
-                    >
-                      <span className="btn-icon">📅</span>
-                      Schedule Call
-                    </button>
+                  <div className="alt-actions">
+                    <span className="alt-divider">or contact us directly</span>
+                    <div className="alt-buttons">
+                      <button
+                        type="button"
+                        className="alt-btn whatsapp"
+                        onClick={openWhatsApp}
+                      >
+                        <span className="btn-icon">💬</span>
+                        WhatsApp
+                      </button>
+                      <button
+                        type="button"
+                        className="alt-btn schedule"
+                        onClick={scheduleCall}
+                      >
+                        <span className="btn-icon">📅</span>
+                        Schedule Call
+                      </button>
+                    </div>
                   </div>
                 </div>
               </form>
               
               {/* Success Message */}
               {formSubmitted && (
-                <div className="success-message animate-success">
-                  <div className="success-icon">🎉</div>
+                <div className="success-message">
+                  <div className="success-icon">✅</div>
                   <div className="success-content">
-                    <h3>Message Sent Successfully!</h3>
+                    <h3>Project Submitted Successfully!</h3>
                     <p>We've received your inquiry and will contact you within 24 hours.</p>
                   </div>
                 </div>
@@ -713,9 +866,9 @@ _Sent via Vertex Global Tech Website_
             {/* Sidebar */}
             <div className="contact-sidebar">
               {/* Contact Info Card */}
-              <div className="info-card animate-card">
+              <div className="info-card">
                 <div className="card-header">
-                  <h3>Contact Information</h3>
+                  <h3 className="card-title">Contact Information</h3>
                   <div className="card-icon">📇</div>
                 </div>
                 
@@ -751,21 +904,21 @@ _Sent via Vertex Global Tech Website_
                 </div>
                 
                 <div className="working-hours">
-                  <h4>Working Hours</h4>
+                  <h4 className="hours-title">Working Hours</h4>
                   <div className="hours-grid">
-                    <div>Monday - Friday</div>
-                    <div>10:00 - 18:00 IST</div>
-                    <div>Saturday</div>
-                    <div>10:00 - 14:00 IST</div>
-                    <div>Sunday</div>
-                    <div>Closed</div>
+                    <div className="hours-day">Monday - Friday</div>
+                    <div className="hours-time">10:00 - 18:00 IST</div>
+                    <div className="hours-day">Saturday</div>
+                    <div className="hours-time">10:00 - 14:00 IST</div>
+                    <div className="hours-day">Sunday</div>
+                    <div className="hours-time">Closed</div>
                   </div>
                 </div>
               </div>
               
               {/* Social Links */}
-              <div className="social-card animate-card">
-                <h3>Connect With Us</h3>
+              <div className="social-card">
+                <h3 className="card-title">Connect With Us</h3>
                 <div className="social-links">
                   {socialLinks.map((social, index) => (
                     <a
@@ -783,25 +936,25 @@ _Sent via Vertex Global Tech Website_
                 </div>
               </div>
               
-              {/* Quick Stats */}
-              <div className="stats-card animate-card">
-                <h3>Why Choose Us</h3>
-                <div className="quick-stats">
-                  <div className="quick-stat">
-                    <div className="stat-icon">🚀</div>
-                    <div className="stat-text">Fast Delivery</div>
+              {/* Why Choose Us */}
+              <div className="benefits-card">
+                <h3 className="card-title">Why Choose Us</h3>
+                <div className="benefits-list">
+                  <div className="benefit-item">
+                    <div className="benefit-icon">⚡</div>
+                    <div className="benefit-text">Fast Delivery</div>
                   </div>
-                  <div className="quick-stat">
-                    <div className="stat-icon">💎</div>
-                    <div className="stat-text">Premium Quality</div>
+                  <div className="benefit-item">
+                    <div className="benefit-icon">💎</div>
+                    <div className="benefit-text">Premium Quality</div>
                   </div>
-                  <div className="quick-stat">
-                    <div className="stat-icon">🛡️</div>
-                    <div className="stat-text">Secure & Reliable</div>
+                  <div className="benefit-item">
+                    <div className="benefit-icon">🛡️</div>
+                    <div className="benefit-text">Secure & Reliable</div>
                   </div>
-                  <div className="quick-stat">
-                    <div className="stat-icon">🤝</div>
-                    <div className="stat-text">24/7 Support</div>
+                  <div className="benefit-item">
+                    <div className="benefit-icon">🤝</div>
+                    <div className="benefit-text">24/7 Support</div>
                   </div>
                 </div>
               </div>
@@ -812,10 +965,11 @@ _Sent via Vertex Global Tech Website_
 
       {/* CTA Section */}
       <section className="cta-section">
+        <div className="cta-overlay"></div>
         <div className="container">
           <div className="cta-content">
             <div className="cta-badge">Get Started</div>
-            <h2 className="cta-title">Ready to Transform Your Vision?</h2>
+            <h2 className="cta-title">Ready to Begin Your Project?</h2>
             <p className="cta-subtitle">
               Let's create something amazing together. Contact us today for a free consultation.
             </p>
@@ -824,9 +978,9 @@ _Sent via Vertex Global Tech Website_
                 <span className="cta-icon">🚀</span>
                 Start Your Project
               </button>
-              <a href="tel:+919876543210" className="cta-btn secondary">
-                <span className="cta-icon">📞</span>
-                Call Now
+              <a href="mailto:hello@vertexglobaltech.com" className="cta-btn secondary">
+                <span className="cta-icon">📧</span>
+                Email Us
               </a>
             </div>
           </div>
