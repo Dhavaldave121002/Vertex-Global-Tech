@@ -19,8 +19,9 @@
 /* Base Styles */
 .hero-banner {
   background: linear-gradient(165deg, var(--darker) 0%, var(--dark) 100%);
-  min-height: 100vh;
-  padding: 120px 0 80px;
+  /* Let parent control section height via .vh-100-section; keep flexible here */
+  min-height: auto;
+  padding: clamp(60px, 12vw, 120px) 0 clamp(40px, 8vw, 80px);
   position: relative;
   overflow: hidden;
   opacity: 1;
@@ -35,6 +36,9 @@
 .container {
   position: relative;
   z-index: 2;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(12px, 3vw, 40px);
 }
 
 /* Background Effects */
@@ -935,4 +939,29 @@
     padding: 0;
     justify-content: center;
   }
+}
+
+/* Rotating headline (replaces typing animation) */
+.animated-headline {
+  display: inline-block;
+  position: relative;
+  height: 1.2em;
+  margin-left: 10px;
+  vertical-align: top;
+}
+
+.headline-item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition: opacity 450ms ease, transform 450ms ease;
+  white-space: nowrap;
+}
+
+.headline-item.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }

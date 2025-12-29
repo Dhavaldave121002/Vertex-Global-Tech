@@ -38,11 +38,74 @@
 .career-page {
   background-color: var(--bg-page);
   color: var(--text-primary);
-  min-height: 100vh;
-  padding-top: 80px;
-  padding-bottom: 100px;
+  min-height: auto; /* controlled by .vh-100-section when used */
+  padding-top: calc(var(--site-header-height, 80px) + 20px);
+  padding-bottom: calc(var(--site-footer-height, 220px) + 20px);
   position: relative;
-  overflow-x: hidden;
+  overflow-x: visible;
+}
+
+/* Ensure container-fluid has proper responsive padding */
+.career-page .container-fluid,
+.career-page .container-lg {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 576px) {
+  .career-page .container-fluid,
+  .career-page .container-lg {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .career-page .container-fluid,
+  .career-page .container-lg {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .career-page .container-fluid,
+  .career-page .container-lg {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .btn-primary,
+  .btn-outline-light {
+    min-height: 56px;
+    padding: 14px 24px !important;
+  }
+  
+  .form-control,
+  .form-select {
+    font-size: 16px;
+    min-height: 56px;
+    padding: 16px 12px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .career-page {
+    --text-primary: #ffffff;
+    --border-color: rgba(255, 255, 255, 0.4);
+  }
 }
 
 /* Background Gradient Overlay */
@@ -69,12 +132,25 @@
   color: var(--text-muted) !important;
 }
 
-/* Base styles for labels/small text */
+/* base styles for labels/small text */
 .small, 
 .form-text { 
   font-size: 0.9rem; /* Slightly larger */
   color: var(--text-secondary) !important; 
   font-weight: 500; /* Better readability */
+}
+
+/* Utility Classes for Responsive Margins */
+@media (max-width: 767px) {
+  .ms-0 {
+    margin-left: 0 !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .ms-md-auto {
+    margin-left: auto !important;
+  }
 }
 
 /* =======================================================
@@ -87,20 +163,47 @@
   position: relative;
 }
 
+@media (max-width: 991px) {
+  .career-hero {
+    padding: 60px 0 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  .career-hero {
+    padding: 40px 0 25px;
+  }
+}
+
+@media (max-width: 575px) {
+  .career-hero {
+    padding: 30px 0 20px;
+  }
+}
+
 .career-hero .eyebrow {
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 900;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--accent1);
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   display: inline-block;
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: rgba(0, 216, 255, 0.15);
   border-radius: 50px;
   border: 1px solid rgba(0, 216, 255, 0.3);
   text-shadow: 0 0 10px rgba(0, 216, 255, 0.4);
   animation: pulse 2s infinite;
+}
+
+@media (min-width: 768px) {
+  .career-hero .eyebrow {
+    font-size: 0.95rem;
+    letter-spacing: 3px;
+    padding: 8px 16px;
+    margin-bottom: 20px;
+  }
 }
 
 @keyframes pulse {
@@ -109,7 +212,7 @@
 }
 
 .career-hero h1 {
-  font-size: clamp(3rem, 5vw, 4.5rem);
+  font-size: clamp(2rem, 5vw, 4.5rem);
   font-weight: 900;
   line-height: 1.1;
   color: var(--text-primary);
@@ -131,14 +234,14 @@
 }
 
 .career-hero .lead {
-  font-size: clamp(1.2rem, 1.6vw, 1.5rem);
+  font-size: clamp(1rem, 1.4vw, 1.5rem);
   color: var(--text-secondary) !important;
   max-width: 800px;
-  margin: 40px auto 0;
+  margin: 30px auto 0;
   line-height: 1.8;
   font-weight: 400;
   background: rgba(255, 255, 255, 0.05);
-  padding: 30px;
+  padding: clamp(15px, 3vw, 30px);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   backdrop-filter: blur(10px);
@@ -149,8 +252,21 @@
    ======================================================= */
 
 .filters-wrap {
-  padding-bottom: 40px;
-  margin-top: 20px;
+  padding-bottom: 30px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .filters-wrap {
+    padding-bottom: 40px;
+    margin-top: 20px;
+    justify-content: flex-start;
+    margin-bottom: 2.5rem;
+  }
 }
 
 .btn-group {
@@ -158,22 +274,41 @@
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 5px;
-  display: inline-flex;
+  display: flex;
   flex-wrap: wrap;
   gap: 5px;
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-sm);
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .btn-group {
+    width: auto;
+  }
 }
 
 .btn-group .btn-sm {
   font-weight: 700;
   transition: all 0.3s ease;
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 10px 16px;
   border: 2px solid transparent;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   position: relative;
   overflow: hidden;
+  flex: 1;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .btn-group .btn-sm {
+    flex: auto;
+    min-width: auto;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+  }
 }
 
 /* Unselected Filter / CTA Button */
@@ -181,6 +316,13 @@
   color: var(--text-primary);
   background: rgba(255, 255, 255, 0.05);
   border-color: transparent;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .btn-outline-light {
+    font-size: 0.95rem;
+  }
 }
 
 .btn-outline-light:hover {
@@ -221,11 +363,25 @@
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 30px !important;
-  margin-bottom: 25px !important;
+  padding: 20px !important;
+  margin-bottom: 20px !important;
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .job-card {
+    padding: 25px !important;
+    margin-bottom: 25px !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .job-card {
+    padding: 30px !important;
+    margin-bottom: 25px !important;
+  }
 }
 
 .job-card::before {
@@ -244,6 +400,36 @@
   opacity: 1;
 }
 
+/* Apply Modal */
+.apply-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
+}
+
+.apply-modal {
+  width: 100%;
+  max-width: 760px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.apply-modal-header .btn-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+}
+
+.apply-modal-body { max-height: calc(100vh - 160px); overflow:auto; }
+
 @media (hover: hover) and (pointer: fine) {
   .job-card:hover {
     border-color: var(--accent1);
@@ -254,12 +440,27 @@
 
 /* Metadata (Left Column) */
 .job-meta {
-  padding-right: 25px;
-  border-right: 2px solid rgba(255, 255, 255, 0.1);
-  text-align: right;
-  width: 140px;
+  padding-right: 0;
+  border-right: none;
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.1);
+  text-align: left;
+  width: 100%;
   flex-shrink: 0;
-  min-height: 100%;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+}
+
+@media (min-width: 992px) {
+  .job-meta {
+    padding-right: 25px;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-right: 2px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+    text-align: right;
+    width: 140px;
+    min-height: 100%;
+  }
 }
 
 .job-type {
@@ -288,7 +489,7 @@
 /* Main Content (Title and Chips) */
 .job-title {
   font-weight: 800;
-  font-size: 1.6rem;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
   color: var(--text-primary);
   margin-bottom: 10px;
   line-height: 1.3;
@@ -306,16 +507,25 @@
 /* Skill Chips */
 .skill-chip {
   display: inline-block;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 20px;
   background: rgba(59, 130, 246, 0.15);
   color: var(--accent1);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 700;
   border: 1px solid rgba(59, 130, 246, 0.3);
   transition: all 0.2s ease;
-  margin-right: 8px;
-  margin-bottom: 8px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+
+@media (min-width: 768px) {
+  .skill-chip {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -416,10 +626,26 @@
   background: var(--bg-card);
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 30px !important;
-  margin-bottom: 30px;
+  padding: 20px !important;
+  margin-bottom: 20px;
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-md);
+}
+
+@media (min-width: 768px) {
+  .apply-card, 
+  .recruiter-card {
+    padding: 25px !important;
+    margin-bottom: 25px;
+  }
+}
+
+@media (min-width: 992px) {
+  .apply-card, 
+  .recruiter-card {
+    padding: 30px !important;
+    margin-bottom: 30px;
+  }
 }
 
 .recruiter-card h5 {
@@ -524,11 +750,20 @@
   background: var(--input-bg);
   border: 2px solid var(--border-color);
   color: var(--text-primary);
-  padding: 14px 16px;
-  font-size: 1rem;
+  padding: 12px 14px;
+  font-size: 0.95rem;
   border-radius: var(--radius-sm);
-  min-height: 52px;
+  min-height: 48px;
   transition: all 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .apply-card .form-control, 
+  .apply-card .form-select {
+    padding: 14px 16px;
+    font-size: 1rem;
+    min-height: 52px;
+  }
 }
 
 .apply-card .form-control::placeholder { 
@@ -592,14 +827,21 @@
   background: linear-gradient(90deg, var(--accent2), var(--accent1));
   border: none;
   font-weight: 800;
-  padding: 16px 32px;
+  padding: 14px 24px;
   border-radius: var(--radius-md);
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   letter-spacing: 0.5px;
   transition: all 0.3s ease;
   margin-top: 20px;
   width: 100%;
   text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+  .apply-card .btn-primary {
+    padding: 16px 32px;
+    font-size: 1.1rem;
+  }
 }
 
 .apply-card .btn-primary:hover {
@@ -616,127 +858,168 @@
     padding-top: 60px;
     padding-bottom: 80px;
   }
-  
-  .job-meta { 
-    width: 120px; 
-  }
 }
 
 @media (max-width: 991px) {
   .career-page {
-    padding-top: 40px;
+    padding-top: 50px;
     padding-bottom: 60px;
   }
   
-  .career-hero {
-    padding: 60px 0 40px;
-  }
-  
-  .job-meta { 
-    width: 100px; 
-    padding-right: 20px;
-  }
-  
-  .job-title {
-    font-size: 1.4rem;
+  .job-type {
+    display: block;
+    text-align: left;
   }
 }
 
 @media (max-width: 767px) {
   .career-page {
-    padding-top: 30px;
-    padding-bottom: 40px;
+    padding-top: 40px;
+    padding-bottom: 50px;
   }
   
   .career-hero {
-    padding: 40px 0 30px;
+    padding: 30px 0 20px;
   }
   
   .career-hero h1 {
-    font-size: 2.5rem;
+    font-size: 1.8rem;
   }
   
   .career-hero .lead {
-    padding: 20px;
-    font-size: 1.1rem;
+    padding: 12px 15px;
+    font-size: 0.95rem;
+    margin: 20px auto 0;
+  }
+  
+  .filters-wrap {
+    padding-bottom: 20px;
+    margin-top: 10px;
+    justify-content: center;
   }
   
   .btn-group {
+    width: 100%;
     flex-direction: column;
     align-items: stretch;
-    width: 100%;
   }
   
   .btn-group .btn-sm {
     width: 100%;
     margin-bottom: 5px;
+    flex: none;
   }
   
-  /* Stack job card content on small screens */
-  .job-card .d-flex.align-items-start {
-    flex-direction: column;
-    align-items: stretch !important;
+  .job-card {
+    padding: 16px !important;
+    margin-bottom: 16px !important;
   }
   
-  .job-meta {
-    border-right: none;
-    border-bottom: 2px dashed rgba(255, 255, 255, 0.1);
-    padding-right: 0;
-    padding-bottom: 20px;
-    margin-bottom: 20px !important;
-    text-align: left;
-    width: 100%;
+  .job-title {
+    font-size: 1.15rem;
   }
   
-  .job-card .d-flex.align-items-start > div:nth-child(2) {
-    width: 100%;
+  .job-card .d-flex {
+    flex-wrap: wrap;
   }
   
-  .job-card h5 {
-    font-size: 1.3rem;
+  .job-details {
+    margin-top: 20px;
+    padding-top: 15px;
   }
   
-  .job-card small.ms-auto {
-    margin-top: 10px;
-    flex-shrink: 0;
+  .job-details h6 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
   }
   
-  .job-card .d-flex.gap-2 {
-    flex-direction: column;
-    gap: 12px !important;
+  .apply-card h4,
+  .recruiter-card h5 {
+    font-size: 1.4rem;
   }
   
   .apply-card,
   .recruiter-card {
-    padding: 20px !important;
+    padding: 16px !important;
+    margin-bottom: 16px;
   }
   
-  .apply-card .btn-primary {
-    padding: 14px 24px;
+  .apply-card .form-label {
+    font-size: 0.9rem;
+  }
+  
+  .apply-card .form-control,
+  .apply-card .form-select {
+    font-size: 0.9rem;
+    padding: 10px 12px;
+    min-height: 44px;
   }
 }
 
 @media (max-width: 575px) {
   .career-hero h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+  
+  .career-hero .eyebrow {
+    font-size: 0.85rem;
+    padding: 6px 12px;
   }
   
   .career-hero .lead {
-    font-size: 1rem;
-    padding: 15px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    margin: 15px auto 0;
   }
   
   .job-card {
-    padding: 20px !important;
+    padding: 12px !important;
+    margin-bottom: 12px !important;
+  }
+  
+  .job-type {
+    font-size: 0.8rem;
+    padding: 6px 12px;
   }
   
   .job-title {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
   }
   
   .skill-chip {
-    font-size: 0.8rem;
-    padding: 6px 12px;
+    font-size: 0.7rem;
+    padding: 5px 10px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+  }
+  
+  .job-details ul li {
+    font-size: 0.9rem;
+    padding-left: 20px;
+  }
+  
+  .apply-card h4,
+  .recruiter-card h5 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+  
+  .apply-card .form-label {
+    font-size: 0.85rem;
+  }
+  
+  .apply-card .form-control,
+  .apply-card .form-select {
+    font-size: 0.85rem;
+    padding: 9px 11px;
+    min-height: 40px;
+  }
+  
+  .apply-card .btn-primary {
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    margin-top: 15px;
   }
 }
 

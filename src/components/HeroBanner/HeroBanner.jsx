@@ -103,8 +103,7 @@ const HeroSkeleton = () => (
 
 export default function HeroBanner() {
   const [activeService, setActiveService] = useState(0);
-  const [typedText, setTypedText] = useState('');
-  const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const [currentHeadlineIndex, setCurrentHeadlineIndex] = useState(0);
   const [counters, setCounters] = useState({
     projects: 0,
     clients: 0,
@@ -161,39 +160,21 @@ export default function HeroBanner() {
     const loadTimer = setTimeout(() => {
       setIsLoading(false);
       setShowContent(true);
-      startTypingAnimation();
+      // start counters shortly after showing content
+      setTimeout(() => {
+        setIsCountingActive(true);
+        startCountingAnimation();
+      }, 400);
     }, 1000);
 
     return () => clearTimeout(loadTimer);
   }, []);
 
-  const startTypingAnimation = () => {
-    const text = "We Build High-Performance Digital Solutions";
-    let index = 0;
-    
-    const type = () => {
-      if (index < text.length) {
-        setTypedText(text.substring(0, index + 1));
-        index++;
-        setTimeout(type, 50);
-      } else {
-        setIsTypingComplete(true);
-        // Hide cursor after typing completes
-        setTimeout(() => {
-          const cursor = document.querySelector('.typing-cursor');
-          if (cursor) cursor.style.display = 'none';
-        }, 500);
-        
-        // Start counting animation after typing
-        setTimeout(() => {
-          setIsCountingActive(true);
-          startCountingAnimation();
-        }, 300);
-      }
-    };
-    
-    setTimeout(type, 300);
-  };
+  const headlines = [
+    { text: 'High-Performance Digital Solutions', color: '#ffffff' },
+    { text: 'Creative Product Experiences', color: '#a5b4fc' },
+    { text: 'Scale Your Business Online', color: '#60a5fa' }
+  ];
 
   const startCountingAnimation = () => {
     const targets = {
@@ -247,14 +228,22 @@ export default function HeroBanner() {
 
   // Auto rotate services
   useEffect(() => {
-    if (isTypingComplete) {
-      const interval = setInterval(() => {
-        setActiveService(prev => (prev + 1) % services.length);
-      }, 4000);
+    // rotate headline and services
+    if (!showContent) return;
 
-      return () => clearInterval(interval);
-    }
-  }, [isTypingComplete, services.length]);
+    const headlineInterval = setInterval(() => {
+      setCurrentHeadlineIndex(i => (i + 1) % headlines.length);
+    }, 3200);
+
+    const serviceInterval = setInterval(() => {
+      setActiveService(prev => (prev + 1) % services.length);
+    }, 4200);
+
+    return () => {
+      clearInterval(headlineInterval);
+      clearInterval(serviceInterval);
+    };
+  }, [showContent]);
 
   const handleServiceClick = (index) => {
     setActiveService(index);
@@ -289,11 +278,21 @@ export default function HeroBanner() {
                 <span className="tagline-text">TRANSFORMING DIGITAL EXPERIENCES</span>
               </div>
 
-              {/* Typing Heading */}
+              {/* Rotating Heading */}
               <div className="heading-section mb-4">
                 <h1 className="hero-heading">
-                  <span className="typed-text">{typedText}</span>
-                  {!isTypingComplete && <span className="typing-cursor">|</span>}
+                  <span className="headline-static">We Build</span>
+                  <span className="animated-headline">
+                    {headlines.map((h, i) => (
+                      <span
+                        key={i}
+                        className={`headline-item ${i === currentHeadlineIndex ? 'active' : ''}`}
+                        style={{ color: h.color }}
+                      >
+                        {h.text}
+                      </span>
+                    ))}
+                  </span>
                 </h1>
                 <div className="heading-line"></div>
               </div>

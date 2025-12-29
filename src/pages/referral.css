@@ -30,18 +30,19 @@
 
 .referral-page {
   width: 100%;
-  min-height: 100vh;
+  min-height: auto; /* controlled by .vh-100-section when used */
   position: relative;
-  overflow-x: hidden;
+  overflow-x: visible;
   background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
   color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: clamp(24px, 4vw, 48px) 0;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 clamp(16px, 4vw, 24px);
+  padding: 0 clamp(12px, 3vw, 40px);
   width: 100%;
 }
 
@@ -97,10 +98,60 @@
   66% { transform: translate(-20px, 20px) scale(0.95); }
 }
 
+/* Mobile-first responsive design */
+@media (max-width: 575px) {
+  .circle-1 {
+    width: min(400px, 70vw);
+    height: min(400px, 70vw);
+    top: -150px;
+    left: -150px;
+  }
+  
+  .circle-2 {
+    width: min(350px, 60vw);
+    height: min(350px, 60vw);
+    bottom: -100px;
+    right: -100px;
+  }
+  
+  .circle-3 {
+    width: min(280px, 50vw);
+    height: min(280px, 50vw);
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .referral-page button,
+  .referral-page a[role="button"],
+  .referral-page .btn {
+    min-height: 56px;
+    min-width: 56px;
+    padding: 16px 20px;
+  }
+  
+  .form-control,
+  .form-select,
+  input,
+  textarea {
+    font-size: 16px;
+    min-height: 56px;
+    padding: 16px 12px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 /* ===== LOADING SKELETON ===== */
 .referral-page.loading {
   background: linear-gradient(135deg, var(--darker-bg) 0%, #1e293b 100%);
-  min-height: 100vh;
+  min-height: auto;
 }
 
 .skeleton-background {

@@ -1,143 +1,198 @@
-/* src/styles/global.css — FINAL Comprehensive Global Stylesheet (Dark Theme Optimized) */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+/* Removed Bootstrap Icons import as we are using React Icons now */
 
-/* =======================================================
-   1. GLOBAL RESET & BASE VARIABLES (Dark Mode First)
-   ======================================================= */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-    /* Theme Colors (Base Dark) */
-    --color-primary: #0d6efd;   /* Bootstrap Blue */
-    --color-secondary: #6c757d;
-    --color-success: #198754;
-    --color-danger: #dc3545;
-    --color-warning: #ffc107;
-    --color-info: #0dcaf0;      /* Cyan */
-
-    /* Text & Background */
-    --color-bg: #0f172a;        /* Deep Slate Blue - Main Background */
-    --color-text: #eaf6ff;      /* Light Text */
-    --color-muted: #9fb8cf;     /* Muted Text */
-    --color-surface: #1e293b;   /* Components/Cards Background */
-    --color-border: rgba(255, 255, 255, 0.12); /* Light border on dark background */
-    --color-focus-ring: rgba(13, 110, 253, 0.4); /* Focus accessibility ring */
-
-    /* Typography */
-    --font-family-base: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --spacing-section: 80px;
+  /* Core Palette - "Abyss & Neon" */
+  --bg-deep: #030712;       /* Almost black */
+  --bg-surface: #0f172a;    /* Deep slate */
+  --bg-card: rgba(30, 41, 59, 0.7);
+  
+  --primary: #3b82f6;       /* Electric Blue */
+  --primary-glow: rgba(59, 130, 246, 0.5);
+  --secondary: #8b5cf6;     /* Violet */
+  --accent: #06b6d4;        /* Cyan */
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  
+  /* Dimensions & Spacing */
+  --header-height: 80px;
+  --container-width: 1280px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  
+  /* Animations */
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* The universal selector reset: 
-   This ensures padding and borders are calculated inside the element's total width and height.
-*/
-*, *::before, *::after {
-    box-sizing: border-box;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* Set up the main application containers */
-html, body, #root { 
-    height: 100%; 
+html {
+  font-family: 'Outfit', sans-serif;
+  scroll-behavior: smooth;
+  font-size: 16px;
+  background-color: var(--bg-deep);
+  color: var(--text-main);
 }
 
-/* Base Body Styles */
-body { 
-    font-family: var(--font-family-base); 
-    background: var(--color-bg); 
-    color: var(--color-text); 
-    line-height: 1.6;
-    margin: 0;
-    -webkit-font-smoothing: antialiased; 
-    -moz-osx-font-smoothing: grayscale;
+/* Global Link Reset */
+a {
+  text-decoration: none !important;
 }
 
-/* Accessibility and Layout */
-html { 
-    scroll-behavior: smooth; 
-}
-/* Ensure elements that are focused have a clear outline for accessibility */
-*:focus:not(.no-focus-outline) {
-    outline: 2px solid var(--color-focus-ring);
-    outline-offset: 2px;
-}
-main:focus { 
-    outline: none; 
-}
-
-/* Dark Mode Scrollbar Styling (Webkit only) */
-body::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-body::-webkit-scrollbar-track {
-    background: var(--color-surface);
-}
-body::-webkit-scrollbar-thumb {
-    background-color: var(--color-muted);
-    border-radius: 4px;
-    border: 2px solid var(--color-surface);
+body {
+  background-color: var(--bg-deep);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  padding-top: var(--header-height);
+  overflow-x: hidden;
 }
 
-
-/* =======================================================
-   2. REUSABLE UTILITIES
-   ======================================================= */
-
-/* Standardized Section Padding */
-.section { 
-    padding: var(--spacing-section) 0; 
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
 }
 
-/* Link Resets */
-a { 
-    color: var(--color-primary); 
-    text-decoration: none; 
-    transition: color 0.2s;
-}
-a:hover {
-    color: var(--color-info); 
-    text-decoration: underline;
+/* Utilities */
+.container {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  width: 100%;
 }
 
-
-/* Heading Base Style */
-h1, h2, h3, h4, h5, h6 {
-    line-height: 1.2;
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    font-weight: 700;
+.text-gradient {
+  background: linear-gradient(135deg, var(--text-main) 0%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Text Utilities */
-.text-muted {
-    color: var(--color-muted) !important;
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
 }
 
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  padding: 0.8rem 2rem;
+  border-radius: 99px;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s var(--ease-spring);
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
 
-/* =======================================================
-   3. LIGHT MODE OVERRIDES
-   ======================================================= */
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5);
+}
 
-@media (prefers-color-scheme: light) {
-    :root {
-        /* Text & Background (Light Theme) */
-        --color-bg: #f8fafc;      
-        --color-text: #0f1724;    
-        --color-muted: #64748b;   
-        --color-surface: #ffffff; 
-        --color-border: rgba(0, 0, 0, 0.1); 
-        --color-focus-ring: rgba(13, 110, 253, 0.6);
-    }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  padding: 0.8rem 2rem;
+  border-radius: 99px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
 
-    body {
-        background: var(--color-bg); 
-        color: var(--color-text); 
-    }
-    
-    /* Light Mode Scrollbar Styling (Webkit only) */
-    body::-webkit-scrollbar-thumb {
-        background-color: var(--color-muted);
-        border: 2px solid var(--color-bg);
-    }
-    body::-webkit-scrollbar-track {
-        background: var(--color-bg);
-    }
+.btn-ghost:hover {
+  border-color: var(--primary);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Full height sections */
+.section-screen {
+  min-height: calc(100vh - var(--header-height));
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 4rem 0;
+}
+
+/* Grid Layouts */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Loading Skeleton base */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-card) 50%, var(--bg-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Infinite Scroll Logic */
+@keyframes infinite-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-infinite-scroll {
+  animation: infinite-scroll 40s linear infinite;
+}
+
+.animate-infinite-scroll:hover {
+  animation-play-state: paused;
+}
+
+.mask-linear-fade {
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }

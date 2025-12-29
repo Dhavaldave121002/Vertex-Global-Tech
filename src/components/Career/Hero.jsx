@@ -1,15 +1,14 @@
 // src/components/Career/Hero.jsx
 import React from 'react'
-import '../../pages/career.css' // Import the new CSS
 
 export default function Hero() {
-  return (
-    <header className="career-hero text-center mb-4">
-      <p className="eyebrow">Work with us</p>
-      <h1>Join Vertex Global Tech</h1>
-      <p className="lead text-muted">
-        We hire curious engineers and designers who care about craftsmanship and product outcomes.
-      </p>
-    </header>
-  )
+  return (
+    <div className="text-center py-20 relative z-10">
+      <span className="text-blue-500 font-bold tracking-widest uppercase text-sm mb-4 block animate-pulse">Work with us</span>
+      <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">Join Vertex Global Tech</h1>
+      <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+        We hire curious engineers and designers who care about craftsmanship and product outcomes.
+      </p>
+    </div>
+  )
 }

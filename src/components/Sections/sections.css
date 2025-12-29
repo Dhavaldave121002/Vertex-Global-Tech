@@ -22,28 +22,28 @@
 /* ---------------------------------------------------- */
 .sections { 
   color: var(--text-primary); 
-  padding-top: 60px;
-  padding-bottom: 60px;
+  padding: clamp(40px, 8vh, 80px) clamp(12px, 3vw, 40px);
   background-color: var(--bg-section);
   box-sizing: border-box;
 }
 
 .section-title { 
   font-weight: 900; 
-  font-size: clamp(1.8rem, 2.8vw, 2.4rem); 
+  font-size: clamp(24px, 4vw, 48px); 
   color: var(--text-primary); 
-  margin-bottom: 12px; /* Increased spacing */
+  margin-bottom: clamp(12px, 2vw, 20px);
   margin-top: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Subtle text shadow for depth */
+  line-height: 1.2;
 }
 
 .section-intro { 
   color: var(--text-muted); 
   max-width: 68ch; 
-  margin: 0 auto 40px; 
-  line-height: 1.7; /* Increased line height */
-  font-size: 1.1rem; /* Slightly larger */
-  font-weight: 400; /* Explicit weight */
+  margin: 0 auto clamp(24px, 4vw, 40px); 
+  line-height: 1.7;
+  font-size: clamp(14px, 2vw, 18px);
+  font-weight: 400;
 }
 
 /* ---------------------------------------------------- */
@@ -80,6 +80,13 @@
   background: linear-gradient(90deg, var(--accent1), var(--accent2));
   opacity: 0.8; /* More visible */
   transition: opacity 300ms ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent1);
+  box-shadow: 0 20px 50px rgba(34, 211, 238, 0.2), var(--shadow-lg);
+  background: var(--card-hover-bg);
 }
 
 .feature-card h5 {
@@ -464,4 +471,135 @@
 .testimonial-card footer {
   color: var(--text-muted) !important;
   opacity: 1 !important; /* Prevent any transparency */
+}
+
+/* ---------------------------------------------------- */
+/* 14. COMPREHENSIVE MOBILE-FIRST RESPONSIVE DESIGN */
+/* ---------------------------------------------------- */
+
+/* Mobile Base (320px - 575px) */
+@media (max-width: 575px) {
+  .sections {
+    padding: clamp(32px, 6vh, 48px) clamp(12px, 2.5vw, 24px);
+  }
+  
+  .feature-cards-grid {
+    grid-template-columns: 1fr;
+    gap: clamp(16px, 3vw, 24px);
+  }
+  
+  .feature-card {
+    padding: clamp(16px, 2.5vw, 20px);
+  }
+  
+  .feature-card h5 {
+    font-size: clamp(16px, 2.5vw, 20px);
+    margin-bottom: clamp(8px, 1.5vw, 12px);
+  }
+  
+  .feature-card p {
+    font-size: clamp(13px, 1.8vw, 15px);
+    line-height: 1.6;
+  }
+  
+  .pricing-cards-grid {
+    grid-template-columns: 1fr;
+    gap: clamp(16px, 3vw, 24px);
+  }
+  
+  .price-card {
+    padding: clamp(16px, 2.5vw, 20px);
+  }
+  
+  .plan-price {
+    font-size: clamp(24px, 3.5vw, 32px);
+  }
+  
+  .plan-list li {
+    font-size: clamp(12px, 1.7vw, 14px);
+    padding: clamp(6px, 1vw, 10px) 0;
+  }
+  
+  .cta-button {
+    width: 100%;
+    min-height: 48px;
+    padding: clamp(12px, 2vw, 16px) clamp(20px, 3vw, 28px);
+    font-size: clamp(14px, 1.8vw, 16px);
+  }
+}
+
+/* Tablet (576px - 991px) */
+@media (min-width: 576px) and (max-width: 991px) {
+  .feature-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(16px, 2.5vw, 28px);
+  }
+  
+  .pricing-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(16px, 2.5vw, 28px);
+  }
+  
+  .price-card.featured {
+    grid-column: 1 / -1;
+    max-width: 350px;
+    margin: 0 auto;
+  }
+  
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Desktop (992px - 1199px) */
+@media (min-width: 992px) {
+  .feature-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(20px, 2vw, 32px);
+  }
+  
+  .pricing-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(16px, 1.5vw, 24px);
+  }
+}
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+  .sections {
+    padding: clamp(80px, 12vh, 120px) 40px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .feature-card,
+  .price-card,
+  .testimonial-card,
+  .cta-button {
+    min-height: 56px;
+  }
+  
+  .cta-button {
+    padding: clamp(14px, 2vw, 18px) clamp(24px, 3vw, 32px);
+    font-size: 16px;
+  }
+  
+  /* Remove hover effects on touch, add active state */
+  .feature-card:active,
+  .price-card:active,
+  .testimonial-card:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .feature-card,
+  .price-card,
+  .testimonial-card,
+  .feature-icon {
+    animation: none !important;
+    transition: color 0.2s ease, background-color 0.2s ease !important;
+  }
 }

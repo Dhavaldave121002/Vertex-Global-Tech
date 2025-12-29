@@ -1,5 +1,5 @@
 // ThreeScene.jsx
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, Float, Html } from '@react-three/drei';
@@ -73,7 +73,7 @@ const DeviceShowcaseScene = ({ activeDevice }) => {
   return (
     <>
       <PerspectiveCamera makeDefault position={[0, 2, 8]} fov={50} />
-      
+
       <OrbitControls
         ref={controlsRef}
         enableZoom={true}

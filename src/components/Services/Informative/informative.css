@@ -39,7 +39,7 @@
 .informative-page { 
     color: var(--vg-text); 
     background-color: var(--vg-bg-page);
-    min-height: 100vh;
+    min-height: auto; /* controlled by .vh-100-section when used */
     position: relative;
     overflow-x: hidden;
 }

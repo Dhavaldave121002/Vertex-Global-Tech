@@ -1,87 +1,119 @@
-// src/pages/services/Ecommerce.jsx
-import React, { useEffect, useState } from 'react'
-import '../../components/Services/Ecommerce/ecommerce.css' // Import the new CSS
+import React from 'react';
+import { motion } from 'framer-motion';
+import ProcessTimeline from '../../components/Services/ProcessTimeline';
+import TechStack from '../../components/Services/TechStack';
+import ServiceFAQ from '../../components/Services/ServiceFAQ';
+import ServiceHero3D from '../../components/UI/ServiceHero3D';
+import SEO from '../../components/SEO';
 
-import Hero from '../../components/Services/Ecommerce/Hero'
-import Features from '../../components/Services/Ecommerce/Features'
-import ProjectsGrid from '../../components/Services/Ecommerce/ProjectsGrid'
-import Process from '../../components/Services/Ecommerce/Process'
-import Pricing from '../../components/Services/Ecommerce/Pricing'
-import FAQ from '../../components/Services/Ecommerce/FAQ'
-import ContactForm from '../../components/Services/Ecommerce/ContactForm'
-import ProjectModal from '../../components/Services/Ecommerce/ProjectModal'
-
-// small helper to fetch JSON from /public/data
-async function fetchJson(path) {
-  try {
-    const res = await fetch(path)
-    if (!res.ok) throw new Error('Fetch error ' + res.status)
-    return await res.json()
-  } catch (e) {
-    console.error(e)
-    return []
-  }
-}
-
-export default function EcommerceService() {
-  const [projects, setProjects] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [projectModal, setProjectModal] = useState(null)
-
-  useEffect(() => {
-    let mounted = true
-    async function load() {
-      setLoading(true)
-      const pj = await fetchJson('/data/projects.json')
-      if (!mounted) return
-      setProjects(Array.isArray(pj) ? pj : [])
-      setLoading(false)
-    }
-    load()
-    return () => { mounted = false }
-  }, [])
+export default function Ecommerce() {
+  const features = [
+    { title: 'Secure Checkouts', icon: 'bi-shield-lock', desc: 'PCI-DSS compliant payment processing for peace of mind.' },
+    { title: 'Inventory Management', icon: 'bi-box-seam', desc: 'Real-time stock tracking and automated alerts.' },
+    { title: 'Sales Analytics', icon: 'bi-graph-up-arrow', desc: 'Detailed dashboards for revenue, conversion, and traffic.' },
+    { title: 'Mobile First', icon: 'bi-phone', desc: 'Optimized shopping experience for mobile users.' },
+    { title: 'SEO Rankings', icon: 'bi-search', desc: 'Product schema markup to help you rank on Google Shopping.' },
+    { title: 'Global Selling', icon: 'bi-globe', desc: 'Multi-currency and multi-language support built-in.' },
+  ];
 
   return (
-    <main className="ecom-service-page">
-      <Hero />
-      <Features />
+    <>
+      <SEO
+        title="E-Commerce Solutions"
+        description="Launch a powerful online store with Vertex Global Tech. Secure, scalable e-commerce platforms designed to sell."
+        keywords="ecommerce website, online store, shopify, woocommerce, custom ecommerce"
+      />
 
-      <section className="py-5 bg-soft">
-        <div className="container">
-          <div className="d-flex align-items-center justify-content-between mb-3">
-            <h3>Selected e-commerce projects</h3>
-            <a href="/portfolio" className="link-primary">View all projects →</a>
+      <div className="min-h-screen bg-[#030712]">
+
+        {/* HERO */}
+        <ServiceHero3D
+          title="E-Commerce Excellence"
+          highlight="Excellence"
+          badge="Services"
+          subtitle="Convert visitors into customers with a seamless, secure, and beautiful online store."
+          variant="ecommerce"
+        />
+
+        {/* INTRODUCTION */}
+        <section className="py-20 bg-[#0f172a]/30">
+          <div className="container mx-auto px-6 max-w-6xl text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
+                Sell <span className="text-green-500">Everywhere</span>
+              </h2>
+              <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                We build e-commerce platforms that don't just display products—they drive sales. From intuitive navigation to frictionless checkout, every pixel is optimized for conversion.
+              </p>
+            </motion.div>
           </div>
+        </section>
 
-          {loading ? <p>Loading projects…</p> : <ProjectsGrid projects={projects} onPreview={setProjectModal} />}
-        </div>
-      </section>
+        {/* FEATURES GRID */}
+        <section className="py-24 bg-[#030712] relative overflow-hidden">
+          {/* Background Glow */}
+          <div className="absolute top-center w-[500px] h-[500px] bg-green-900/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-      <Process />
-      <Pricing />
-      <FAQ />
-
-      <section id="contact" className="py-5">
-        <div className="container">
-          <div className="row g-4 align-items-center">
-            <div className="col-lg-7">
-              <h3>Request a quote</h3>
-              <p className="text-muted">Share a few details and we’ll send a tailored proposal.</p>
-              <ContactForm />
+          <div className="container mx-auto px-6 max-w-7xl relative z-10">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Store <span className="text-green-500">Features</span></h2>
+              <p className="text-gray-400">Everything you need to run a successful online business.</p>
             </div>
 
-            <aside className="col-lg-5">
-              <div className="card p-3 contact-panel">
-                <h6>Need help scoping?</h6>
-                <p className="small text-muted mb-2">We provide scoping calls and a sample SOW for larger projects.</p>
-                <a className="btn btn-outline-light btn-sm" href="/contact">Contact Sales</a>
-              </div>
-            </aside>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {features.map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  className="bg-[#0f172a] p-8 rounded-2xl border border-white/5 hover:border-green-500/50 hover:bg-[#1e293b] transition-all group"
+                >
+                  <div className="w-14 h-14 bg-green-600/10 rounded-xl flex items-center justify-center text-green-400 text-2xl mb-6 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                    <i className={`bi ${item.icon}`}></i>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-gray-400 group-hover:text-gray-300 transition-colors">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {projectModal && <ProjectModal project={projectModal} onClose={() => setProjectModal(null)} />}
-    </main>
-  )
+        {/* PROCESS TIMELINE */}
+        <ProcessTimeline />
+
+        {/* TECH STACK */}
+        <TechStack />
+
+        {/* FAQ */}
+        <ServiceFAQ category="E-Commerce" />
+
+        {/* CTA */}
+        <section className="py-24 text-center bg-gradient-to-b from-[#020617] to-[#0f172a]">
+          <div className="container mx-auto px-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="max-w-3xl mx-auto bg-[#1e293b]/50 p-12 rounded-3xl border border-white/10 backdrop-blur-lg"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to scale your business?</h2>
+              <p className="text-xl text-gray-400 mb-8">Join the digital retail revolution.</p>
+              <a href="/contact?tab=schedule" className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-full transition-all shadow-lg shadow-green-900/40 transform hover:scale-105">
+                <span>Launch Your Store</span>
+                <i className="bi bi-arrow-right"></i>
+              </a>
+            </motion.div>
+          </div>
+        </section>
+      </div>
+    </>
+  );
 }

@@ -1,121 +1,119 @@
-// src/pages/services/Dynamic.jsx
-import React, { useEffect, useState } from 'react'
-import '../../components/Services/Dynamic/dynamic.css' // Import the new CSS
-
-import Hero from '../../components/Services/Dynamic/Hero'
-import Features from '../../components/Services/Dynamic/Features'
-import ProjectsGrid from '../../components/Services/Dynamic/ProjectsGrid'
-import BlogGrid from '../../components/Services/Dynamic/BlogGrid'
-import Pricing from '../../components/Services/Dynamic/Pricing'
-import ContactQuote from '../../components/Services/Dynamic/ContactQuote'
-import ProjectModal from '../../components/Services/Dynamic/ProjectModal'
-import PostModal from '../../components/Services/Dynamic/PostModal'
-
-// Utility: fetch JSON from /public/data
-async function fetchJson(path) {
-  try {
-    const res = await fetch(path)
-    if (!res.ok) throw new Error('Failed to fetch ' + path)
-    return await res.json()
-  } catch (e) {
-    console.error(e)
-    return []
-  }
-}
+import React from 'react';
+import { motion } from 'framer-motion';
+import ProcessTimeline from '../../components/Services/ProcessTimeline';
+import TechStack from '../../components/Services/TechStack';
+import ServiceFAQ from '../../components/Services/ServiceFAQ';
+import ServiceHero3D from '../../components/UI/ServiceHero3D';
+import SEO from '../../components/SEO';
 
 export default function Dynamic() {
-  const [projects, setProjects] = useState([])
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [projectModal, setProjectModal] = useState(null)
-  const [postModal, setPostModal] = useState(null)
-
-  // Blog pagination/search state
-  const [query, setQuery] = useState('')
-  const [page, setPage] = useState(1)
-  const PER_PAGE = 4
-
-  useEffect(() => {
-    let mounted = true
-    async function load() {
-      setLoading(true)
-      const [pj, pb] = await Promise.all([
-        fetchJson('/data/projects.json'),
-        fetchJson('/data/blog.json')
-      ])
-      if (!mounted) return
-      setProjects(Array.isArray(pj) ? pj : [])
-      setPosts(Array.isArray(pb) ? pb.sort((a,b) => new Date(b.date) - new Date(a.date)) : [])
-      setLoading(false)
-    }
-    load()
-    return () => { mounted = false }
-  }, [])
-
-  // filtered posts logic reused by BlogGrid
-  const filteredPosts = posts.filter(p =>
-    p.title.toLowerCase().includes(query.toLowerCase()) ||
-    (p.excerpt && p.excerpt.toLowerCase().includes(query.toLowerCase()))
-  )
-  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / PER_PAGE))
-  const visiblePosts = filteredPosts.slice((page-1)*PER_PAGE, (page-1)*PER_PAGE + PER_PAGE)
+  const features = [
+    { title: 'Interactive UIs', icon: 'bi-cursor-fill', desc: 'Engaging interfaces with React and Framer Motion.' },
+    { title: 'API Integration', icon: 'bi-hdd-network', desc: 'Seamless connection to third-party services and data sources.' },
+    { title: 'Real-time Data', icon: 'bi-activity', desc: 'Live updates using WebSockets and real-time databases.' },
+    { title: 'User Dashboards', icon: 'bi-person-badge', desc: 'Secure portals with personalized content and analytics.' },
+    { title: 'Complex Logic', icon: 'bi-diagram-3', desc: 'Handling intricate business logic and workflows efficiently.' },
+    { title: 'Cloud Powered', icon: 'bi-cloud-fill', desc: 'Scalable backend infrastructure on AWS or Google Cloud.' },
+  ];
 
   return (
-    <main className="dynamic-page">
+    <>
+      <SEO
+        title="Dynamic Web Solutions"
+        description="Build interactive, data-driven web applications with Vertex Global Tech. Scalable solutions for complex needs."
+        keywords="dynamic website, web application, react development, interactive web design"
+      />
 
-      <Hero />
+      <div className="min-h-screen bg-[#030712]">
 
-      <Features />
+        {/* HERO */}
+        <ServiceHero3D
+          title="Dynamic Web Solutions"
+          highlight="Solutions"
+          badge="Services"
+          subtitle="Interactive, data-driven experiences that adapt to your users in real-time."
+          variant="dynamic"
+        />
 
-      <section className="py-5 bg-soft">
-        <div className="container">
-          <div className="d-flex align-items-center justify-content-between mb-3">
-            <h3>Case studies & projects</h3>
-            <a href="/portfolio" className="link-primary">View all projects →</a>
+        {/* INTRODUCTION */}
+        <section className="py-20 bg-[#0f172a]/30">
+          <div className="container mx-auto px-6 max-w-6xl text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
+                Beyond Static <span className="text-purple-500">Pages</span>
+              </h2>
+              <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                Modern businesses need more than just a brochure. We build dynamic web solutions that process data, handle user interactions, and automate workflows, transforming your website into a powerful business tool.
+              </p>
+            </motion.div>
           </div>
+        </section>
 
-          {loading ? <p>Loading projects…</p> : (
-            <ProjectsGrid projects={projects} onPreview={setProjectModal} />
-          )}
-        </div>
-      </section>
+        {/* FEATURES GRID */}
+        <section className="py-24 bg-[#030712] relative overflow-hidden">
+          {/* Background Glow */}
+          <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-      <section className="py-5">
-        <div className="container">
-          <div className="d-flex align-items-center justify-content-between mb-3">
-            <h3>Latest articles (CMS)</h3>
-            <div className="d-flex gap-2">
-              <input className="form-control form-control-sm" placeholder="Search posts…" value={query} onChange={e => { setQuery(e.target.value); setPage(1) }} />
-              <a href="/blog" className="btn btn-sm btn-outline-light">All Posts</a>
+          <div className="container mx-auto px-6 max-w-7xl relative z-10">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Core <span className="text-purple-500">Capabilities</span></h2>
+              <p className="text-gray-400">Advanced functionality for demanding projects.</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {features.map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  className="bg-[#0f172a] p-8 rounded-2xl border border-white/5 hover:border-purple-500/50 hover:bg-[#1e293b] transition-all group"
+                >
+                  <div className="w-14 h-14 bg-purple-600/10 rounded-xl flex items-center justify-center text-purple-400 text-2xl mb-6 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                    <i className={`bi ${item.icon}`}></i>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-gray-400 group-hover:text-gray-300 transition-colors">{item.desc}</p>
+                </motion.div>
+              ))}
             </div>
           </div>
+        </section>
 
-          {loading ? <p>Loading posts…</p> : (
-            <BlogGrid
-              posts={visiblePosts}
-              onRead={setPostModal}
-              page={page}
-              totalPages={totalPages}
-              setPage={setPage}
-            />
-          )}
-        </div>
-      </section>
+        {/* PROCESS TIMELINE */}
+        <ProcessTimeline />
 
-      <Pricing />
+        {/* TECH STACK */}
+        <TechStack />
 
-      <ContactQuote onRequest={() => window.location.hash = '#contact'} />
+        {/* FAQ */}
+        <ServiceFAQ category="Dynamic" />
 
-      {/* Contact section with the form */}
-      <section id="contact" className="py-5">
-        <div className="container">
-          <ContactQuote inline />
-        </div>
-      </section>
-
-      {projectModal && <ProjectModal project={projectModal} onClose={() => setProjectModal(null)} />}
-      {postModal && <PostModal post={postModal} onClose={() => setPostModal(null)} />}
-
-    </main>
-  )
+        {/* CTA */}
+        <section className="py-24 text-center bg-gradient-to-b from-[#020617] to-[#0f172a]">
+          <div className="container mx-auto px-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="max-w-3xl mx-auto bg-[#1e293b]/50 p-12 rounded-3xl border border-white/10 backdrop-blur-lg"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Need a custom solution?</h2>
+              <p className="text-xl text-gray-400 mb-8">Let's engineer a platform that scales with your ambition.</p>
+              <a href="/contact?tab=schedule" className="inline-flex items-center gap-3 px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-full transition-all shadow-lg shadow-purple-900/40 transform hover:scale-105">
+                <span>Start Building</span>
+                <i className="bi bi-arrow-right"></i>
+              </a>
+            </motion.div>
+          </div>
+        </section>
+      </div>
+    </>
+  );
 }

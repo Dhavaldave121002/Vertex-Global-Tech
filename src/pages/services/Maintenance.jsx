@@ -1,0 +1,119 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import ProcessTimeline from '../../components/Services/ProcessTimeline';
+import TechStack from '../../components/Services/TechStack';
+import ServiceFAQ from '../../components/Services/ServiceFAQ';
+import ServiceHero3D from '../../components/UI/ServiceHero3D';
+import SEO from '../../components/SEO';
+
+export default function Maintenance() {
+  const features = [
+    { title: 'Security Patches', icon: 'bi-shield-check', desc: 'Proactive protection against the latest threats and vulnerabilities.' },
+    { title: 'Uptime Monitoring', icon: 'bi-activity', desc: '24/7 surveillance to ensure your site is always online.' },
+    { title: 'Performance Tuning', icon: 'bi-speedometer2', desc: 'Code and asset optimization for maximum speed and SEO scoring.' },
+    { title: 'Content Updates', icon: 'bi-pencil-square', desc: 'Regular content refreshes to keep your audience engaged.' },
+    { title: 'Daily Backups', icon: 'bi-hdd', desc: 'Automated off-site backups to prevent data loss.' },
+    { title: 'Bug Fixes', icon: 'bi-bug', desc: 'Rapid resolution of any technical issues that arise.' },
+  ];
+
+  return (
+    <>
+      <SEO
+        title="Website Maintenance & Support"
+        description="Reliable website maintenance and support services by Vertex Global Tech. Keep your site secure, fast, and up-to-date."
+        keywords="website maintenance, wordpress support, website security, site updates"
+      />
+
+      <div className="min-h-screen bg-[#030712]">
+
+        {/* HERO */}
+        <ServiceHero3D
+          title="Maintenance & Support"
+          highlight="Support"
+          badge="Services"
+          subtitle="Keep your digital assets secure, updated, and running at peak performance."
+          variant="maintenance"
+        />
+
+        {/* INTRODUCTION */}
+        <section className="py-20 bg-[#0f172a]/30">
+          <div className="container mx-auto px-6 max-w-6xl text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
+                Protect Your <span className="text-yellow-500">Investment</span>
+              </h2>
+              <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                A website is not a one-time project; it's a living asset. Our maintenance packages provide peace of mind, ensuring your platform evolves with technology and remains safe from threats.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* FEATURES GRID */}
+        <section className="py-24 bg-[#030712] relative overflow-hidden">
+          {/* Background Glow */}
+          <div className="absolute top-0 right-1/3 w-[500px] h-[500px] bg-yellow-900/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+          <div className="container mx-auto px-6 max-w-7xl relative z-10">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Support <span className="text-yellow-500">Services</span></h2>
+              <p className="text-gray-400">Comprehensive care for your digital presence.</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {features.map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  className="bg-[#0f172a] p-8 rounded-2xl border border-white/5 hover:border-yellow-500/50 hover:bg-[#1e293b] transition-all group"
+                >
+                  <div className="w-14 h-14 bg-yellow-600/10 rounded-xl flex items-center justify-center text-yellow-500 text-2xl mb-6 group-hover:bg-yellow-600 group-hover:text-white transition-colors">
+                    <i className={`bi ${item.icon}`}></i>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-gray-400 group-hover:text-gray-300 transition-colors">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* PROCESS TIMELINE (Support Onboarding) */}
+        <ProcessTimeline />
+
+        {/* TECH STACK (Tools we use) */}
+        <TechStack />
+
+        {/* FAQ */}
+        <ServiceFAQ category="Maintenance" />
+
+        {/* CTA */}
+        <section className="py-24 text-center bg-gradient-to-b from-[#020617] to-[#0f172a]">
+          <div className="container mx-auto px-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="max-w-3xl mx-auto bg-[#1e293b]/50 p-12 rounded-3xl border border-white/10 backdrop-blur-lg"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Need immediate help?</h2>
+              <p className="text-xl text-gray-400 mb-8">Our support team is ready to assist you.</p>
+              <a href="/contact?tab=schedule" className="inline-flex items-center gap-3 px-8 py-4 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-full transition-all shadow-lg shadow-yellow-900/40 transform hover:scale-105">
+                <span>Get Support Now</span>
+                <i className="bi bi-arrow-right"></i>
+              </a>
+            </motion.div>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}

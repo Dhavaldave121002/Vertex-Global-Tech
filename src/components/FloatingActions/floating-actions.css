@@ -57,13 +57,77 @@
 }
 
 .floating-contact-pro.right {
-  right: 24px;
-  bottom: 24px;
+  right: 24px !important;
+  bottom: 24px !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  margin: 0 !important;
 }
 
 .floating-contact-pro.left {
-  left: 24px;
-  bottom: 24px;
+  left: 24px !important;
+  bottom: 24px !important;
+  top: auto !important;
+  right: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+/* Mobile-first responsive positioning */
+@media (max-width: 575px) {
+  .floating-contact-pro.right,
+  .floating-contact-pro.left {
+    right: 20px !important;
+    left: auto !important;
+    bottom: 20px !important; /* Fixed bottom position */
+    top: auto !important;
+    transform: none !important;
+  }
+  
+  .main-button {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  .contact-menu.mobile {
+    width: calc(100vw - 40px);
+    right: 20px !important;
+    left: auto !important;
+    bottom: 90px !important; 
+    bottom: max(90px, env(safe-area-inset-bottom) + 90px) !important;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .main-button,
+  .menu-item {
+    min-width: 56px;
+    min-height: 56px;
+    touch-action: manipulation;
+  }
+  
+  .main-button:hover {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .main-button:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .floating-contact-pro,
+  .main-button,
+  .menu-item,
+  .menu {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* ===== Animations ===== */
@@ -173,7 +237,6 @@
   transition: var(--transition);
   box-shadow: var(--shadow-xl), var(--shadow-glow);
   font-size: 26px;
-  z-index: 1000;
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -1217,9 +1280,91 @@
   }
 }
 
+/* Back to Top Button */
+.floating-top-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(20px) scale(0.8);
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 12px; /* Space between buttons */
+  position: relative;
+  z-index: 998;
+  order: -1;
+}
+
+.floating-top-btn.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.floating-top-btn:hover {
+  background: var(--primary);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.floating-top-btn.size-small { width: 40px; height: 40px; font-size: 14px; }
+.floating-top-btn.size-large { width: 60px; height: 60px; font-size: 20px; }
+
 /* ===== Print Styles ===== */
 @media print {
   .floating-contact-pro {
     display: none !important;
+  }
+}
+
+/* FORCE FIX FOR FLOATING ACTION BUTTON POSITION */
+html body .floating-contact-pro.right {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  height: auto !important;
+  width: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  z-index: 2147483647 !important;
+  inset: auto 24px 24px auto !important;
+}
+
+@media (max-width: 768px) {
+  html body .floating-contact-pro.right {
+    bottom: 20px !important;
+    right: 20px !important;
+    inset: auto 20px 20px auto !important;
+  }
+}
+
+/* Adjust Menu Position when Back To Top is visible to prevent overlap */
+.floating-contact-pro.has-active-back-top .contact-menu {
+  bottom: 154px !important; /* 90px + 50px btn + 14px gap */
+}
+
+@media (max-width: 768px) {
+  .floating-contact-pro.has-active-back-top .contact-menu {
+    bottom: 144px !important;
+  }
+  
+  .floating-contact-pro.has-active-back-top .contact-menu.mobile {
+    bottom: 144px !important;
   }
 }

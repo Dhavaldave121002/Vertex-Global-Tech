@@ -14,16 +14,18 @@ function ServiceCard({ title, subtitle }) {
 
 export default function Services() {
   return (
-    <section className="container py-5">
-      <h2 className="mb-4">Services</h2>
+    <section className="container py-5 vh-100-section">
+      <div className="vh-100-scroll">
+        <h2 className="mb-4">Services</h2>
 
-      <div className="row g-4">
-        <div className="col-12 col-md-4"><ServiceCard title="Informative Website" subtitle="Fast, SEO-friendly brochure websites." /></div>
-        <div className="col-12 col-md-4"><ServiceCard title="Dynamic Website" subtitle="CMS-powered or custom dashboards & portals." /></div>
-        <div className="col-12 col-md-4"><ServiceCard title="E-Commerce Website" subtitle="High-converting online stores." /></div>
-        <div className="col-12 col-md-4"><ServiceCard title="Application Development" subtitle="Android & iOS native apps and cross-platform." /></div>
-        <div className="col-12 col-md-4"><ServiceCard title="UI / UX — Website" subtitle="Design systems, prototypes, and UI kits." /></div>
-        <div className="col-12 col-md-4"><ServiceCard title="UI / UX — Application" subtitle="Mobile-first UX with performance in mind." /></div>
+        <div className="row g-4">
+          <div className="col-12 col-md-4"><ServiceCard title="Informative Website" subtitle="Fast, SEO-friendly brochure websites." /></div>
+          <div className="col-12 col-md-4"><ServiceCard title="Dynamic Website" subtitle="CMS-powered or custom dashboards & portals." /></div>
+          <div className="col-12 col-md-4"><ServiceCard title="E-Commerce Website" subtitle="High-converting online stores." /></div>
+          <div className="col-12 col-md-4"><ServiceCard title="Application Development" subtitle="Android & iOS native apps and cross-platform." /></div>
+          <div className="col-12 col-md-4"><ServiceCard title="UI / UX — Website" subtitle="Design systems, prototypes, and UI kits." /></div>
+          <div className="col-12 col-md-4"><ServiceCard title="UI / UX — Application" subtitle="Mobile-first UX with performance in mind." /></div>
+        </div>
       </div>
     </section>
   )

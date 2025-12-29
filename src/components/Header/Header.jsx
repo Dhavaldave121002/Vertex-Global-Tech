@@ -1,57 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import './header.css';
-import VgLogo from '../../assets/vglogo.jpg';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import logo from '../../assets/vglogo.jpg';
 
-export default function Header() {
+const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hoveredLink, setHoveredLink] = useState(null);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [isVisible, setIsVisible] = useState(true);
   const location = useLocation();
-  const headerRef = useRef(null);
-  const lastScrollY = useRef(0);
-  const timeoutRef = useRef(null);
 
-  // Handle scroll effect for header visibility
+  // Effect to handle scroll
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Handle scroll effect
-      setScrolled(currentScrollY > 50);
-      
-      // Clear any existing timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      
-      // Handle hide/show header on scroll with debounce
-      if (currentScrollY > 100) {
-        if (currentScrollY > lastScrollY.current && currentScrollY > 200) {
-          setIsVisible(false); // Hide on scroll down
-        } else {
-          setIsVisible(true); // Show on scroll up
-        }
-      } else {
-        setIsVisible(true);
-      }
-      
-      lastScrollY.current = currentScrollY;
-      
-      // Debounce scroll events
-      timeoutRef.current = setTimeout(() => {
-        // Additional scroll logic if needed
-      }, 100);
-    };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Close mobile menu on route change
@@ -60,425 +24,228 @@ export default function Header() {
     setActiveDropdown(null);
   }, [location]);
 
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (headerRef.current && !headerRef.current.contains(event.target)) {
-        setActiveDropdown(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
-    
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
-    };
-  }, []);
-
-  // Toggle mobile menu
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-    if (!mobileMenuOpen) {
-      setActiveDropdown(null);
-    }
+  const toggleDropdown = (name) => {
+    setActiveDropdown(activeDropdown === name ? null : name);
   };
 
-  // Close mobile menu
-  const closeMobileMenu = () => {
-    setMobileMenuOpen(false);
-    setActiveDropdown(null);
-  };
-
-  // Handle dropdown toggle with better state management
-  const handleDropdownToggle = (dropdownName) => {
-    if (activeDropdown === dropdownName) {
-      setActiveDropdown(null);
-    } else {
-      setActiveDropdown(dropdownName);
-    }
-  };
-
-  // Services dropdown items
-  const servicesItems = [
-    { path: '/services/informative', label: 'Informative Website', icon: 'bi-globe' },
-    { path: '/services/dynamic', label: 'Dynamic Website', icon: 'bi-code-slash' },
-    { path: '/services/ecommerce', label: 'E-Commerce Website', icon: 'bi-cart' },
-    { path: '/services/application', label: 'Application Development', icon: 'bi-phone' },
-    { path: '/services/uiux', label: 'UI/UX Design', icon: 'bi-palette' }
-  ];
-
-  // Pricing dropdown items
-  const pricingItems = [
-    { path: '/pricing/website', label: 'Website Pricing', icon: 'bi-cash-coin' },
-    { path: '/pricing/application', label: 'Application Pricing', icon: 'bi-cash-stack' },
-    { path: '/pricing/uiux', label: 'UI/UX Pricing', icon: 'bi-currency-dollar' }
-  ];
-
-  // Main navigation items
-  const navItems = [
-    { path: '/', label: 'Home', icon: 'bi-house' },
-    { path: '/about', label: 'About Us', icon: 'bi-people' },
-    { path: '/referral', label: 'Referral', icon: 'bi-share' },
-    { path: '/career', label: 'Careers', icon: 'bi-briefcase' }
+  const navigation = [
+    { name: 'Home', path: '/' },
+    {
+      name: 'Services',
+      dropdown: [
+        { name: 'Informative Website', path: '/services/informative' },
+        { name: 'Dynamic Website', path: '/services/dynamic' },
+        { name: 'E-Commerce Solution', path: '/services/ecommerce' },
+        { name: 'Web Application', path: '/services/application' },
+        { name: 'UI/UX Design', path: '/services/uiux' },
+        { name: 'Maintenance', path: '/services/maintenance' },
+      ]
+    },
+    {
+      name: 'Pricing',
+      dropdown: [
+        { name: 'Website Packages', path: '/pricing/website' },
+        { name: 'Application Plans', path: '/pricing/application' },
+        { name: 'UI/UX Services', path: '/pricing/uiux' },
+      ]
+    },
+    { name: 'Portfolio', path: '/portfolio' },
+    { name: 'About', path: '/about' },
+    { name: 'Blog', path: '/blog' },
+    { name: 'Career', path: '/career' },
+    { name: 'Refer & Earn', path: '/referral' },
   ];
 
   return (
-    <header 
-      ref={headerRef}
-      className={`vg-header ${scrolled ? 'scrolled' : ''} ${mobileMenuOpen ? 'menu-open' : ''} ${isVisible ? 'visible' : 'hidden'}`}
-      role="banner"
-      aria-label="Main navigation"
-    >
-      <nav className="vg-navbar" aria-label="Primary navigation">
-        <div className="vg-container">
-          
-          {/* Logo/Brand Section */}
-          <Link to="/" className="vg-brand" aria-label="Vertex Global Tech Home">
-            <div className="vg-logo-wrapper">
-              <div className="vg-logo-container">
-                <img
-                  src={VgLogo}
-                  alt="Vertex Global Tech Logo"
-                  className="vg-logo"
-                  loading="eager"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    const fallback = e.target.parentNode.querySelector('.vg-logo-fallback');
-                    if (fallback) fallback.style.display = 'flex';
-                  }}
-                />
-                <div className="vg-logo-fallback">
-                  <i className="bi bi-rocket-takeoff fallback-icon"></i>
-                </div>
-                <div className="vg-logo-glow"></div>
-                <div className="vg-logo-pulse"></div>
-              </div>
-              <div className="vg-brand-text">
-                <h1 className="vg-title">Vertex Global Tech</h1>
-                <p className="vg-subtitle">Design • Engineering • Scale</p>
-              </div>
+    <>
+      <motion.header
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-[#030712]/95 backdrop-blur-xl border-b border-white/10 shadow-lg' : 'bg-[#030712] lg:bg-gradient-to-b lg:from-black/80 lg:to-transparent'}`}
+      >
+        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3 group z-50 relative">
+            <img
+              src={logo}
+              alt="Vertex Global Tech"
+              className="w-12 h-12 object-contain rounded-xl hover:scale-105 transition-transform duration-300 shadow-lg shadow-blue-500/20"
+            />
+            <div className="flex flex-col hidden sm:flex">
+              <span className="text-xl font-bold tracking-tight text-white group-hover:text-blue-400 transition-colors leading-none">
+                Vertex <span className="text-blue-500">Global Tech</span>
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold mt-1 group-hover:text-blue-400/70 transition-colors">
+                Innovate. Transform. Scale.
+              </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="vg-nav-desktop">
-            <ul className="vg-nav-list">
-              {navItems.map((item) => (
-                <li className="vg-nav-item" key={item.path}>
-                  <NavLink 
-                    to={item.path} 
-                    className={({ isActive }) => 
-                      `vg-nav-link ${isActive ? 'active' : ''}`
-                    }
-                    aria-current={location.pathname === item.path ? "page" : undefined}
+          {/* Desktop Nav */}
+          <nav className="hidden lg:flex items-center gap-8">
+            {navigation.map((item) => (
+              <div
+                key={item.name}
+                className="relative"
+                onMouseEnter={() => setHoveredLink(item.name)}
+                onMouseLeave={() => setHoveredLink(null)}
+              >
+                {!item.dropdown ? (
+                  <Link
+                    to={item.path}
+                    className={`text-sm font-medium transition-colors hover:text-blue-400 ${location.pathname === item.path ? 'text-blue-500' : 'text-gray-300'} `}
                   >
-                    <i className={`bi ${item.icon} nav-icon`}></i>
-                    <span className="nav-text">{item.label}</span>
-                    <span className="nav-underline"></span>
-                  </NavLink>
-                </li>
-              ))}
+                    {item.name}
+                  </Link>
+                ) : (
+                  <button
+                    className={`text-sm font-medium transition-colors flex items-center gap-1 ${hoveredLink === item.name ? 'text-blue-400' : 'text-gray-300'} `}
+                  >
+                    {item.name}
+                    <i className={`bi bi-chevron-down text-[10px] transition-transform ${hoveredLink === item.name ? 'rotate-180' : ''} `}></i>
+                  </button>
+                )}
 
-              {/* Services Dropdown */}
-              <li 
-                className={`vg-nav-item dropdown ${activeDropdown === 'services' ? 'active' : ''}`}
-                onMouseEnter={() => setActiveDropdown('services')}
-                onMouseLeave={() => {
-                  // Small delay to prevent accidental closing
-                  setTimeout(() => {
-                    if (activeDropdown === 'services') {
-                      setActiveDropdown(null);
-                    }
-                  }, 100);
-                }}
-              >
-                <button
-                  className="vg-nav-link dropdown-trigger"
-                  onClick={() => handleDropdownToggle('services')}
-                  aria-expanded={activeDropdown === 'services'}
-                  aria-haspopup="true"
-                >
-                  <i className="bi bi-code-slash nav-icon"></i>
-                  <span className="nav-text">Services</span>
-                  <i 
-                    className={`bi bi-chevron-down dropdown-arrow ${activeDropdown === 'services' ? 'rotate' : ''}`}
-                    aria-hidden="true"
-                  ></i>
-                </button>
-                <div 
-                  className={`vg-dropdown-menu services-dropdown ${activeDropdown === 'services' ? 'show' : ''}`}
-                  role="menu" 
-                  aria-label="Services submenu"
-                >
-                  <div className="dropdown-header">
-                    <i className="bi bi-rocket-takeoff header-icon" aria-hidden="true"></i>
-                    <div>
-                      <h3 className="dropdown-title">Our Services</h3>
-                      <p className="dropdown-subtitle">Complete digital solutions</p>
-                    </div>
-                  </div>
-                  <div className="dropdown-grid">
-                    {servicesItems.map((service) => (
-                      <NavLink 
-                        to={service.path} 
-                        className={({ isActive }) => 
-                          `dropdown-item ${isActive ? 'active' : ''}`
-                        }
-                        key={service.path}
-                        onClick={() => setActiveDropdown(null)}
-                        role="menuitem"
-                      >
-                        <div className="dropdown-item-icon" aria-hidden="true">
-                          <i className={`bi ${service.icon}`}></i>
-                        </div>
-                        <div className="dropdown-item-content">
-                          <span className="dropdown-item-title">{service.label}</span>
-                          <span className="dropdown-item-arrow" aria-hidden="true">
-                            <i className="bi bi-chevron-right"></i>
-                          </span>
-                        </div>
-                      </NavLink>
-                    ))}
-                  </div>
-                </div>
-              </li>
-
-              {/* Pricing Dropdown */}
-              <li 
-                className={`vg-nav-item dropdown ${activeDropdown === 'pricing' ? 'active' : ''}`}
-                onMouseEnter={() => setActiveDropdown('pricing')}
-                onMouseLeave={() => {
-                  setTimeout(() => {
-                    if (activeDropdown === 'pricing') {
-                      setActiveDropdown(null);
-                    }
-                  }, 100);
-                }}
-              >
-                <button
-                  className="vg-nav-link dropdown-trigger"
-                  onClick={() => handleDropdownToggle('pricing')}
-                  aria-expanded={activeDropdown === 'pricing'}
-                  aria-haspopup="true"
-                >
-                  <i className="bi bi-cash-coin nav-icon"></i>
-                  <span className="nav-text">Pricing</span>
-                  <i 
-                    className={`bi bi-chevron-down dropdown-arrow ${activeDropdown === 'pricing' ? 'rotate' : ''}`}
-                    aria-hidden="true"
-                  ></i>
-                </button>
-                <div 
-                  className={`vg-dropdown-menu pricing-dropdown ${activeDropdown === 'pricing' ? 'show' : ''}`}
-                  role="menu" 
-                  aria-label="Pricing submenu"
-                >
-                  <div className="dropdown-header">
-                    <i className="bi bi-graph-up-arrow header-icon" aria-hidden="true"></i>
-                    <div>
-                      <h3 className="dropdown-title">Pricing Plans</h3>
-                      <p className="dropdown-subtitle">Transparent & flexible</p>
-                    </div>
-                  </div>
-                  {pricingItems.map((pricing) => (
-                    <NavLink 
-                      to={pricing.path} 
-                      className={({ isActive }) => 
-                        `dropdown-item ${isActive ? 'active' : ''}`
-                      }
-                      key={pricing.path}
-                      onClick={() => setActiveDropdown(null)}
-                      role="menuitem"
+                {/* Dropdown Menu - State Based */}
+                <AnimatePresence>
+                  {item.dropdown && hoveredLink === item.name && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 15 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute top-full left-1/2 -translate-x-1/2 pt-4 z-[100]"
                     >
-                      <div className="dropdown-item-icon" aria-hidden="true">
-                        <i className={`bi ${pricing.icon}`}></i>
-                      </div>
-                      <div className="dropdown-item-content">
-                        <span className="dropdown-item-title">{pricing.label}</span>
-                        <span className="dropdown-item-arrow" aria-hidden="true">
-                          <i className="bi bi-chevron-right"></i>
-                        </span>
-                      </div>
-                    </NavLink>
-                  ))}
-                </div>
-              </li>
+                      {/* Bridge to keep it open */}
+                      <div className="absolute -top-4 left-0 w-full h-8 bg-transparent"></div>
 
-              {/* CTA Button */}
-              <li className="vg-nav-item cta-item">
-                <Link 
-                  to="/contact" 
-                  className="vg-cta-button"
-                  aria-label="Get in touch with Vertex Global Tech"
-                >
-                  <span className="cta-text">Contact Us</span>
-                  <span className="cta-icon" aria-hidden="true">
-                    <i className="bi bi-arrow-right"></i>
-                  </span>
-                  <span className="cta-glow"></span>
-                </Link>
-              </li>
-            </ul>
-          </div>
+                      <div className="bg-[#0f172a] border border-blue-500/20 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] p-2 w-64 backdrop-blur-xl ring-1 ring-white/10">
+                        {item.dropdown.map((subItem) => (
+                          <Link
+                            key={subItem.name}
+                            to={subItem.path}
+                            className="block px-4 py-3 rounded-lg text-sm text-gray-300 hover:bg-blue-600/10 hover:text-blue-400 transition-all flex items-center justify-between group/link"
+                          >
+                            {subItem.name}
+                            <i className="bi bi-arrow-right opacity-0 -translate-x-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all text-blue-500"></i>
+                          </Link>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+            <Link
+              to="/contact"
+              className="px-6 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-sm font-semibold transition-all shadow-lg shadow-blue-900/20 hover:shadow-blue-600/40 transform hover:-translate-y-0.5"
+            >
+              Get Started
+            </Link>
+          </nav>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Toggle */}
           <button
-            className={`vg-menu-toggle ${mobileMenuOpen ? 'active' : ''}`}
-            onClick={toggleMobileMenu}
-            aria-label={mobileMenuOpen ? "Close main menu" : "Open main menu"}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-navigation"
+            className="lg:hidden text-white p-2 z-50 relative"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            <span className="menu-toggle-line"></span>
-            <span className="menu-toggle-line"></span>
-            <span className="menu-toggle-line"></span>
+            <i className={`bi ${mobileMenuOpen ? 'bi-x-lg' : 'bi-list'} text-2xl`}></i>
           </button>
         </div>
+      </motion.header>
 
-        {/* Mobile Navigation */}
-        <div 
-          className={`vg-nav-mobile ${mobileMenuOpen ? 'active' : ''}`} 
-          id="mobile-navigation"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Mobile navigation menu"
-        >
-          <div className="mobile-nav-header">
-            <h3 className="mobile-nav-title">Navigation</h3>
-            <button 
-              className="mobile-nav-close"
-              onClick={closeMobileMenu}
-              aria-label="Close mobile menu"
+      {/* Mobile Menu Overlay - Portal to Body */}
+      {createPortal(
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-[#030712] z-[99999] flex flex-col pt-6 px-6 overflow-y-auto"
+              style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}
             >
-              <i className="bi bi-x-lg" aria-hidden="true"></i>
-            </button>
-          </div>
-          
-          <ul className="mobile-nav-list">
-            {navItems.map((item) => (
-              <li className="mobile-nav-item" key={item.path}>
-                <NavLink 
-                  to={item.path} 
-                  className={({ isActive }) => 
-                    `mobile-nav-link ${isActive ? 'active' : ''}`
-                  }
-                  onClick={closeMobileMenu}
-                  aria-current={location.pathname === item.path ? "page" : undefined}
+              <div className="flex justify-between items-center mb-8">
+                {/* Logo in Menu */}
+                <div className="flex items-center gap-3">
+                  <img src={logo} alt="Vertex" className="w-10 h-10 rounded-xl" />
+                  <span className="text-xl font-bold text-white">Vertex <span className="text-blue-500">Global Tech</span></span>
+                </div>
+                {/* Close Button Inside Menu */}
+                <button
+                  className="text-white p-2"
+                  onClick={() => setMobileMenuOpen(false)}
                 >
-                  <i className={`bi ${item.icon} mobile-nav-icon`} aria-hidden="true"></i>
-                  <span>{item.label}</span>
-                  <i className="bi bi-chevron-right mobile-nav-arrow" aria-hidden="true"></i>
-                </NavLink>
-              </li>
-            ))}
+                  <i className="bi bi-x-lg text-2xl"></i>
+                </button>
+              </div>
 
-            {/* Services in Mobile */}
-            <li className="mobile-nav-item dropdown">
-              <button 
-                className="mobile-nav-link"
-                onClick={() => handleDropdownToggle('mobile-services')}
-                aria-expanded={activeDropdown === 'mobile-services'}
-                aria-haspopup="true"
-              >
-                <i className="bi bi-code-slash mobile-nav-icon" aria-hidden="true"></i>
-                <span>Services</span>
-                <i 
-                  className={`bi bi-chevron-down mobile-dropdown-arrow ${activeDropdown === 'mobile-services' ? 'rotate' : ''}`}
-                  aria-hidden="true"
-                ></i>
-              </button>
-              {activeDropdown === 'mobile-services' && (
-                <div className="mobile-dropdown" role="menu">
-                  {servicesItems.map((service) => (
-                    <NavLink 
-                      to={service.path} 
-                      className="mobile-dropdown-item"
-                      key={service.path}
-                      onClick={closeMobileMenu}
-                      role="menuitem"
-                    >
-                      <i className={`bi ${service.icon} mobile-dropdown-icon`} aria-hidden="true"></i>
-                      <span>{service.label}</span>
-                    </NavLink>
-                  ))}
+              <div className="flex flex-col space-y-4 pb-10">
+                {navigation.map((item) => (
+                  <div key={item.name} className="border-b border-white/5 pb-4">
+                    {!item.dropdown ? (
+                      <Link
+                        to={item.path}
+                        className="text-2xl font-bold text-white block"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {item.name}
+                      </Link>
+                    ) : (
+                      <div>
+                        <button
+                          onClick={() => toggleDropdown(item.name)}
+                          className="w-full flex justify-between items-center text-2xl font-bold text-white mb-2"
+                        >
+                          {item.name}
+                          <i className={`bi bi-chevron-down text-base text-blue-500 transition-transform ${activeDropdown === item.name ? 'rotate-180' : ''}`}></i>
+                        </button>
+
+                        <AnimatePresence>
+                          {activeDropdown === item.name && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="flex flex-col space-y-3 pl-4 border-l-2 border-blue-500/20 ml-2 mt-2">
+                                {item.dropdown.map((subItem) => (
+                                  <Link
+                                    key={subItem.name}
+                                    to={subItem.path}
+                                    className="text-lg text-gray-400 hover:text-white transition-colors py-1"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                  >
+                                    {subItem.name}
+                                  </Link>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <div className="pt-4">
+                  <Link
+                    to="/contact"
+                    className="w-full block text-center py-4 rounded-xl bg-blue-600 text-white font-bold text-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Start Project
+                  </Link>
                 </div>
-              )}
-            </li>
-
-            {/* Pricing in Mobile */}
-            <li className="mobile-nav-item dropdown">
-              <button 
-                className="mobile-nav-link"
-                onClick={() => handleDropdownToggle('mobile-pricing')}
-                aria-expanded={activeDropdown === 'mobile-pricing'}
-                aria-haspopup="true"
-              >
-                <i className="bi bi-cash-coin mobile-nav-icon" aria-hidden="true"></i>
-                <span>Pricing</span>
-                <i 
-                  className={`bi bi-chevron-down mobile-dropdown-arrow ${activeDropdown === 'mobile-pricing' ? 'rotate' : ''}`}
-                  aria-hidden="true"
-                ></i>
-              </button>
-              {activeDropdown === 'mobile-pricing' && (
-                <div className="mobile-dropdown" role="menu">
-                  {pricingItems.map((pricing) => (
-                    <NavLink 
-                      to={pricing.path} 
-                      className="mobile-dropdown-item"
-                      key={pricing.path}
-                      onClick={closeMobileMenu}
-                      role="menuitem"
-                    >
-                      <i className={`bi ${pricing.icon} mobile-dropdown-icon`} aria-hidden="true"></i>
-                      <span>{pricing.label}</span>
-                    </NavLink>
-                  ))}
-                </div>
-              )}
-            </li>
-
-            {/* Mobile CTA */}
-            <li className="mobile-nav-item cta-mobile">
-              <Link 
-                to="/contact" 
-                className="mobile-cta-button"
-                onClick={closeMobileMenu}
-              >
-                <i className="bi bi-arrow-right cta-button-icon" aria-hidden="true"></i>
-                <span>Get in Touch</span>
-              </Link>
-            </li>
-          </ul>
-          
-          <div className="mobile-nav-footer">
-            <p className="mobile-footer-text">
-              Ready to transform your digital presence?
-            </p>
-            <div className="mobile-contact-info">
-              <a href="tel:+1234567890" className="mobile-phone">
-                <i className="bi bi-telephone" aria-hidden="true"></i>
-                <span>+1 (234) 567-890</span>
-              </a>
-              <a href="mailto:contact@vertexglobaltech.com" className="mobile-email">
-                <i className="bi bi-envelope" aria-hidden="true"></i>
-                <span>contact@vertexglobaltech.com</span>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Overlay */}
-        {mobileMenuOpen && (
-          <div 
-            className="vg-mobile-overlay"
-            onClick={closeMobileMenu}
-            aria-hidden="true"
-          />
-        )}
-      </nav>
-    </header>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+    </>
   );
-}
+};
+
+export default Header;

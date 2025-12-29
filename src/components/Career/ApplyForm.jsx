@@ -1,31 +1,44 @@
-// src/components/Career/ApplyForm.jsx
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { JOBS } from './jobs-data'
-import '../../pages/career.css' // Import the new CSS
 
-export default function ApplyForm({ applyData, setApplyData, errors, setErrors }) {
+export default function ApplyForm({ applyData, setApplyData, errors, setErrors, inModal = false }) {
+  const nameRef = useRef(null)
 
-  function validate() {
-    const err = {}
-    if (!applyData.name.trim()) err.name = 'Name required'
-    if (!applyData.email.trim()) err.email = 'Email required'
-    else if (!/^\S+@\S+\.\S+$/.test(applyData.email)) err.email = 'Invalid email'
-    if (!applyData.jobId) err.jobId = 'Select a job'
-    if (!applyData.message.trim()) err.message = 'Write a short message'
-    return err
-  }
+  useEffect(() => {
+    if (!applyData) return
+    if (inModal) {
+      nameRef.current?.focus()
+      return
+    }
 
-  function submit(e) {
-    e.preventDefault()
-    const err = validate()
-    if (Object.keys(err).length) {
-      setErrors(err)
-      return
-    }
+    if (applyData && applyData.jobId) {
+      const el = document.getElementById('apply-form')
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      nameRef.current?.focus()
+    }
+  }, [applyData?.jobId, inModal]) // Simplified dependency
 
-    const job = JOBS.find(j => j.id === applyData.jobId)
-    const subject = encodeURIComponent(`Job Application — ${job.title}`)
-    const body = encodeURIComponent(`
+  function validate() {
+    const err = {}
+    if (!applyData.name.trim()) err.name = 'Name required'
+    if (!applyData.email.trim()) err.email = 'Email required'
+    else if (!/^\S+@\S+\.\S+$/.test(applyData.email)) err.email = 'Invalid email'
+    if (!applyData.jobId) err.jobId = 'Select a job'
+    if (!applyData.message.trim()) err.message = 'Write a short message'
+    return err
+  }
+
+  function submit(e) {
+    e.preventDefault()
+    const err = validate()
+    if (Object.keys(err).length) {
+      setErrors(err)
+      return
+    }
+
+    const job = JOBS.find(j => j.id === applyData.jobId)
+    const subject = encodeURIComponent(`Job Application — ${job.title}`)
+    const body = encodeURIComponent(`
 Name: ${applyData.name}
 Email: ${applyData.email}
 Phone: ${applyData.phone}
@@ -36,104 +49,120 @@ Message:
 ${applyData.message}
 
 (Attach your resume manually before sending)
-    `)
+    `)
 
-    window.location.href = `mailto:hr@vertexglobaltech.com?subject=${subject}&body=${body}`
-  }
+    window.location.href = `mailto:hr@vertexglobaltech.com?subject=${subject}&body=${body}`
+  }
 
-  function update(e) {
-    setApplyData(d => ({ ...d, [e.target.name]: e.target.value }))
-    setErrors(er => ({ ...er, [e.target.name]: undefined }))
-  }
+  function update(e) {
+    setApplyData(d => ({ ...d, [e.target.name]: e.target.value }))
+    setErrors(er => ({ ...er, [e.target.name]: undefined }))
+  }
 
-  return (
-    <div className="card apply-card p-4">
-      <h4 className="mb-2">Apply now</h4>
+  const inputClasses = `w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors`
+  const labelClasses = "block text-sm font-medium text-gray-400 mb-1.5"
+  const errorClasses = "text-red-500 text-xs mt-1"
 
-      <p className="text-muted small mb-3">
-        Fill the form. Your email client will open — attach your resume and send.
-      </p>
+  return (
+    <div id="apply-form" className="w-full">
+      {!inModal && <h4 className="text-xl font-bold text-white mb-4">Apply now</h4>}
 
-      <form onSubmit={submit} noValidate>
+      <p className="text-gray-400 text-sm mb-6">
+        Fill the form. Your email client will open — attach your resume and send.
+      </p>
 
-        <div className="mb-2">
-          <label className="form-label small">Position</label>
-          <select
-            name="jobId"
-            value={applyData.jobId}
-            onChange={update}
-            className={`form-select form-select-sm ${errors.jobId ? 'is-invalid' : ''}`}
-          >
-            <option value="">Select a position…</option>
-            {JOBS.map(j => (
-              <option key={j.id} value={j.id}>{j.title} — {j.type}</option>
-            ))}
-          </select>
-          {errors.jobId && <div className="invalid-feedback">{errors.jobId}</div>}
-        </div>
+      <form onSubmit={submit} noValidate className="space-y-4">
 
-        <div className="mb-2">
-          <label className="form-label small">Full name</label>
-          <input
-            name="name"
-            value={applyData.name}
-            onChange={update}
-            className={`form-control form-control-sm ${errors.name ? 'is-invalid' : ''}`}
-            placeholder="Your name"
-          />
-          {errors.name && <div className="invalid-feedback">{errors.name}</div>}
-        </div>
+        <div>
+          <label className={labelClasses}>Position</label>
+          <div className="relative">
+            <select
+              name="jobId"
+              value={applyData.jobId}
+              onChange={update}
+              className={`${inputClasses} appearance-none cursor-pointer ${errors.jobId ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+            >
+              <option value="" className="bg-gray-900 text-gray-400">Select a position…</option>
+              {JOBS.map(j => (
+                <option key={j.id} value={j.id} className="bg-gray-900 text-white">{j.title} — {j.type}</option>
+              ))}
+            </select>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼</div>
+          </div>
+          {errors.jobId && <div className={errorClasses}>{errors.jobId}</div>}
+        </div>
 
-        <div className="mb-2">
-          <label className="form-label small">Email</label>
-          <input
-            name="email"
-            type="email"
-            value={applyData.email}
-            onChange={update}
-            className={`form-control form-control-sm ${errors.email ? 'is-invalid' : ''}`}
-            placeholder="you@company.com"
-          />
-          {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-        </div>
+        <div>
+          <label className={labelClasses}>Full name</label>
+          <input
+            id="apply-name"
+            ref={nameRef}
+            name="name"
+            value={applyData.name}
+            onChange={update}
+            className={`${inputClasses} ${errors.name ? 'border-red-500' : ''}`}
+            placeholder="Your name"
+          />
+          {errors.name && <div className={errorClasses}>{errors.name}</div>}
+        </div>
 
-        <div className="mb-2">
-          <label className="form-label small">Phone (optional)</label>
-          <input
-            name="phone"
-            value={applyData.phone}
-            onChange={update}
-            className="form-control form-control-sm"
-            placeholder="+91 98765 43210"
-          />
-        </div>
+        <div>
+          <label className={labelClasses}>Email</label>
+          <input
+            name="email"
+            type="email"
+            value={applyData.email}
+            onChange={update}
+            className={`${inputClasses} ${errors.email ? 'border-red-500' : ''}`}
+            placeholder="you@company.com"
+          />
+          {errors.email && <div className={errorClasses}>{errors.email}</div>}
+        </div>
 
-        <div className="mb-2">
-          <label className="form-label small">Message</label>
-          <textarea
-            name="message"
-            rows="4"
-            value={applyData.message}
-            onChange={update}
-            className={`form-control form-control-sm ${errors.message ? 'is-invalid' : ''}`}
-            placeholder="Short cover note"
-          ></textarea>
-          {errors.message && <div className="invalid-feedback">{errors.message}</div>}
-        </div>
+        <div>
+          <label className={labelClasses}>Phone (optional)</label>
+          <input
+            name="phone"
+            value={applyData.phone}
+            onChange={update}
+            className={inputClasses}
+            placeholder="+91 98765 43210"
+          />
+        </div>
 
-        <div className="mb-3">
-          <label className="form-label small">Resume</label>
-          <input className="form-control form-control-sm" type="file" disabled /> {/* Disabled to prevent misleading users */}
-          <div className="form-text small">
-            You must attach the file **manually** when your email client opens.
-          </div>
-        </div>
+        <div>
+          <label className={labelClasses}>Message</label>
+          <textarea
+            name="message"
+            rows="4"
+            value={applyData.message}
+            onChange={update}
+            className={`${inputClasses} ${errors.message ? 'border-red-500' : ''}`}
+            placeholder="Short cover note"
+          ></textarea>
+          {errors.message && <div className={errorClasses}>{errors.message}</div>}
+        </div>
 
-        <button className="btn btn-primary btn-sm" type="submit">
-          Apply — open email
-        </button>
+        <div>
+          <label className={labelClasses}>Resume</label>
+          <input
+            className={`${inputClasses} opacity-50 cursor-not-allowed`}
+            type="file"
+            disabled
+          />
+          <div className="text-xs text-blue-400 mt-1.5 font-medium">
+            You must attach the file <strong>manually</strong> when your email client opens.
+          </div>
+        </div>
 
-      </form>
-    </div>
-  )
+        <button
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-blue-500/25 transform hover:-translate-y-0.5 mt-2"
+          type="submit"
+        >
+          Apply — open email
+        </button>
+
+      </form>
+    </div>
+  )
 }

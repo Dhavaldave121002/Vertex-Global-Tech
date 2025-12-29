@@ -1,35 +1,119 @@
-// src/pages/services/Informative.jsx
-import React, { useState } from 'react'
-import '../..//components/Services/Informative/informative.css'   // ensure this path/file exists
-
-import Hero from '../../components/Services/Informative/Hero'
-import Benefits from '../../components/Services/Informative/Benefits'
-import ServicesBreakdown from '../../components/Services/Informative/ServicesBreakdown'
-import Portfolio from '../../components/Services/Informative/Portfolio'
-import Process from '../../components/Services/Informative/Process'
-import PricingTeaser from '../../components/Services/Informative/PricingTeaser'
-import FAQ from '../../components/Services/Informative/FAQ'
-import CTAForm from '../../components/Services/Informative/CTAForm'
-import PortfolioModal from '../../components/Services/Informative/PortfolioModal'
-
-import { PORTFOLIO as RAW_PORTFOLIO } from '../../components/Services/Informative/data'
-
-const PORTFOLIO = Array.isArray(RAW_PORTFOLIO) ? RAW_PORTFOLIO : []
+import React from 'react';
+import { motion } from 'framer-motion';
+import ProcessTimeline from '../../components/Services/ProcessTimeline';
+import TechStack from '../../components/Services/TechStack';
+import ServiceFAQ from '../../components/Services/ServiceFAQ';
+import ServiceHero3D from '../../components/UI/ServiceHero3D';
+import SEO from '../../components/SEO';
 
 export default function Informative() {
-  const [modalItem, setModalItem] = useState(null)
+  const features = [
+    { title: 'Responsive Design', icon: 'bi-phone', desc: 'Looks stunning on every device, from mobile to 4K desktops.' },
+    { title: 'SEO Optimized', icon: 'bi-graph-up', desc: 'Rank higher with clean code, meta tags, and fast loading speeds.' },
+    { title: 'CMS Integration', icon: 'bi-window-sidebar', desc: 'Easily manage your content with a user-friendly admin panel.' },
+    { title: 'Fast Performance', icon: 'bi-lightning-charge', desc: 'Optimized assets and code for lightning-fast page loads.' },
+    { title: 'Secure & Scalable', icon: 'bi-shield-check', desc: 'Enterprise-grade security best practices.' },
+    { title: 'Analytics Ready', icon: 'bi-bar-chart', desc: 'Integrated with GA4 for deep user insights.' },
+  ];
 
   return (
-    <main className="informative-page">
-      <Hero />
-      <Benefits />
-      <ServicesBreakdown />
-      <Portfolio items={PORTFOLIO} onPreview={setModalItem} />
-      <Process />
-      <PricingTeaser />
-      <FAQ />
-      <CTAForm />
-      {modalItem && <PortfolioModal item={modalItem} onClose={() => setModalItem(null)} />}
-    </main>
-  )
+    <>
+      <SEO
+        title="Informative Websites"
+        description="Build a powerful digital presence with Vertex Global Tech. Custom informative websites designed for impact."
+        keywords="web design, informative website, corporate site, vertex global tech"
+      />
+
+      <div className="min-h-screen bg-[#030712]">
+
+        {/* HERO */}
+        <ServiceHero3D
+          title="Informative Websites"
+          highlight="Websites"
+          badge="Services"
+          subtitle="Establish a powerful digital presence with elegant, content-focused design."
+          variant="informative"
+        />
+
+        {/* INTRODUCTION */}
+        <section className="py-20 bg-[#0f172a]/30">
+          <div className="container mx-auto px-6 max-w-6xl text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
+                Why Choose an <span className="text-blue-500">Informative Website?</span>
+              </h2>
+              <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                In the digital age, your website is your 24/7 ambassador. An informative website doesn't just display information—it builds trust, educates your audience, and converts visitors into loyal clients through compelling storytelling and intuitive design.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* FEATURES GRID */}
+        <section className="py-24 bg-[#030712] relative overflow-hidden">
+          {/* Background Glow */}
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+          <div className="container mx-auto px-6 max-w-7xl relative z-10">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Key <span className="text-blue-500">Features</span></h2>
+              <p className="text-gray-400">Everything you need to succeed online.</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {features.map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  className="bg-[#0f172a] p-8 rounded-2xl border border-white/5 hover:border-blue-500/50 hover:bg-[#1e293b] transition-all group"
+                >
+                  <div className="w-14 h-14 bg-blue-600/10 rounded-xl flex items-center justify-center text-blue-400 text-2xl mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <i className={`bi ${item.icon}`}></i>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-gray-400 group-hover:text-gray-300 transition-colors">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* PROCESS TIMELINE (Now stylized) */}
+        <ProcessTimeline />
+
+        {/* TECH STACK */}
+        <TechStack />
+
+        {/* FAQ */}
+        <ServiceFAQ category="Informative" />
+
+        {/* CTA */}
+        <section className="py-24 text-center bg-gradient-to-b from-[#020617] to-[#0f172a]">
+          <div className="container mx-auto px-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="max-w-3xl mx-auto bg-[#1e293b]/50 p-12 rounded-3xl border border-white/10 backdrop-blur-lg"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to start your project?</h2>
+              <p className="text-xl text-gray-400 mb-8">Let's build something extraordinary together.</p>
+              <a href="/contact?tab=schedule" className="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full transition-all shadow-lg shadow-blue-900/40 transform hover:scale-105">
+                <span>Get a Free Quote</span>
+                <i className="bi bi-arrow-right"></i>
+              </a>
+            </motion.div>
+          </div>
+        </section>
+      </div>
+    </>
+  );
 }

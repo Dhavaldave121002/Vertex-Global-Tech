@@ -18,27 +18,77 @@
 .expertise-section { 
   background-color: var(--bg-section);
   color: var(--text-primary); 
-  padding-top: 60px;
-  padding-bottom: 60px;
-  box-sizing: border-box; /* Added for consistent sizing */
+  padding: clamp(40px, 8vh, 80px) clamp(12px, 3vw, 40px);
+  box-sizing: border-box;
 }
 
 .section-title { 
   font-weight: 900; 
-  font-size: clamp(1.8rem, 2.8vw, 2.4rem); 
-  margin-bottom: 12px; /* Increased spacing */
-  margin-top: 0; /* Reset default */
+  font-size: clamp(24px, 4vw, 48px); 
+  margin-bottom: clamp(12px, 2vw, 20px);
+  margin-top: 0;
   color: var(--text-primary); 
-  text-align: center; /* Ensure center alignment */
+  text-align: center;
+  line-height: 1.2;
 }
 
 .section-intro { 
   max-width: 68ch; 
-  margin: 0 auto 40px; /* Added bottom margin */
+  margin: 0 auto clamp(24px, 4vw, 40px);
   color: var(--text-muted); 
-  line-height: 1.7; /* Improved line height */
-  font-size: 1.05rem;
-  text-align: center; /* Ensure center alignment */
+  line-height: 1.7;
+  font-size: clamp(14px, 2vw, 18px);
+  text-align: center;
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 575px) {
+  .expertise-section {
+    padding: clamp(24px, 4vw, 40px) clamp(12px, 3vw, 24px);
+  }
+  
+  .flip-card-face {
+    padding: clamp(16px, 3vw, 24px);
+  }
+  
+  .flip-card-inner {
+    min-height: 200px;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 991px) {
+  .flip-card-face {
+    padding: clamp(20px, 3vw, 28px);
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .flip-card {
+    padding: 4px;
+  }
+  
+  .flip-card:focus,
+  .flip-card:hover:not(.is-flipped) {
+    box-shadow: none;
+    transform: none;
+  }
+  
+  .flip-card.is-flipped {
+    transform: scale(0.98);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .flip-card-inner {
+    transition: none !important;
+    transform: none !important;
+  }
+  
+  .flip-card.is-flipped .flip-card-inner {
+    transform: none !important;
+  }
 }
 
 /* ---------------------------------------------------- */
@@ -447,6 +497,105 @@
 
 /* ---------------------------------------------------- */
 /* 9. High Contrast Mode Support */
+/* ---------------------------------------------------- */
+/* 9. Mobile-First Responsive Design */
+/* ---------------------------------------------------- */
+
+/* Mobile Base (320px - 575px) */
+@media (max-width: 575px) {
+  .expertise-cards-grid {
+    grid-template-columns: 1fr;
+    gap: clamp(16px, 3vw, 24px);
+  }
+  
+  .flip-card {
+    min-height: clamp(280px, 60vh, 350px);
+  }
+  
+  .icon-wrap {
+    width: clamp(48px, 10vw, 64px);
+    height: clamp(48px, 10vw, 64px);
+    font-size: clamp(24px, 4vw, 32px);
+  }
+  
+  .front-title {
+    font-size: clamp(16px, 2.5vw, 20px);
+  }
+  
+  .front-desc {
+    font-size: clamp(13px, 1.8vw, 15px);
+  }
+  
+  .back-title {
+    font-size: clamp(16px, 2.5vw, 20px);
+  }
+  
+  .back-list {
+    font-size: clamp(12px, 1.7vw, 14px);
+  }
+  
+  .btn-primary {
+    min-height: 44px;
+    padding: clamp(10px, 1.5vw, 14px) clamp(20px, 3vw, 28px);
+    font-size: clamp(13px, 1.8vw, 16px);
+  }
+}
+
+/* Tablet (576px - 991px) */
+@media (min-width: 576px) and (max-width: 991px) {
+  .expertise-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(16px, 2.5vw, 28px);
+  }
+  
+  .flip-card {
+    min-height: clamp(300px, 50vh, 380px);
+  }
+}
+
+/* Desktop (992px+) */
+@media (min-width: 992px) {
+  .expertise-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(20px, 1.5vw, 32px);
+  }
+  
+  .flip-card {
+    min-height: 400px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .flip-card {
+    cursor: pointer;
+  }
+  
+  .flip-card.flipped .flip-card-front {
+    transform: rotateY(180deg);
+  }
+  
+  .flip-card.flipped .flip-card-back {
+    transform: rotateY(0deg);
+  }
+  
+  .btn-primary {
+    min-height: 48px;
+    padding: clamp(12px, 2vw, 16px) clamp(24px, 3vw, 32px);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .flip-card-inner {
+    transition: none !important;
+  }
+  
+  .icon-wrap {
+    animation: none !important;
+  }
+}
+
 /* ---------------------------------------------------- */
 @media (prefers-contrast: high) {
   .flip-card-face {

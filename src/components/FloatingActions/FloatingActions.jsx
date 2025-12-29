@@ -1,5 +1,6 @@
 // src/components/FloatingContactPro/FloatingContactPro.jsx
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 import {
   FaWhatsapp,
   FaPhone,
@@ -21,17 +22,17 @@ export default function FloatingContactPro({
     { number: '+919876543211', label: 'Support Team', icon: '🛠️' }
   ],
   whatsappMessage = 'Hello, I would like to know more about your services!',
-  
+
   // Phone configuration
   phoneNumbers = [
     { number: '+919876543210', label: 'Sales Team', icon: '📞' },
     { number: '+919876543211', label: 'Support Team', icon: '🔧' }
   ],
-  
+
   // Email configuration
   emailAddress = 'contact@vertexglobaltech.com',
   emailSubject = 'Inquiry from Website',
-  
+
   // Settings
   enablePulse = true,
   position = 'right',
@@ -55,22 +56,23 @@ export default function FloatingContactPro({
   const [touchStartY, setTouchStartY] = useState(0);
   const [menuHeight, setMenuHeight] = useState('auto');
   const [mounted, setMounted] = useState(false);
-  
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
   // Refs
   const containerRef = useRef(null);
   const menuRef = useRef(null);
   const timeoutRef = useRef(null);
   const rippleTimeoutRef = useRef(null);
   const notificationTimeoutRef = useRef(null);
-  
+
   // Initialize component
   useEffect(() => {
     setMounted(true);
-    
+
     const checkDevice = () => {
       const width = window.innerWidth;
       setIsMobile(width <= 768);
-      
+
       if (width <= 768 && menuRef.current) {
         const viewportHeight = window.innerHeight;
         const maxHeight = viewportHeight * 0.7;
@@ -79,52 +81,71 @@ export default function FloatingContactPro({
         setMenuHeight('auto');
       }
     };
-    
+
     checkDevice();
     window.addEventListener('resize', checkDevice);
-    
+
     return () => {
       window.removeEventListener('resize', checkDevice);
       clearAllTimeouts();
     };
   }, []);
-  
+
+  // Handle scroll for back-to-top
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Clear all timeouts
   const clearAllTimeouts = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (rippleTimeoutRef.current) clearTimeout(rippleTimeoutRef.current);
     if (notificationTimeoutRef.current) clearTimeout(notificationTimeoutRef.current);
   }, []);
-  
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        containerRef.current && 
+        containerRef.current &&
         !containerRef.current.contains(event.target) &&
-        menuRef.current && 
+        menuRef.current &&
         !menuRef.current.contains(event.target)
       ) {
         closeMenu();
       }
     };
-    
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('touchstart', handleClickOutside);
-      
+
       if (isMobile) {
-        document.documentElement.style.overflow = 'hidden';
+        const scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
       }
     }
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
-      document.documentElement.style.overflow = '';
+
+      if (isMobile) {
+        const scrollY = parseInt(document.body.style.top || '0') * -1;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollY);
+      }
     };
   }, [isOpen, isMobile]);
-  
+
   // Handle escape key
   useEffect(() => {
     const handleEscapeKey = (e) => {
@@ -132,57 +153,57 @@ export default function FloatingContactPro({
         closeMenu();
       }
     };
-    
+
     document.addEventListener('keydown', handleEscapeKey);
     return () => document.removeEventListener('keydown', handleEscapeKey);
   }, [isOpen]);
-  
+
   // Handle touch swipe to close on mobile
   const handleTouchStart = useCallback((e) => {
     if (isOpen && isMobile && menuRef.current) {
       setTouchStartY(e.touches[0].clientY);
     }
   }, [isOpen, isMobile]);
-  
+
   const handleTouchMove = useCallback((e) => {
     if (!isOpen || !isMobile || !menuRef.current || touchStartY === 0) return;
-    
+
     const touchY = e.touches[0].clientY;
     const diff = touchY - touchStartY;
-    
+
     if (diff > 100) {
       closeMenu();
     }
   }, [isOpen, isMobile, touchStartY]);
-  
+
   // Ripple effect
   const createRipple = useCallback((e) => {
     if (!enableRipple) return;
-    
+
     const button = e.currentTarget;
     const rect = button.getBoundingClientRect();
     const size = Math.max(rect.width, rect.height);
     const x = e.clientX - rect.left - size / 2;
     const y = e.clientY - rect.top - size / 2;
-    
+
     setRipple({ x, y, size });
-    
+
     if (rippleTimeoutRef.current) clearTimeout(rippleTimeoutRef.current);
     rippleTimeoutRef.current = setTimeout(() => {
       setRipple(null);
     }, 600);
   }, [enableRipple]);
-  
+
   // Show notification
   const showNotification = useCallback((message, duration = 2000) => {
     setNotification(message);
-    
+
     if (notificationTimeoutRef.current) clearTimeout(notificationTimeoutRef.current);
     notificationTimeoutRef.current = setTimeout(() => {
       setNotification(null);
     }, duration);
   }, []);
-  
+
   // Close menu
   const closeMenu = useCallback(() => {
     setIsOpen(false);
@@ -191,7 +212,7 @@ export default function FloatingContactPro({
       setLoading(false);
     }, 300);
   }, []);
-  
+
   // Handle main button click
   const handleMainButtonClick = useCallback((e) => {
     createRipple(e);
@@ -200,7 +221,7 @@ export default function FloatingContactPro({
       setTimeout(() => setActiveMenu('main'), 300);
     }
   }, [isOpen, createRipple]);
-  
+
   // Handle menu item click
   const handleMenuItemClick = useCallback((type) => {
     if (type === 'whatsapp') {
@@ -219,40 +240,40 @@ export default function FloatingContactPro({
       sendEmail();
     }
   }, [whatsappNumbers, phoneNumbers]);
-  
+
   // Handle back button
   const handleBackClick = useCallback(() => {
     setActiveMenu('main');
   }, []);
-  
+
   // Open WhatsApp
   const openWhatsApp = useCallback((number) => {
     setLoading(true);
     const cleanedNumber = number.replace(/\D/g, '');
     const encodedMessage = encodeURIComponent(whatsappMessage);
     const whatsappUrl = `https://wa.me/${cleanedNumber}?text=${encodedMessage}`;
-    
+
     showNotification('Opening WhatsApp...');
-    
+
     setTimeout(() => {
       const newWindow = window.open(whatsappUrl, '_blank');
-      
+
       if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
         window.location.href = whatsappUrl;
       }
-      
+
       setLoading(false);
       if (autoClose) closeMenu();
     }, 300);
   }, [whatsappMessage, autoClose, closeMenu, showNotification]);
-  
+
   // Make phone call
   const makePhoneCall = useCallback((number) => {
     setLoading(true);
     const cleanedNumber = number.replace(/\D/g, '');
-    
+
     showNotification('Initiating call...');
-    
+
     setTimeout(() => {
       if (isMobile) {
         window.location.href = `tel:${cleanedNumber}`;
@@ -264,27 +285,27 @@ export default function FloatingContactPro({
       if (autoClose) closeMenu();
     }, 300);
   }, [isMobile, autoClose, closeMenu, showNotification]);
-  
+
   // Send email
   const sendEmail = useCallback(() => {
     setLoading(true);
     const encodedSubject = encodeURIComponent(emailSubject);
     const mailtoUrl = `mailto:${emailAddress}?subject=${encodedSubject}`;
-    
+
     showNotification('Opening Email Client...');
-    
+
     setTimeout(() => {
       const newWindow = window.open(mailtoUrl, '_blank');
-      
+
       if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
         window.location.href = mailtoUrl;
       }
-      
+
       setLoading(false);
       if (autoClose) closeMenu();
     }, 300);
   }, [emailAddress, emailSubject, autoClose, closeMenu, showNotification]);
-  
+
   // Copy to clipboard
   const copyToClipboard = useCallback((text, type) => {
     const fallbackCopy = () => {
@@ -295,7 +316,7 @@ export default function FloatingContactPro({
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
-      
+
       try {
         const successful = document.execCommand('copy');
         if (successful) {
@@ -307,20 +328,20 @@ export default function FloatingContactPro({
       } catch (err) {
         showNotification('Failed to copy');
       }
-      
+
       document.body.removeChild(textArea);
     };
-    
+
     if (!navigator.clipboard) {
       fallbackCopy();
       return;
     }
-    
+
     navigator.clipboard.writeText(text)
       .then(() => {
         setCopied(type);
         showNotification('Copied to clipboard!');
-        
+
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
           setCopied(null);
@@ -330,35 +351,35 @@ export default function FloatingContactPro({
         fallbackCopy();
       });
   }, [showNotification]);
-  
+
   // Format phone number
   const formatPhoneNumber = useCallback((phoneNumber) => {
     const cleaned = phoneNumber.replace(/\D/g, '');
     if (cleaned.length === 10) {
-      return `+91 ${cleaned.slice(0,5)} ${cleaned.slice(5)}`;
+      return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5)}`;
     } else if (cleaned.length === 12) {
-      return `+${cleaned.slice(0,2)} ${cleaned.slice(2,5)} ${cleaned.slice(5,8)} ${cleaned.slice(8)}`;
+      return `+${cleaned.slice(0, 2)} ${cleaned.slice(2, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`;
     } else if (cleaned.length === 11) {
-      return `+${cleaned.slice(0,1)} ${cleaned.slice(1,4)} ${cleaned.slice(4,7)} ${cleaned.slice(7)}`;
+      return `+${cleaned.slice(0, 1)} ${cleaned.slice(1, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7)}`;
     }
     return phoneNumber;
   }, []);
-  
+
   // Get button size class
   const getButtonSizeClass = useCallback(() => {
-    switch(floatingButtonSize) {
+    switch (floatingButtonSize) {
       case 'small': return 'size-small';
       case 'large': return 'size-large';
       default: return 'size-medium';
     }
   }, [floatingButtonSize]);
-  
+
   if (!mounted) return null;
-  
-  return (
-    <div 
+
+  const portalContent = (
+    <div
       ref={containerRef}
-      className={`floating-contact-pro ${position} ${getButtonSizeClass()} ${darkMode ? 'dark-mode' : ''}`}
+      className={`floating-contact-pro ${position} ${getButtonSizeClass()} ${darkMode ? 'dark-mode' : ''} ${showBackToTop ? 'has-active-back-top' : ''}`}
       style={{ zIndex }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -382,10 +403,11 @@ export default function FloatingContactPro({
           </div>
         </div>
       )}
-      
+
       {/* Contact Menu */}
-      <div 
+      <div
         ref={menuRef}
+        id="contact-menu"
         className={`contact-menu ${isOpen ? 'show' : 'hide'} ${isMobile ? 'mobile' : ''}`}
         aria-hidden={!isOpen}
         role="dialog"
@@ -399,10 +421,10 @@ export default function FloatingContactPro({
               <h3>Contact Options</h3>
               <p>Choose how you'd like to reach us</p>
             </div>
-            
+
             <div className="menu-items">
               {/* WhatsApp Option */}
-              <button 
+              <button
                 className="menu-item whatsapp"
                 onClick={() => handleMenuItemClick('whatsapp')}
                 disabled={loading}
@@ -425,10 +447,10 @@ export default function FloatingContactPro({
                   <FaChevronRight aria-hidden="true" />
                 </div>
               </button>
-              
+
               {/* Call Option */}
               {showCallButton && (
-                <button 
+                <button
                   className="menu-item call"
                   onClick={() => handleMenuItemClick('call')}
                   disabled={loading}
@@ -452,10 +474,10 @@ export default function FloatingContactPro({
                   </div>
                 </button>
               )}
-              
+
               {/* Email Option */}
               {showEmailButton && (
-                <button 
+                <button
                   className="menu-item email"
                   onClick={() => handleMenuItemClick('email')}
                   disabled={loading}
@@ -477,12 +499,12 @@ export default function FloatingContactPro({
             </div>
           </>
         )}
-        
+
         {/* WhatsApp Selection Menu */}
         {activeMenu === 'whatsapp' && (
           <>
             <div className="menu-header">
-              <button 
+              <button
                 className="back-btn"
                 onClick={handleBackClick}
                 disabled={loading}
@@ -494,7 +516,7 @@ export default function FloatingContactPro({
               <h3>Select WhatsApp Number</h3>
               <p>Choose which team to contact</p>
             </div>
-            
+
             <div className="menu-items number-selection-menu">
               {whatsappNumbers.map((item, index) => (
                 <button
@@ -506,7 +528,13 @@ export default function FloatingContactPro({
                 >
                   <div className="number-avatar">
                     <div className="avatar-glow"></div>
-                    <span className="avatar-icon">{item.icon || <FaWhatsapp aria-hidden="true" />}</span>
+                    <span className="avatar-icon">
+                      {typeof item.icon === 'string' && item.icon.startsWith('bi-') ? (
+                        <i className={`bi ${item.icon}`} style={{ fontSize: '1.2rem' }}></i>
+                      ) : (
+                        item.icon || <FaWhatsapp aria-hidden="true" />
+                      )}
+                    </span>
                   </div>
                   <div className="number-content">
                     <strong>{item.label}</strong>
@@ -541,12 +569,12 @@ export default function FloatingContactPro({
             </div>
           </>
         )}
-        
+
         {/* Call Selection Menu */}
         {activeMenu === 'call' && (
           <>
             <div className="menu-header">
-              <button 
+              <button
                 className="back-btn"
                 onClick={handleBackClick}
                 disabled={loading}
@@ -558,7 +586,7 @@ export default function FloatingContactPro({
               <h3>Select Phone Number</h3>
               <p>Choose which team to call</p>
             </div>
-            
+
             <div className="menu-items number-selection-menu">
               {phoneNumbers.map((item, index) => (
                 <button
@@ -570,7 +598,13 @@ export default function FloatingContactPro({
                 >
                   <div className="number-avatar">
                     <div className="avatar-glow"></div>
-                    <span className="avatar-icon">{item.icon || <FaPhone aria-hidden="true" />}</span>
+                    <span className="avatar-icon">
+                      {typeof item.icon === 'string' && item.icon.startsWith('bi-') ? (
+                        <i className={`bi ${item.icon}`} style={{ fontSize: '1.2rem' }}></i>
+                      ) : (
+                        item.icon || <FaPhone aria-hidden="true" />
+                      )}
+                    </span>
                   </div>
                   <div className="number-content">
                     <strong>{item.label}</strong>
@@ -605,10 +639,10 @@ export default function FloatingContactPro({
             </div>
           </>
         )}
-        
+
         {/* Close button for mobile */}
         {isMobile && (
-          <button 
+          <button
             className="mobile-close-btn"
             onClick={closeMenu}
             aria-label="Close contact menu"
@@ -618,7 +652,7 @@ export default function FloatingContactPro({
           </button>
         )}
       </div>
-      
+
       {/* Main Button */}
       <button
         className={`floating-main-btn ${isOpen ? 'active' : ''} ${enablePulse ? 'pulse-enabled' : ''} ${getButtonSizeClass()}`}
@@ -632,10 +666,10 @@ export default function FloatingContactPro({
         ) : (
           <FaCommentAlt className="comment-icon" aria-hidden="true" />
         )}
-        
+
         {/* Ripple Effect */}
         {ripple && (
-          <span 
+          <span
             className="ripple"
             style={{
               left: ripple.x + 'px',
@@ -646,12 +680,12 @@ export default function FloatingContactPro({
             aria-hidden="true"
           />
         )}
-        
+
         {/* Tooltip */}
         <span className="floating-tooltip">
           {isOpen ? 'Close Menu' : 'Contact Us'}
         </span>
-        
+
         {/* Pulse Rings */}
         {enablePulse && !isOpen && (
           <>
@@ -661,7 +695,7 @@ export default function FloatingContactPro({
           </>
         )}
       </button>
-      
+
       {/* Notification Toast */}
       {notification && (
         <div className="notification-toast show" role="alert">
@@ -669,6 +703,17 @@ export default function FloatingContactPro({
           <span>{notification}</span>
         </div>
       )}
+
+      {/* Back To Top Button via FAB */}
+      <button
+        className={`floating-top-btn ${showBackToTop ? 'visible' : ''} ${getButtonSizeClass()}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="Back to top"
+      >
+        <FaChevronRight className="rotate-icon" style={{ transform: 'rotate(-90deg)' }} />
+      </button>
     </div>
   );
+
+  return ReactDOM.createPortal(portalContent, document.body);
 }

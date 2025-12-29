@@ -15,6 +15,8 @@ import './index.css'
     - add a tiny placeholder component to avoid build errors.
 */
 
+import LogoPreloader from './components/UI/LogoPreloader'
+
 // Lazy pages
 const Home = lazy(() => import('./pages/Home'))
 const About = lazy(() => import('./pages/About'))
@@ -37,120 +39,120 @@ const Referral = lazy(() => import('./pages/Referral'))
 const Contact = lazy(() => import('./pages/Contact'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
+const Portfolio = lazy(() => import('./pages/Portfolio'))
+const Blog = lazy(() => import('./pages/Blog'))
+const Maintenance = lazy(() => import('./pages/services/Maintenance'))
+const Privacy = lazy(() => import('./pages/Privacy'))
+const Terms = lazy(() => import('./pages/Terms'))
+const Cookies = lazy(() => import('./pages/Cookies'))
+
+import ScrollToTop from './components/UI/ScrollToTop'
+
 export default function App() {
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    // Simulate loading or wait for resources
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2500); // 2.5 seconds preloader display
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <BrowserRouter>
-      <div className="d-flex flex-column min-vh-100">
-        <Header />
+      {loading && <LogoPreloader />}
+      {!loading && (
+        <>
+          <ScrollToTop />
+          <div className="d-flex flex-column min-vh-100">
+            <Header />
 
-        <main id="main" className="flex-grow-1">
-          <Suspense fallback={<div className="text-center py-5">Loading...</div>}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
+            <main id="main" className="flex-grow-1">
+              <Suspense fallback={<div className="h-screen flex items-center justify-center bg-[#030712] text-white">Loading...</div>}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
 
-              {/* Services direct routes */}
-              <Route path="/services/informative" element={<Informative />} />
-              <Route path="/services/dynamic" element={<Dynamic />} />
-              <Route path="/services/ecommerce" element={<Ecommerce />} />
-              <Route path="/services/application" element={<Application />} />
-              <Route path="/services/uiux" element={<UIUX />} />
+                  {/* Services direct routes */}
+                  <Route path="/services/informative" element={<Informative />} />
+                  <Route path="/services/dynamic" element={<Dynamic />} />
+                  <Route path="/services/ecommerce" element={<Ecommerce />} />
 
-              {/* Pricing direct routes */}
-              <Route path="/pricing/website" element={<WebsitePricing />} />
-              <Route path="/pricing/application" element={<ApplicationPricing />} />
-              <Route path="/pricing/uiux" element={<UIUXPricing />} />
+                  <Route path="/services/application" element={<Application />} />
+                  <Route path="/services/uiux" element={<UIUX />} />
+                  <Route path="/services/maintenance" element={<Maintenance />} />
 
-              {/* Other */}
-              <Route path="/career" element={<Career />} />
-              <Route path="/referral" element={<Referral />} />
-              <Route path="/contact" element={<Contact />} />
+                  {/* Pricing direct routes */}
+                  <Route path="/pricing/website" element={<WebsitePricing />} />
+                  <Route path="/pricing/application" element={<ApplicationPricing />} />
+                  <Route path="/pricing/uiux" element={<UIUXPricing />} />
 
-              <Route path="/404" element={<NotFound />} />
-              <Route path="*" element={<Navigate to="/404" replace />} />
-            </Routes>
-          </Suspense>
-        </main>
+                  {/* Other */}
 
-        <Footer />
+                  <Route path="/career" element={<Career />} />
+                  <Route path="/referral" element={<Referral />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/portfolio" element={<Portfolio />} />
+                  <Route path="/blog" element={<Blog />} />
 
-        {/* You can use either FloatingActions or FloatingActions, or both */}
-        {/* Option 1: Use only FloatingActions (recommended - more feature-rich) */}
-        <FloatingActions
-          position="right"
-          floatingButtonSize="medium"
-          darkMode={false}
-          zIndex={999999}
-          enablePulse={true}
-          showCallButton={true}
-          showEmailButton={true}
-          enableRipple={true}
-          showBadgeCount={true}
-          autoClose={true}
-          whatsappNumbers={[
-            { 
-              number: '+919876543210', 
-              label: 'Sales Team', 
-              icon: '👔',
-              description: 'For sales inquiries and pricing'
-            },
-            { 
-              number: '+919876543211', 
-              label: 'Support Team', 
-              icon: '🛠️',
-              description: 'For technical support'
-            },
-            { 
-              number: '+919876543212', 
-              label: 'General Inquiry', 
-              icon: '💬',
-              description: 'For general questions'
-            }
-          ]}
-          phoneNumbers={[
-            { 
-              number: '+919876543210', 
-              label: 'Sales Team', 
-              icon: '📞',
-              description: 'Mon-Fri, 9AM-6PM'
-            },
-            { 
-              number: '+919876543211', 
-              label: 'Support Team', 
-              icon: '🔧',
-              description: '24/7 support available'
-            }
-          ]}
-          emailAddress="contact@vertexglobaltech.com"
-          emailSubject="Inquiry from Website Visitor"
-          whatsappMessage="Hello Vertex Global Tech! I am interested in your services and would like to know more information. Please contact me at your earliest convenience."
-        />
+                  {/* Legal */}
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/cookies" element={<Cookies />} />
 
-        {/* Option 2: Use both components with different positions */}
-        {/*
-        <FloatingActions
-          position="left"
-          whatsappNumber="919876543210"
-          whatsappMessage="Hi%20Vertex%20Global%20Tech!%20I%20am%20interested%20in%20your%20services."
-        />
-        
-        <FloatingActions
-          position="right"
-          floatingButtonSize="medium"
-          darkMode={false}
-          zIndex={999998}
-          enablePulse={true}
-          showCallButton={true}
-          showEmailButton={true}
-          whatsappNumbers={[
-            { number: '+919876543210', label: 'Support', icon: '🛠️' }
-          ]}
-          phoneNumbers={[
-            { number: '+919876543210', label: 'Call Us', icon: '📞' }
-          ]}
-        />
-        */}
-      </div>
+                  <Route path="/404" element={<NotFound />} />
+                  <Route path="*" element={<Navigate to="/404" replace />} />
+                </Routes>
+              </Suspense>
+            </main>
+
+            <Footer />
+
+            {/* Option 1: Use only FloatingActions (recommended - more feature-rich) */}
+            <FloatingActions
+              position="right"
+              floatingButtonSize="medium"
+              darkMode={true}
+              zIndex={40}
+              enablePulse={true}
+              showCallButton={true}
+              showEmailButton={true}
+              enableRipple={true}
+              showBadgeCount={false}
+              autoClose={false}
+              whatsappNumbers={[
+                {
+                  number: '+919876543210',
+                  label: 'Sales Enquiry',
+                  icon: 'bi-whatsapp',
+                  description: 'Chat for new projects'
+                },
+                {
+                  number: '+919876543211',
+                  label: 'Technical Support',
+                  icon: 'bi-gear',
+                  description: 'Chat for existing projects'
+                }
+              ]}
+              phoneNumbers={[
+                {
+                  number: '+919876543210',
+                  label: 'Sales Department',
+                  icon: 'bi-telephone',
+                  description: 'Speak to sales'
+                },
+                {
+                  number: '+919876543211',
+                  label: 'Customer Care',
+                  icon: 'bi-headset',
+                  description: 'Get support'
+                }
+              ]}
+            />
+          </div>
+        </>
+      )}
     </BrowserRouter>
   )
 }
