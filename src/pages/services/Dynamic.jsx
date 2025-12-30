@@ -8,12 +8,12 @@ import SEO from '../../components/SEO';
 
 export default function Dynamic() {
   const features = [
-    { title: 'Interactive UIs', icon: 'bi-cursor-fill', desc: 'Engaging interfaces with React and Framer Motion.' },
-    { title: 'API Integration', icon: 'bi-hdd-network', desc: 'Seamless connection to third-party services and data sources.' },
-    { title: 'Real-time Data', icon: 'bi-activity', desc: 'Live updates using WebSockets and real-time databases.' },
-    { title: 'User Dashboards', icon: 'bi-person-badge', desc: 'Secure portals with personalized content and analytics.' },
-    { title: 'Complex Logic', icon: 'bi-diagram-3', desc: 'Handling intricate business logic and workflows efficiently.' },
-    { title: 'Cloud Powered', icon: 'bi-cloud-fill', desc: 'Scalable backend infrastructure on AWS or Google Cloud.' },
+    { title: 'Engaging Interfaces', icon: 'bi-cursor-fill', desc: 'Smooth, animated elements that keep users interested.' },
+    { title: 'Connect Everything', icon: 'bi-hdd-network', desc: 'Link your website to other tools and data systems easily.' },
+    { title: 'Live Updates', icon: 'bi-activity', desc: 'See stock prices, notifications, or chats happen instantly.' },
+    { title: 'User Dashboards', icon: 'bi-person-badge', desc: 'Private areas for users to manage their profile and data.' },
+    { title: 'Smart Workflows', icon: 'bi-diagram-3', desc: 'Automate complex business tasks to save time.' },
+    { title: 'Cloud Powered', icon: 'bi-cloud-fill', desc: 'Hosted on powerful servers that grow with your traffic.' },
   ];
 
   return (

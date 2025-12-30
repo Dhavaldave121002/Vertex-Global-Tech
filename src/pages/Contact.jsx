@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaCalendarAlt, FaClock, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaCheck, FaTwitter, FaLinkedin, FaGithub, FaInstagram } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaCheck, FaTwitter, FaLinkedin, FaGithub, FaInstagram, FaArrowRight } from 'react-icons/fa';
+import PageHero from '../components/UI/PageHero';
+import SEO from '../components/SEO';
 
 export default function Contact() {
   const location = useLocation();
@@ -29,234 +31,238 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('submitting');
-
-    // Simulate API call
     setTimeout(() => {
       setStatus('success');
-      // setFormData({ ...initialState }); // Reset if needed
     }, 2000);
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] pt-28 pb-20 font-sans">
-      <section className="relative px-6">
-        {/* Background blobs */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+    <div className="min-h-screen bg-[#030712] relative overflow-hidden font-sans">
+      <SEO
+        title="Contact Us"
+        description="Get in touch with Vertex Global Tech. Schedule a consultation or send us a message to start your digital transformation."
+        keywords="contact us, schedule consultation, project inquiry, tech support"
+      />
 
-        <div className="container mx-auto relative z-10 max-w-6xl">
-          <div className="text-center mb-16">
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-5xl font-bold text-white mb-6"
-            >
-              Let's <span className="text-blue-500">Connect</span>
-            </motion.h1>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-8">
-              Ready to transform your digital presence? Choose how you'd like to reach us.
-            </p>
+      {/* Background Ambience */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[120px]"></div>
+      </div>
 
-            {/* Toggle */}
-            <div className="inline-flex bg-white/5 p-1 rounded-xl border border-white/10 mx-auto">
-              <button
-                onClick={() => setActiveTab('message')}
-                className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'message'
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white'
-                  }`}
+      <div className="relative z-10">
+        <PageHero
+          title="Let's Connect and Build Together"
+          highlight="Connect"
+          subtitle="Ready to transform your digital presence? Reach out via message or schedule a direct consultation with our team."
+          badge="Get In Touch"
+        />
+
+        <section className="relative px-6 pb-32">
+          <div className="container mx-auto relative z-10 max-w-6xl">
+            <div className="text-center mb-16">
+              {/* Toggle */}
+              <div className="inline-flex bg-white/5 p-1 rounded-xl border border-white/10 mx-auto">
+                <button
+                  onClick={() => setActiveTab('message')}
+                  className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'message'
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                    }`}
+                >
+                  Send Message
+                </button>
+                <button
+                  onClick={() => setActiveTab('schedule')}
+                  className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'schedule'
+                    ? 'bg-purple-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                    }`}
+                >
+                  Schedule Consultation
+                </button>
+              </div>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+              {/* Contact Info */}
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
               >
-                Send Message
-              </button>
-              <button
-                onClick={() => setActiveTab('schedule')}
-                className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'schedule'
-                  ? 'bg-purple-600 text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white'
-                  }`}
+                <div className="bg-[#0f172a]/50 p-8 rounded-3xl border border-white/5 backdrop-blur-xl flex flex-col justify-between h-full min-h-[500px]">
+                  <div>
+                    <h3 className="text-2xl font-bold text-white mb-8">Contact Information</h3>
+
+                    <div className="space-y-8">
+                      <div className="flex items-start gap-5 group">
+                        <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-xl group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-lg shadow-blue-500/5">
+                          <FaMapMarkerAlt />
+                        </div>
+                        <div>
+                          <h4 className="text-white font-bold text-lg mb-1">Our HQ</h4>
+                          <p className="text-gray-400 leading-relaxed font-medium text-sm">
+                            123 Innovation Drive,<br />Silicon Valley, CA 94025
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-5 group">
+                        <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 text-xl group-hover:bg-purple-600 group-hover:text-white transition-all duration-300 shadow-lg shadow-purple-500/5">
+                          <FaEnvelope />
+                        </div>
+                        <div>
+                          <h4 className="text-white font-bold text-lg mb-1">Email Us</h4>
+                          <p className="text-gray-400 font-medium text-sm">info@vertexglobal.tech</p>
+                          <p className="text-gray-400 font-medium text-sm">support@vertexglobal.tech</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-5 group">
+                        <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-xl group-hover:bg-cyan-600 group-hover:text-white transition-all duration-300 shadow-lg shadow-cyan-500/5">
+                          <FaPhoneAlt />
+                        </div>
+                        <div>
+                          <h4 className="text-white font-bold text-lg mb-1">Call Us</h4>
+                          <p className="text-gray-400 font-medium text-sm">+1 (888) 123-4567</p>
+                          <p className="text-gray-500 text-[10px] mt-1 uppercase tracking-wider font-black">Mon-Fri 9am-6pm PST</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-12 pt-8 border-t border-white/5">
+                    <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-widest">Connect With Us</h4>
+                    <div className="flex gap-4">
+                      {[
+                        { icon: FaTwitter, href: '#' },
+                        { icon: FaLinkedin, href: '#' },
+                        { icon: FaGithub, href: '#' },
+                        { icon: FaInstagram, href: '#' }
+                      ].map((Social, index) => (
+                        <a key={index} href={Social.href} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black transition-all transform hover:-translate-y-1">
+                          <Social.icon />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Form */}
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
               >
-                Schedule Consultation
-              </button>
+                <div className="bg-[#0f172a] p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden">
+                  <AnimatePresence mode='wait'>
+                    {status === 'success' ? (
+                      <motion.div
+                        key="success"
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="text-center py-24"
+                      >
+                        <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500 text-5xl">
+                          <FaCheck />
+                        </div>
+                        <h3 className="text-3xl font-bold text-white mb-3 tracking-tight">Request Received!</h3>
+                        <p className="text-gray-400 text-lg">We'll be in touch shortly to confirm details.</p>
+                        <button
+                          onClick={() => setStatus('idle')}
+                          className="mt-10 text-blue-400 font-bold hover:text-white transition-colors underline"
+                        >
+                          Start New Request
+                        </button>
+                      </motion.div>
+                    ) : (
+                      <motion.form
+                        key={activeTab}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className="relative z-10 space-y-5"
+                        onSubmit={handleSubmit}
+                      >
+                        <div className="grid md:grid-cols-2 gap-5">
+                          <div>
+                            <label className="block text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Name</label>
+                            <input name="name" value={formData.name} onChange={handleChange} required className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" placeholder="Jane Doe" />
+                          </div>
+                          <div>
+                            <label className="block text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Phone</label>
+                            <input name="phone" value={formData.phone} onChange={handleChange} type="tel" className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" placeholder="+1 (555) 000-0000" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Email</label>
+                          <input name="email" value={formData.email} onChange={handleChange} required type="email" className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" placeholder="jane@company.com" />
+                        </div>
+
+                        {activeTab === 'schedule' && (
+                          <div className="grid md:grid-cols-2 gap-5 p-5 bg-blue-900/10 border border-blue-500/20 rounded-xl">
+                            <div>
+                              <label className="block text-blue-300 text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-2"><FaCalendarAlt /> Preferred Date</label>
+                              <input
+                                name="date"
+                                type="date"
+                                value={formData.date}
+                                onChange={handleChange}
+                                required
+                                className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none cursor-pointer text-sm"
+                                style={{ colorScheme: 'dark' }}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-blue-300 text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-2"><FaClock /> Preferred Time</label>
+                              <input
+                                name="time"
+                                type="time"
+                                value={formData.time}
+                                onChange={handleChange}
+                                required
+                                className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none cursor-pointer text-sm"
+                                style={{ colorScheme: 'dark' }}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <div>
+                          <label className="block text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Service</label>
+                          <select name="service" value={formData.service} onChange={handleChange} className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm">
+                            <option>Informative Website</option>
+                            <option>Dynamic Website</option>
+                            <option>E-Commerce Solution</option>
+                            <option>Web Application</option>
+                            <option>UI/UX Design</option>
+                            <option>Maintenance & Support</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Message</label>
+                          <textarea name="message" value={formData.message} onChange={handleChange} required rows={activeTab === 'schedule' ? 2 : 4} className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors resize-none text-sm" placeholder={activeTab === 'schedule' ? "Any specific topics for the call?" : "Tell us about your project..."}></textarea>
+                        </div>
+
+                        <button disabled={status === 'submitting'} className={`w-full font-black uppercase text-[11px] tracking-[0.3em] py-5 rounded-xl shadow-lg transform transition-all hover:-translate-y-1 flex items-center justify-center gap-3 ${activeTab === 'schedule' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white'}`}>
+                          {status === 'submitting' ? 'Processing...' : (activeTab === 'schedule' ? 'Confirm Schedule' : 'Send Message')}
+                        </button>
+                      </motion.form>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
             </div>
           </div>
-
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
-            {/* Contact Info */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="bg-[#0f172a]/50 p-8 rounded-3xl border border-white/5 backdrop-blur-xl flex flex-col justify-between h-full min-h-[500px]">
-                <div>
-                  <h3 className="text-2xl font-bold text-white mb-8">Contact Information</h3>
-
-                  <div className="space-y-8">
-                    <div className="flex items-start gap-5 group">
-                      <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-xl group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-lg shadow-blue-500/5">
-                        <FaMapMarkerAlt />
-                      </div>
-                      <div>
-                        <h4 className="text-white font-bold text-lg mb-1">Our HQ</h4>
-                        <p className="text-gray-400 leading-relaxed font-medium">
-                          123 Innovation Drive,<br />Silicon Valley, CA 94025
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-5 group">
-                      <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 text-xl group-hover:bg-purple-600 group-hover:text-white transition-all duration-300 shadow-lg shadow-purple-500/5">
-                        <FaEnvelope />
-                      </div>
-                      <div>
-                        <h4 className="text-white font-bold text-lg mb-1">Email Us</h4>
-                        <p className="text-gray-400 font-medium">info@vertexglobal.tech</p>
-                        <p className="text-gray-400 font-medium">support@vertexglobal.tech</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-5 group">
-                      <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-xl group-hover:bg-cyan-600 group-hover:text-white transition-all duration-300 shadow-lg shadow-cyan-500/5">
-                        <FaPhoneAlt />
-                      </div>
-                      <div>
-                        <h4 className="text-white font-bold text-lg mb-1">Call Us</h4>
-                        <p className="text-gray-400 font-medium">+1 (888) 123-4567</p>
-                        <p className="text-gray-500 text-xs mt-1 uppercase tracking-wider font-bold">Mon-Fri 9am-6pm PST</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-12 pt-8 border-t border-white/5">
-                  <h4 className="text-white font-bold mb-4">Connect With Us</h4>
-                  <div className="flex gap-4">
-                    {[
-                      { icon: FaTwitter, href: '#' },
-                      { icon: FaLinkedin, href: '#' },
-                      { icon: FaGithub, href: '#' },
-                      { icon: FaInstagram, href: '#' }
-                    ].map((Social, index) => (
-                      <a key={index} href={Social.href} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black transition-all transform hover:-translate-y-1">
-                        <Social.icon />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Form */}
-            <motion.div
-              layout
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <div className="bg-[#0f172a] p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden">
-                <AnimatePresence mode='wait'>
-                  {status === 'success' ? (
-                    <motion.div
-                      key="success"
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="text-center py-24"
-                    >
-                      <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500 text-5xl">
-                        <FaCheck />
-                      </div>
-                      <h3 className="text-3xl font-bold text-white mb-3">Request Received!</h3>
-                      <p className="text-gray-400 text-lg">We'll be in touch shortly to confirm details.</p>
-                      <button
-                        onClick={() => setStatus('idle')}
-                        className="mt-10 text-blue-400 font-bold hover:text-white transition-colors underline"
-                      >
-                        Start New Request
-                      </button>
-                    </motion.div>
-                  ) : (
-                    <motion.form
-                      key={activeTab}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                      className="relative z-10 space-y-5"
-                      onSubmit={handleSubmit}
-                    >
-                      <div className="grid md:grid-cols-2 gap-5">
-                        <div>
-                          <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Name</label>
-                          <input name="name" value={formData.name} onChange={handleChange} required className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="Jane Doe" />
-                        </div>
-                        <div>
-                          <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Phone</label>
-                          <input name="phone" value={formData.phone} onChange={handleChange} type="tel" className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="+1 (555) 000-0000" />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Email</label>
-                        <input name="email" value={formData.email} onChange={handleChange} required type="email" className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="jane@company.com" />
-                      </div>
-
-                      {activeTab === 'schedule' && (
-                        <div className="grid md:grid-cols-2 gap-5 p-5 bg-blue-900/10 border border-blue-500/20 rounded-xl">
-                          <div>
-                            <label className="block text-blue-300 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2"><FaCalendarAlt /> Preferred Date</label>
-                            <input
-                              name="date"
-                              type="date"
-                              value={formData.date}
-                              onChange={handleChange}
-                              required
-                              className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none cursor-pointer"
-                              style={{ colorScheme: 'dark' }}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-blue-300 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2"><FaClock /> Preferred Time</label>
-                            <input
-                              name="time"
-                              type="time"
-                              value={formData.time}
-                              onChange={handleChange}
-                              required
-                              className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none cursor-pointer"
-                              style={{ colorScheme: 'dark' }}
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      <div>
-                        <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Service</label>
-                        <select name="service" value={formData.service} onChange={handleChange} className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors">
-                          <option>Informative Website</option>
-                          <option>Dynamic Website</option>
-                          <option>E-Commerce Solution</option>
-                          <option>Web Application</option>
-                          <option>UI/UX Design</option>
-                          <option>Maintenance & Support</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Message</label>
-                        <textarea name="message" value={formData.message} onChange={handleChange} required rows={activeTab === 'schedule' ? 2 : 4} className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors resize-none" placeholder={activeTab === 'schedule' ? "Any specific topics for the call?" : "Tell us about your project..."}></textarea>
-                      </div>
-
-                      <button disabled={status === 'submitting'} className={`w-full font-bold py-4 rounded-xl shadow-lg transform transition-all hover:-translate-y-1 flex items-center justify-center gap-2 ${activeTab === 'schedule' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white'}`}>
-                        {status === 'submitting' ? 'Processing...' : (activeTab === 'schedule' ? 'Confirm Schedule' : 'Send Message')}
-                      </button>
-                    </motion.form>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

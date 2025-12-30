@@ -8,12 +8,12 @@ import SEO from '../../components/SEO';
 
 export default function Application() {
   const features = [
-    { title: 'SaaS Architecture', icon: 'bi-cloud', desc: 'Scalable multi-tenant infrastructures built for growth.' },
-    { title: 'API Development', icon: 'bi-code-square', desc: 'Robust REST and GraphQL APIs for seamless connectivity.' },
-    { title: 'Real-time Sync', icon: 'bi-arrow-repeat', desc: 'Instant data updates with WebSockets and LiveQuery.' },
-    { title: 'Enterprise Security', icon: 'bi-shield-lock', desc: 'Bank-grade encryption, OAuth2, and role-based access control.' },
-    { title: 'Microservices', icon: 'bi-diagram-2', desc: 'Decoupled services for better maintainability and scaling.' },
-    { title: 'CI/CD Pipelines', icon: 'bi-infinity', desc: 'Automated testing and deployment for rapid iteration.' },
+    { title: 'Scalable Platforms', icon: 'bi-cloud', desc: 'Growth-ready systems that handle thousands of users effortlessly.' },
+    { title: 'Seamless Connections', icon: 'bi-code-square', desc: 'We connect your apps to other services for smooth data flow.' },
+    { title: 'Instant Updates', icon: 'bi-arrow-repeat', desc: 'See changes immediately without refreshing the page.' },
+    { title: 'Bank-Grade Security', icon: 'bi-shield-lock', desc: 'Top-tier encryption and protections to keep data safe.' },
+    { title: 'Modular Design', icon: 'bi-diagram-2', desc: 'Built in blocks, so we can upgrade parts without breaking the whole.' },
+    { title: 'Automated Releases', icon: 'bi-infinity', desc: 'We deploy updates faster and with fewer errors.' },
   ];
 
   return (

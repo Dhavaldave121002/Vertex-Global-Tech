@@ -9,11 +9,11 @@ import SEO from '../../components/SEO';
 export default function Informative() {
   const features = [
     { title: 'Responsive Design', icon: 'bi-phone', desc: 'Looks stunning on every device, from mobile to 4K desktops.' },
-    { title: 'SEO Optimized', icon: 'bi-graph-up', desc: 'Rank higher with clean code, meta tags, and fast loading speeds.' },
-    { title: 'CMS Integration', icon: 'bi-window-sidebar', desc: 'Easily manage your content with a user-friendly admin panel.' },
-    { title: 'Fast Performance', icon: 'bi-lightning-charge', desc: 'Optimized assets and code for lightning-fast page loads.' },
-    { title: 'Secure & Scalable', icon: 'bi-shield-check', desc: 'Enterprise-grade security best practices.' },
-    { title: 'Analytics Ready', icon: 'bi-bar-chart', desc: 'Integrated with GA4 for deep user insights.' },
+    { title: 'Search Engine Ready', icon: 'bi-graph-up', desc: 'Built to rank higher on Google so customers can find you.' },
+    { title: 'Easy Management', icon: 'bi-window-sidebar', desc: 'Update text and images yourself with no coding needed.' },
+    { title: 'Fast Performance', icon: 'bi-lightning-charge', desc: 'Loads instantly to keep visitors happy.' },
+    { title: 'Secure & Reliable', icon: 'bi-shield-check', desc: 'Protected against threats with industry-best security.' },
+    { title: 'Visitor Insights', icon: 'bi-bar-chart', desc: 'See who visits your site and what they do.' },
   ];
 
   return (

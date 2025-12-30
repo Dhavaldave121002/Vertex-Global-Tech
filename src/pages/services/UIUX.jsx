@@ -8,12 +8,12 @@ import SEO from '../../components/SEO';
 
 export default function UIUX() {
   const features = [
-    { title: 'User Research', icon: 'bi-people', desc: 'Data-driven insights into your target audience behavior.' },
-    { title: 'Wireframing', icon: 'bi-grid-1x2', desc: 'Rapid low-fidelity prototyping to validate concepts.' },
-    { title: 'Visual Design', icon: 'bi-palette', desc: 'Stunning high-fidelity interfaces that align with your brand.' },
-    { title: 'Design Systems', icon: 'bi-collection', desc: 'Comprehensive component libraries for consistency.' },
-    { title: 'Interaction Design', icon: 'bi-cursor', desc: 'Micro-interactions and animations that delight users.' },
-    { title: 'Usability Testing', icon: 'bi-clipboard-check', desc: 'Rigorous testing to ensure intuitive experiences.' },
+    { title: 'User Research', icon: 'bi-people', desc: 'We study your audience to know exactly what they want.' },
+    { title: 'Blueprints', icon: 'bi-grid-1x2', desc: 'Simple sketches to test ideas before building.' },
+    { title: 'Visual Design', icon: 'bi-palette', desc: 'Stunning, on-brand looks that wow your customers.' },
+    { title: 'Design Library', icon: 'bi-collection', desc: 'A set of reusable elements to keep everything consistent.' },
+    { title: 'Interactions', icon: 'bi-cursor', desc: 'Fun animations and feedback that make the app feel alive.' },
+    { title: 'User Testing', icon: 'bi-clipboard-check', desc: 'Real people test the design to ensure it is easy to use.' },
   ];
 
   return (

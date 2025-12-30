@@ -56,7 +56,6 @@ export default function FloatingContactPro({
   const [touchStartY, setTouchStartY] = useState(0);
   const [menuHeight, setMenuHeight] = useState('auto');
   const [mounted, setMounted] = useState(false);
-  const [showBackToTop, setShowBackToTop] = useState(false);
 
   // Refs
   const containerRef = useRef(null);
@@ -91,14 +90,6 @@ export default function FloatingContactPro({
     };
   }, []);
 
-  // Handle scroll for back-to-top
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 300);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Clear all timeouts
   const clearAllTimeouts = useCallback(() => {
@@ -379,7 +370,7 @@ export default function FloatingContactPro({
   const portalContent = (
     <div
       ref={containerRef}
-      className={`floating-contact-pro ${position} ${getButtonSizeClass()} ${darkMode ? 'dark-mode' : ''} ${showBackToTop ? 'has-active-back-top' : ''}`}
+      className={`floating-contact-pro ${position} ${getButtonSizeClass()} ${darkMode ? 'dark-mode' : ''}`}
       style={{ zIndex }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -704,14 +695,6 @@ export default function FloatingContactPro({
         </div>
       )}
 
-      {/* Back To Top Button via FAB */}
-      <button
-        className={`floating-top-btn ${showBackToTop ? 'visible' : ''} ${getButtonSizeClass()}`}
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        aria-label="Back to top"
-      >
-        <FaChevronRight className="rotate-icon" style={{ transform: 'rotate(-90deg)' }} />
-      </button>
     </div>
   );
 

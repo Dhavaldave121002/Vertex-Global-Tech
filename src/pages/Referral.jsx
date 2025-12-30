@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { FaCopy, FaCheck, FaUserPlus, FaChartLine, FaGift, FaWhatsapp, FaTwitter } from 'react-icons/fa'
+import SEO from '../components/SEO'
 
 export default function Referral() {
-  // State
+  // ... (keep state logic same)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -60,7 +61,11 @@ export default function Referral() {
 
   return (
     <div className="min-h-screen bg-[#030712] pt-24 pb-20 overflow-hidden font-sans">
-
+      <SEO
+        title="Partner Program"
+        description="Refer clients to Vertex Global Tech and earn rewards. Join our partner program today."
+        keywords="referral program, partner program, earn money online, tech affiliate"
+      />
       {/* Hero Section */}
       <section className="relative px-6 mb-24">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>

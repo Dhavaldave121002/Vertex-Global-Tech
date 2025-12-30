@@ -11,9 +11,9 @@ export default function ApplicationPricing() {
   const [selectedPlan, setSelectedPlan] = useState('');
 
   const plans = [
-    { name: 'MVP', price: '$10,000', desc: 'Launch your core product quickly to validate the market.', features: ['Core Features', 'Mobile Responsive', 'Basic Admin Panel', '3 Months Support'] },
-    { name: 'Growth', price: '$25,000', desc: 'Scale your user base with advanced features and performance.', features: ['Advanced Features', 'API Integration', 'Real-time Data', 'User Roles', 'Testing Suite'] },
-    { name: 'Enterprise', price: 'Custom', desc: 'Mission-critical software for large organizations.', features: ['Microservices', 'SLA', 'On-premise Option', 'Security Audit', '24/7 Support'] }
+    { name: 'MVP Launch', price: '$10,000', desc: 'Validate your idea with a core product built for speed.', features: ['Core Feature Set', 'Mobile Responsive', 'Admin Dashboard', '3 Months Support', 'Basic Analytics'] },
+    { name: 'Scale & Grow', price: '$25,000', desc: 'Secure, high-performance platform for growing user bases.', features: ['Advanced Features', 'API Integration', 'Real-time Datasets', 'Role-Based Access', 'Automated Testing Suite'] },
+    { name: 'Enterprise Platform', price: 'Custom', desc: 'Mission-critical infrastructure for large organizations.', features: ['Microservices Architecture', '99.9% SLA', 'On-premise / Hybrid', 'Full Security Audit', '24/7 Dedicated Support'] }
   ];
 
   const tableFeatures = [
@@ -50,6 +50,21 @@ export default function ApplicationPricing() {
     { q: "How do you handle hosting?", a: "We can set up hosting on your preferred cloud provider (AWS, Google Cloud, etc.) and hand over the credentials, or manage it for you." },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50 } }
+  };
+
   const handleSelectPlan = (planName) => {
     setSelectedPlan(planName);
     setModalOpen(true);
@@ -58,34 +73,45 @@ export default function ApplicationPricing() {
   return (
     <>
       <SEO
-        title="Application Development Pricing"
-        description="Scalable pricing plans for web application development. From MVPs to Enterprise SaaS."
-        keywords="app development cost, saas pricing, software development rates"
+        title="App Development Cost"
+        description="Scalable pricing plans for web application development. From MVPs to Enterprise SaaS platforms."
+        keywords="app development cost, saas pricing, software development rates, mvp cost"
       />
 
       <div className="min-h-screen bg-[#030712]">
 
         <PageHero
-          title="App Pricing"
+          title="App Development Pricing"
           highlight="Pricing"
-          badge="Pricing"
+          badge="Investment"
           subtitle="Invest in scalable software that grows with your business."
         />
 
         {/* Pricing Cards */}
         <section className="py-20 bg-[#0f172a]/30">
           <div className="container mx-auto px-6 max-w-7xl">
-            <div className="grid md:grid-cols-3 gap-8">
+            <motion.div
+              variants={container}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="grid md:grid-cols-3 gap-8"
+            >
               {plans.map((plan, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
+                  variants={item}
                   className={`bg-[#0f172a] p-8 rounded-2xl border ${i === 1 ? 'border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.2)]' : 'border-white/5'} hover:border-red-500/30 transition-all flex flex-col group relative overflow-hidden`}
                 >
-                  {i === 1 && <div className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Best Value</div>}
+                  {i === 1 && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider"
+                    >
+                      Best Value
+                    </motion.div>
+                  )}
 
                   <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
                   <p className="text-gray-400 text-sm mb-6 h-10">{plan.desc}</p>
@@ -101,13 +127,13 @@ export default function ApplicationPricing() {
                   </ul>
                   <button
                     onClick={() => handleSelectPlan(plan.name)}
-                    className={`w-full block text-center py-4 rounded-xl font-bold transition-all transform group-hover:scale-105 ${i === 1 ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-white/5 text-white hover:bg-white/10'}`}
+                    className={`w-full block text-center py-4 rounded-xl font-bold transition-all transform group-hover:scale-105 ${i === 1 ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-900/40' : 'bg-white/5 text-white hover:bg-white/10 hover:border-white/20 border border-transparent'}`}
                   >
                     Start Project
                   </button>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </section>
 

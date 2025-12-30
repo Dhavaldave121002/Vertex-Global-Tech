@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FaReact, FaNodeJs, FaPython, FaAws, FaDocker } from 'react-icons/fa';
 import { SiTypescript, SiNextdotjs, SiTailwindcss, SiGraphql, SiPostgresql } from 'react-icons/si';
 import PageHero from '../components/UI/PageHero';
+import SEO from '../components/SEO';
 
 const Portfolio = () => {
   const projects = [
@@ -57,100 +58,86 @@ const Portfolio = () => {
 
   return (
     <div className="min-h-screen bg-[#030712] font-sans text-gray-300 relative overflow-hidden">
+      <SEO
+        title="Our Portfolio"
+        description="Explore Vertex Global Tech's portfolio of successful projects. See our work in web development, mobile apps, and enterprise software."
+        keywords="portfolio, case studies, vertex global tech projects, software development work"
+      />
 
-      {/* Background Ambience - Fixed to match Career/Blog */}
+      {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[120px] pointer-events-none"></div>
       </div>
 
-      <div className="relative z-10 pt-24 pb-20">
+      <div className="relative z-10">
         <PageHero
-          title="Building the Future"
+          title="Building the Digital Future"
           highlight="Future"
           subtitle="A showcase of our most ambitious projects, featuring cutting-edge interfaces, robust architectures, and transformative digital experiences."
-          badge="Our Work"
+          badge="Our Portfolio"
         />
 
-        {/* Tech Stack Carousel Section */}
-        <section className="py-16 border-y border-white/5 bg-[#080c18] overflow-hidden">
-          <div className="container mx-auto px-6 mb-8 text-center">
-            <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">Powering Innovation With</p>
+        {/* Tech Stack Horizontal Scroll */}
+        <section className="py-16 border-y border-white/5 bg-[#080c18]/50 backdrop-blur-xl mb-32 overflow-hidden">
+          <div className="container mx-auto px-6 mb-12 text-center">
+            <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em]">Powering Innovation With</span>
           </div>
 
-          {/* Infinite Slider Container */}
-          <div className="relative w-full overflow-hidden mask-linear-fade">
-            {/* Gradient Masks */}
-            <div className="absolute top-0 left-0 h-full w-24 bg-gradient-to-r from-[#080c18] to-transparent z-10"></div>
-            <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-[#080c18] to-transparent z-10"></div>
-
-            {/* Scrolling Track */}
-            <div className="flex gap-16 items-center whitespace-nowrap animate-infinite-scroll w-max hover:pause">
-              {/* Original Set */}
-              {[...technologies, ...technologies, ...technologies].map((tech, index) => (
-                <div key={`${tech.name}-${index}`} className="flex flex-col items-center gap-3 group cursor-pointer transition-all duration-300 hover:scale-110 opacity-70 hover:opacity-100 min-w-[100px]">
-                  <tech.icon className={`text-5xl md:text-6xl ${tech.color} filter drop-shadow-lg`} />
-                  <span className="text-sm font-bold text-gray-500 group-hover:text-white transition-colors">{tech.name}</span>
+          <div className="relative w-full">
+            <div className="flex gap-16 items-center whitespace-nowrap animate-infinite-scroll w-max pr-16">
+              {[...technologies, ...technologies].map((tech, index) => (
+                <div key={index} className="flex items-center gap-4 opacity-40 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
+                  <tech.icon className={`text-5xl ${tech.color}`} />
+                  <span className="text-xl font-bold text-white uppercase tracking-tighter">{tech.name}</span>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Grid */}
-        <section className="py-24">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Completed Projects</h2>
-              <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full"></div>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {projects.map((project, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -10 }}
-                  className="group relative bg-[#0f172a] rounded-2xl overflow-hidden border border-white/10 hover:border-blue-500/50 transition-all shadow-lg hover:shadow-blue-500/10 cursor-pointer"
-                >
-                  {/* Project Image */}
-                  <div className="h-64 w-full overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent z-10 opacity-60"></div>
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-8 relative z-20 -mt-12">
-                    <div className="inline-block px-3 py-1 bg-blue-600 font-bold text-[10px] uppercase tracking-wider text-white rounded-full mb-4 shadow-lg">
-                      {project.category}
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
-                      {project.title}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {project.tags.map(tag => (
-                        <span key={tag} className="px-3 py-1 text-xs font-semibold text-gray-400 bg-white/5 rounded-full border border-white/5 group-hover:border-white/10 transition-colors">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Overlay Link */}
-                  <div className="absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 backdrop-blur-sm pointer-events-none">
-                    <span className="px-6 py-2 border border-white/30 rounded-full text-white font-bold tracking-wider hover:bg-white hover:text-black transition-all">View Case Study</span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+        {/* Projects Grid */}
+        <div className="container mx-auto px-6 pb-32">
+          <div className="text-center mb-20">
+            <span className="text-blue-500 font-black tracking-[0.3em] uppercase text-[10px] mb-4 block">Archive</span>
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-6 uppercase tracking-tight font-['Montserrat']">Completed Works</h2>
+            <div className="w-24 h-1 bg-blue-600 mx-auto rounded-full"></div>
           </div>
-        </section>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {projects.map((project, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="group relative bg-[#0f172a]/50 border border-white/10 hover:border-blue-500/30 rounded-[2.5rem] overflow-hidden transition-all duration-500"
+              >
+                <div className="aspect-[4/5] overflow-hidden relative">
+                  <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-80 z-10"></div>
+
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600/10 backdrop-blur-sm z-20">
+                    <button className="px-8 py-3 bg-white text-black font-black uppercase text-[10px] tracking-widest rounded-full shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                      View Project
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-10 relative z-30 -mt-24 pointer-events-none">
+                  <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-500/10 px-3 py-1.5 rounded-full border border-blue-500/20 mb-4 inline-block">{project.category}</span>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-4">{project.title}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {project.tags.map(tag => (
+                      <span key={tag} className="text-[10px] text-gray-500 font-bold border border-white/5 px-3 py-1 rounded-lg bg-white/[0.02]">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

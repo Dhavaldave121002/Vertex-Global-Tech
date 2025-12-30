@@ -8,12 +8,12 @@ import SEO from '../../components/SEO';
 
 export default function Maintenance() {
   const features = [
-    { title: 'Security Patches', icon: 'bi-shield-check', desc: 'Proactive protection against the latest threats and vulnerabilities.' },
-    { title: 'Uptime Monitoring', icon: 'bi-activity', desc: '24/7 surveillance to ensure your site is always online.' },
-    { title: 'Performance Tuning', icon: 'bi-speedometer2', desc: 'Code and asset optimization for maximum speed and SEO scoring.' },
-    { title: 'Content Updates', icon: 'bi-pencil-square', desc: 'Regular content refreshes to keep your audience engaged.' },
-    { title: 'Daily Backups', icon: 'bi-hdd', desc: 'Automated off-site backups to prevent data loss.' },
-    { title: 'Bug Fixes', icon: 'bi-bug', desc: 'Rapid resolution of any technical issues that arise.' },
+    { title: 'Security Updates', icon: 'bi-shield-check', desc: 'We keep your site safe from the latest viruses and hackers.' },
+    { title: 'Always Online', icon: 'bi-activity', desc: 'We watch your site 24/7 to make sure it never goes down.' },
+    { title: 'Speed Optimization', icon: 'bi-speedometer2', desc: 'We make your site load faster so visitors stay longer.' },
+    { title: 'Content Updates', icon: 'bi-pencil-square', desc: 'Need to change a photo or text? We do it for you.' },
+    { title: 'Daily Backups', icon: 'bi-hdd', desc: 'We save a copy of your site every day, just in case.' },
+    { title: 'Quick Fixes', icon: 'bi-bug', desc: 'If something breaks, we fix it right away.' },
   ];
 
   return (

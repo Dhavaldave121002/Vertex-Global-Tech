@@ -44,6 +44,7 @@ html {
   font-size: 16px;
   background-color: var(--bg-deep);
   color: var(--text-main);
+  overflow-x: hidden;
 }
 
 /* Global Link Reset */
@@ -177,6 +178,15 @@ body {
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(400%); }
+}
+
+.animate-scan {
+  animation: scan 3s linear infinite;
 }
 
 /* Infinite Scroll Logic */

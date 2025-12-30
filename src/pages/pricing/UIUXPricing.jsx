@@ -11,9 +11,9 @@ export default function UIUXPricing() {
   const [selectedPlan, setSelectedPlan] = useState('');
 
   const plans = [
-    { name: 'Audit', price: '$1,500', desc: 'Expert review of your existing product to identify issues.', features: ['Heuristic Evaluation', 'UX Audit Report', 'Quick Wins List', 'Accessibility Check'] },
-    { name: 'Redesign', price: '$4,000', desc: 'Complete visual overhaul of your core flow.', features: ['User Research', 'Wireframes', 'High-Fidelity UI', 'Interactive Prototype', 'Style Guide'] },
-    { name: 'System', price: '$8,000', desc: 'Comprehensive design system for scaling teams.', features: ['Full Design System', 'Component Library', 'Documentation', 'Handoff Support', 'Consulting'] }
+    { name: 'UX Audit', price: '$1,500', desc: 'Expert review to uncover usability issues and quick wins.', features: ['Heuristic Evaluation', 'Expert Audit Report', 'Accessibility Check', 'Improvement Roadmap', '1-Hour Strategy Call'] },
+    { name: 'Full Redesign', price: '$4,000', desc: 'Complete visual and experience overhaul for your core flow.', features: ['User Research & Analysis', 'Custom Wireframes', 'High-Fidelity UI Design', 'Interactive Prototype', 'Developer Spec Sheets'] },
+    { name: 'Design System', price: '$8,000', desc: 'Scalable component library for large innovative teams.', features: ['Atomic Design System', 'Component Library (Figma)', 'Usage Documentation', 'Developer Handoff Support', 'Brand Style Guide'] }
   ];
 
   const tableFeatures = [
@@ -50,6 +50,21 @@ export default function UIUXPricing() {
     { q: "Do you ignore development?", a: "No, we design with development feasibility in mind and provide detailed specs (redlines) for your engineering team." },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50 } }
+  };
+
   const handleSelectPlan = (planName) => {
     setSelectedPlan(planName);
     setModalOpen(true);
@@ -58,34 +73,45 @@ export default function UIUXPricing() {
   return (
     <>
       <SEO
-        title="UI/UX Design Pricing"
-        description="Professional UI/UX design packages. Audit, Redesign, or Full Design Systems."
-        keywords="ui design cost, ux audit pricing, figma design rates"
+        title="UI/UX Design Cost"
+        description="Professional UI/UX design packages. Audits, Redesigns, and Design Systems using Figma."
+        keywords="ui design pricing, ux audit cost, figma design rates, web design pricing"
       />
 
       <div className="min-h-screen bg-[#030712]">
 
         <PageHero
-          title="UI/UX Pricing"
+          title="UI/UX Design Packages"
           highlight="Pricing"
-          badge="Pricing"
-          subtitle="World-class design for digital products."
+          badge="Design Excellence"
+          subtitle="World-class design for high-converting digital products."
         />
 
         {/* Pricing Cards */}
         <section className="py-20 bg-[#0f172a]/30">
           <div className="container mx-auto px-6 max-w-7xl">
-            <div className="grid md:grid-cols-3 gap-8">
+            <motion.div
+              variants={container}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="grid md:grid-cols-3 gap-8"
+            >
               {plans.map((plan, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
+                  variants={item}
                   className={`bg-[#0f172a] p-8 rounded-2xl border ${i === 1 ? 'border-pink-500 shadow-[0_0_30px_rgba(236,72,153,0.2)]' : 'border-white/5'} hover:border-pink-500/30 transition-all flex flex-col group relative overflow-hidden`}
                 >
-                  {i === 1 && <div className="absolute top-0 right-0 bg-pink-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Most Popular</div>}
+                  {i === 1 && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="absolute top-0 right-0 bg-pink-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider"
+                    >
+                      Most Popular
+                    </motion.div>
+                  )}
 
                   <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
                   <p className="text-gray-400 text-sm mb-6 h-10">{plan.desc}</p>
@@ -101,13 +127,13 @@ export default function UIUXPricing() {
                   </ul>
                   <button
                     onClick={() => handleSelectPlan(plan.name)}
-                    className={`w-full block text-center py-4 rounded-xl font-bold transition-all transform group-hover:scale-105 ${i === 1 ? 'bg-pink-600 text-white hover:bg-pink-700' : 'bg-white/5 text-white hover:bg-white/10'}`}
+                    className={`w-full block text-center py-4 rounded-xl font-bold transition-all transform group-hover:scale-105 ${i === 1 ? 'bg-pink-600 text-white hover:bg-pink-700 shadow-lg shadow-pink-900/40' : 'bg-white/5 text-white hover:bg-white/10 hover:border-white/20 border border-transparent'}`}
                   >
                     Select Package
                   </button>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </section>
 

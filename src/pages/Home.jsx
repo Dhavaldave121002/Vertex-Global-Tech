@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 const HeroSection = () => (
   <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
@@ -22,13 +23,13 @@ const HeroSection = () => (
           NEXT-GEN DIGITAL SOLUTIONS
         </div>
         <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-white via-gray-200 to-gray-500 mb-8 leading-tight">
-          We Build the Future of <br />
+          Transforming Ideas into <br />
           <span className="text-blue-500">
-            <Typewriter text="Digital Experience" speed={80} delay={0.5} />
+            <Typewriter text="Digital Reality" speed={80} delay={0.5} />
           </span>
         </h1>
         <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-          Vertex Global Tech delivers enterprise-grade software, immersive 3D web experiences, and scalable cloud architectures.
+          We create stunning websites, powerful apps, and software that grows with your business. Simple, effective, and built for success.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
@@ -115,10 +116,10 @@ const AboutIntroSection = () => (
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Speed of Thought</span>
           </h2>
           <p className="text-gray-400 text-lg mb-6 leading-relaxed">
-            At Vertex Global Tech, we don't just write code; we architect digital ecosystems. Born from a passion for solving complex problems, we have evolved into a global team of technologists dedicated to pushing the boundaries of what is possible on the web.
+            At Vertex Global Tech, we solve complex problems with simple, elegant solutions. We are a team of passionate experts dedicated to helping your business thrive in the digital world.
           </p>
           <p className="text-gray-400 text-lg mb-8 leading-relaxed">
-            Our approach blends artistic creativity with engineering rigor, ensuring that every solution we ship is not only robust and scalable but also a delight to use.
+            From the first line of code to the final launch, we focus on quality, speed, and user experience.
           </p>
 
           <Link
@@ -147,38 +148,38 @@ const FeaturesSection = () => (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <FeatureCard
           icon="speedometer2"
-          title="High Performance"
-          desc="Optimized for speed and efficiency. We build applications that load instantly and run smoothly."
+          title="Fast & Efficient"
+          desc="We build websites that load instantly and run smoothly on any device."
           delay={0.1}
         />
         <FeatureCard
           icon="shield-check"
-          title="Secure by Default"
-          desc="Enterprise-grade security implementations ensuring your data and users remain protected."
+          title="Top-Tier Security"
+          desc="Your data is safe with us. We use the latest security standards to protect your business."
           delay={0.2}
         />
         <FeatureCard
           icon="layers"
-          title="Scalable Architecture"
-          desc="Built to grow with your business. From MVP to enterprise scale without friction."
+          title="Built for Growth"
+          desc="Start small and grow big. Our solutions scale effortlessly as your business expands."
           delay={0.3}
         />
         <FeatureCard
           icon="palette"
           title="Modern Design"
-          desc="Award-winning aesthetics combined with intuitive user experience principles."
+          desc="Beautiful, award-winning designs that capture attention and drive engagement."
           delay={0.4}
         />
         <FeatureCard
           icon="phone"
           title="Mobile First"
-          desc="Responsive layouts that provide a native-like experience on all devices."
+          desc="Perfectly responsive layouts that look great on phones, tablets, and desktops."
           delay={0.5}
         />
         <FeatureCard
           icon="cloud"
-          title="Cloud Native"
-          desc="Leveraging modern cloud infrastructure for reliability and global availability."
+          title="Cloud Ready"
+          desc="Reliable and accessible from anywhere in the world using modern cloud technology."
           delay={0.6}
         />
       </div>
@@ -264,15 +265,22 @@ const TestimonialsSection = () => (
 
 export default function Home() {
   return (
-    <div className="bg-[#030712] min-h-screen overflow-x-hidden">
-      <HeroSection />
-      <StatsSection />
-      <BrandCarousel />
-      <AboutIntroSection />
-      <FeaturesSection />
-      <TestimonialsSection />
-      <CTASection />
-      {/* Add more sections as needed */}
-    </div>
+    <>
+      <SEO
+        title="Home"
+        description="Vertex Global Tech - Premium Digital Solutions, Web Development, and Corporate Branding services. We build the future of digital experience."
+        keywords="web development, app development, digital agency, vertex global tech, software solutions"
+      />
+      <div className="bg-[#030712] min-h-screen overflow-x-hidden">
+        <HeroSection />
+        <StatsSection />
+        <BrandCarousel />
+        <AboutIntroSection />
+        <FeaturesSection />
+        <TestimonialsSection />
+        <CTASection />
+      </div>
+    </>
   );
 }
+
