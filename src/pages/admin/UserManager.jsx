@@ -8,8 +8,21 @@ const UserManager = () => {
   const navigate = useNavigate();
 
   const [isAdding, setIsAdding] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Editor', clearance: 'L3' });
+  const [newUser, setNewUser] = useState({ name: '', actualEmail: '', password: '', role: 'Editor', clearance: 'L3' });
+  const [generatedSystemEmail, setGeneratedSystemEmail] = useState('');
+
+  // Auto-generate system email
+  useEffect(() => {
+    if (newUser.name) {
+      const slug = newUser.name.toLowerCase().replace(/\s+/g, '.');
+      setGeneratedSystemEmail(`${slug}@vgt.tech`);
+    } else {
+      setGeneratedSystemEmail('');
+    }
+  }, [newUser.name]);
 
   // Load users from localStorage
   useEffect(() => {
@@ -31,9 +44,7 @@ const UserManager = () => {
     } else {
       // Default users
       const defaultUsers = [
-        { id: 1, name: 'Admin Root', role: 'Super Admin', email: 'admin@vgt.tech', status: 'Online', clearance: 'L5' },
-        { id: 2, name: 'Sarah Miller', role: 'Editor', email: 'sarah@vgt.tech', status: 'Offline', clearance: 'L3' },
-        { id: 3, name: 'Mike Tech', role: 'Support', email: 'mike@vgt.tech', status: 'Online', clearance: 'L2' },
+        { id: 1, name: 'Admin Root', role: 'Super Admin', email: 'admin@vgt.tech', actualEmail: 'connectvertexglobal2209@gmail.com', password: 'admin', status: 'Online', clearance: 'L5' },
       ];
       setUsers(defaultUsers);
       localStorage.setItem('vgtw_users', JSON.stringify(defaultUsers));
@@ -46,14 +57,64 @@ const UserManager = () => {
     window.dispatchEvent(new Event('storage'));
   };
 
-  const handleAdd = (e) => {
+  const handleSave = (e) => {
     e.preventDefault();
-    const id = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
-    const updated = [...users, { ...newUser, id, status: 'Offline' }];
+    if (!newUser.name || !newUser.actualEmail || !newUser.password) return;
+
+    let updated;
+    if (isEditing && editingId) {
+      // Update existing
+      updated = users.map(u => u.id === editingId ? {
+        ...u,
+        name: newUser.name,
+        role: newUser.role,
+        clearance: newUser.clearance,
+        actualEmail: newUser.actualEmail,
+        password: newUser.password,
+        // System email changes if name changes, or keep original? 
+        // Let's allow system email update based on name for consistency
+        email: u.name !== newUser.name ? generatedSystemEmail : u.email
+      } : u);
+    } else {
+      // Add new
+      const id = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+      const sysEmail = generatedSystemEmail;
+
+      updated = [...users, {
+        id,
+        name: newUser.name,
+        role: newUser.role,
+        clearance: newUser.clearance,
+        email: sysEmail,
+        actualEmail: newUser.actualEmail,
+        password: newUser.password,
+        status: 'Offline'
+      }];
+    }
+
     setUsers(updated);
     saveUsers(updated);
-    setNewUser({ name: '', email: '', role: 'Editor', clearance: 'L3' });
+    resetForm();
+  };
+
+  const handleEdit = (user) => {
+    setNewUser({
+      name: user.name,
+      actualEmail: user.actualEmail || '',
+      password: user.password || '', // Password might be hidden in real app, but showing here for simple crud
+      role: user.role,
+      clearance: user.clearance || 'L3'
+    });
+    setEditingId(user.id);
+    setIsEditing(true);
+    setIsAdding(true);
+  };
+
+  const resetForm = () => {
+    setNewUser({ name: '', actualEmail: '', password: '', role: 'Editor', clearance: 'L3' });
     setIsAdding(false);
+    setIsEditing(false);
+    setEditingId(null);
   };
 
   const handleRevoke = (id) => {
@@ -84,12 +145,50 @@ const UserManager = () => {
           {isAdding && (
             <motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="bg-[#0f172a]/40 backdrop-blur-xl border border-blue-500/20 p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden mb-12">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"></div>
-              <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-8">Authorize Security Node</h2>
-              <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
-                <div className="space-y-2"><label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Identity Name</label><input type="text" required value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white text-[10px] font-black focus:border-blue-500 outline-none transition-all uppercase" placeholder="Full Identity" /></div>
-                <div className="space-y-2"><label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Email_Link</label><input type="email" required value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white text-[10px] font-black focus:border-blue-500 outline-none transition-all" placeholder="email@vgt.tech" /></div>
-                <div className="space-y-2"><label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Authority_Role</label><select value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white text-[10px] font-black uppercase focus:border-blue-500 transition-all font-black"><option value="Super Admin">Super Admin</option><option value="Editor">Editor</option><option value="Support">Support</option></select></div>
-                <div className="flex gap-3"><button type="submit" className="flex-1 py-4 bg-blue-600 text-white text-[10px] font-black rounded-xl hover:bg-blue-500 transition-all uppercase tracking-widest shadow-xl shadow-blue-900/40">Authorize</button><button type="button" onClick={() => setIsAdding(false)} className="px-8 py-4 bg-white/5 text-gray-500 text-[10px] font-black rounded-xl hover:bg-white/10 transition-all uppercase tracking-widest">Abort</button></div>
+              <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-8">{isEditing ? 'Update Security Node' : 'Authorize Security Node'}</h2>
+              <form onSubmit={handleSave} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Identity */}
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Identity Name</label>
+                    <input type="text" required value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white text-[10px] font-black focus:border-blue-500 outline-none transition-all uppercase" placeholder="Full Name" />
+                  </div>
+
+                  {/* Actual Email (OTP Destination) */}
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Actual Email (For OTP)</label>
+                    <input type="email" required value={newUser.actualEmail} onChange={e => setNewUser({ ...newUser, actualEmail: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white text-[10px] font-black focus:border-blue-500 outline-none transition-all" placeholder="personal@gmail.com" />
+                  </div>
+
+                  {/* Password */}
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Access Password</label>
+                    <input type="text" required value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white text-[10px] font-black focus:border-blue-500 outline-none transition-all" placeholder="Secure Password" />
+                  </div>
+
+                  {/* Generated System Email */}
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">System Node ID (Auto)</label>
+                    <div className="w-full bg-white/5 border border-white/5 rounded-xl p-4 text-gray-400 text-[10px] font-black uppercase select-none cursor-not-allowed">
+                      {generatedSystemEmail || '@vgt.tech'}
+                    </div>
+                  </div>
+
+                  {/* Role */}
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Authority_Role</label>
+                    <select value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white text-[10px] font-black uppercase focus:border-blue-500 transition-all font-black">
+                      <option value="Super Admin">Super Admin</option>
+                      <option value="Editor">Editor</option>
+                      <option value="Support">Support</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button type="submit" className="flex-1 py-4 bg-blue-600 text-white text-[12px] font-black rounded-xl hover:bg-blue-500 transition-all uppercase tracking-widest shadow-xl shadow-blue-900/40">{isEditing ? 'Update Node' : 'Authorize Node'}</button>
+                  <button type="button" onClick={resetForm} className="px-12 py-4 bg-white/5 text-gray-500 text-[10px] font-black rounded-xl hover:bg-white/10 transition-all uppercase tracking-widest">Abort</button>
+                </div>
               </form>
             </motion.div>
           )}
@@ -124,7 +223,7 @@ const UserManager = () => {
                   </div>
                   <div className="mt-10 pt-8 border-t border-white/5 flex justify-between items-center relative z-10">
                     <div className="flex gap-3">
-                      <button className="p-3 bg-white/5 hover:bg-blue-600 rounded-xl text-gray-500 hover:text-white transition-all"><FaUserEdit size={14} /></button>
+                      <button onClick={() => handleEdit(user)} className="p-3 bg-white/5 hover:bg-blue-600 rounded-xl text-gray-500 hover:text-white transition-all"><FaUserEdit size={14} /></button>
                       <button onClick={() => handleResetKey(user.name)} className="p-3 bg-white/5 hover:bg-emerald-600 rounded-xl text-gray-500 hover:text-white transition-all"><FaKey size={14} /></button>
                     </div>
                     {user.id !== 1 && <button onClick={() => handleRevoke(user.id)} className="text-red-500/30 hover:text-red-500 transition-all text-[8px] font-black uppercase tracking-widest hover:underline underline-offset-8">Revoke_Privileges</button>}

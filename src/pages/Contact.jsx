@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { FaCalendarAlt, FaClock, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaCheck, FaTwitter, FaLinkedin, FaGithub, FaInstagram, FaArrowRight } from 'react-icons/fa';
+import emailjs from '@emailjs/browser';
 import PageHero from '../components/UI/PageHero';
 import SEO from '../components/SEO';
 
@@ -32,7 +33,7 @@ export default function Contact() {
     e.preventDefault();
     setStatus('submitting');
 
-    // Save to localStorage
+    // Save to localStorage (Backup)
     const submission = {
       id: Date.now(),
       type: activeTab, // 'message' or 'schedule'
@@ -42,12 +43,10 @@ export default function Contact() {
     };
 
     if (activeTab === 'schedule') {
-      // Save to meetings
       const existingMeetings = JSON.parse(localStorage.getItem('vgtw_meetings') || '[]');
       existingMeetings.unshift(submission);
       localStorage.setItem('vgtw_meetings', JSON.stringify(existingMeetings));
     } else {
-      // Save to contacts
       const existingContacts = JSON.parse(localStorage.getItem('vgtw_contacts') || '[]');
       existingContacts.unshift(submission);
       localStorage.setItem('vgtw_contacts', JSON.stringify(existingContacts));
@@ -55,9 +54,30 @@ export default function Contact() {
 
     window.dispatchEvent(new Event('storage'));
 
-    setTimeout(() => {
+    // EmailJS Integration
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+    // Prepare template parameters
+    const templateParams = {
+      from_name: formData.name,
+      from_email: formData.email,
+      phone: formData.phone,
+      subject: activeTab === 'schedule' ? 'New Consultation Request' : (formData.subject || 'New Contact Request'),
+      service_type: formData.service,
+      message: formData.message,
+      type: activeTab === 'schedule' ? 'Consultation Schedule' : 'General Inquiry',
+      date: formData.date || 'N/A',
+      time: formData.time || 'N/A',
+      page_source: 'Contact Page'
+    };
+
+    try {
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+
       setStatus('success');
-      // Reset form after 3 seconds
+      // Reset form
       setTimeout(() => {
         setFormData({
           name: '',
@@ -70,7 +90,15 @@ export default function Contact() {
           time: ''
         });
       }, 3000);
-    }, 2000);
+    } catch (error) {
+      console.error('EmailJS Error:', error);
+      // Fallback to success if localStorage worked but EmailJS failed, 
+      // or set error status if strict. For better UX, we might still show success 
+      // but log the error, or show a specific error message.
+      // Here, keeping the UI simple:
+      setStatus('error');
+      alert("There was an error sending your message. Please try again later.");
+    }
   };
 
   return (

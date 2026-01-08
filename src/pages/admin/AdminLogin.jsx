@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { FaShieldAlt, FaLock, FaUser, FaArrowRight, FaFingerprint, FaCheckCircle, FaExclamationTriangle, FaTerminal, FaCircle } from 'react-icons/fa';
 import logo from '../../assets/vglogo.jpg';
@@ -7,8 +8,13 @@ import logo from '../../assets/vglogo.jpg';
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [state, setState] = useState('idle'); // idle, authenticating, success, error
+  const [otp, setOtp] = useState('');
+  const [generatedOtp, setGeneratedOtp] = useState(null);
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [state, setState] = useState('idle'); // idle, authenticating, otp_sent, success, error, otp_error
   const navigate = useNavigate();
+  const formRef = useRef();
 
   // Mouse Parallax Logic
   const mouseX = useMotionValue(0);
@@ -26,40 +32,119 @@ const AdminLogin = () => {
     mouseY.set(y);
   };
 
-  const handleLogin = (e) => {
+  const sendOtpEmail = async (user, code) => {
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+    const otpDestination = user.actualEmail || 'connectvertexglobal2209@gmail.com'; // Fallback for safety
+
+    // Use a generic template param structure, reusing the contact form one or a new one
+    // Assuming re-using the one from Contact or a generic one.
+    // We will send the code as the 'message' or a specific 'otp_code' variable if the template supports it.
+    // Ideally, the user should set up a template that uses {{otp_code}} or {{message}}.
+    // We'll use both to be safe.
+
+    const templateParams = {
+      from_name: "Vertex Security Node",
+      to_name: user.name,
+      to_email: otpDestination, // IMPORTANT: EmailJS needs to be configured to send to this dynamic email, or use the auto-reply feature. 
+      // If the free tier only sends to the verified email (User's email), then this might be limited.
+      // However, for the ADMIN receiving it (connectvertexglobal2209@gmail.com), it works if that's the owner email.
+      // For other users, they might not receive it on free tier unless they are verified. 
+      // Assuming paid tier or verified test emails for now, OR valid configuration.
+
+      subject: "VGT Admin Access Verification Code",
+      message: `Your Authentication Code is: ${code}`,
+      otp_code: code, // Add this to template
+      type: "Security Verification",
+      reply_to: "no-reply@vgt.tech"
+    };
+
+    try {
+      // If the user wants to send TO the actual email, they need to map 'to_email' in the EmailJS dashboard 
+      // to the "To Email" field in the email service settings, OR use the auto-reply to send to the visitor trait.
+      // Standard send() sends TO the owner (connectvertexglobal2209). 
+      // To send TO the user (e.g. team member), it usually requires a transactional email service connected to EmailJS (like SendGrid) OR using the "Auto-Reply" checkbox in EmailJS template.
+      // For this specific request: "send otp on provided email of actual".
+
+      // We'll assume the template is set up to send to {{from_email}} or {{to_email}}.
+      // Let's pass the destination as from_email too just in case it's set up that way for auto-response.
+      templateParams.from_email = otpDestination;
+
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      return true;
+    } catch (error) {
+      console.error("OTP Send Error", error);
+      return false;
+    }
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
+    if (showOtpInput) {
+      handleVerifyOtp(e);
+      return;
+    }
+
     setState('authenticating');
 
-    setTimeout(() => {
-      // 1. Check if it's the Master Admin
-      if (email === 'admin@vgt.tech' && password === 'admin123') {
-        const masterSession = {
-          id: 1,
-          name: 'Admin Root',
-          role: 'Super Admin',
-          email: 'admin@vgt.tech',
-          isMaster: true,
-          clearance: 'L5'
-        };
-        localStorage.setItem('vgtw_admin_session', JSON.stringify(masterSession));
-        setState('success');
-        setTimeout(() => navigate('/admin/dashboard'), 1500);
-        return;
+    setTimeout(async () => {
+      // Normalize email: Append @vgt.tech if not present
+      let inputEmail = email.toLowerCase().trim();
+      if (!inputEmail.includes('@')) {
+        inputEmail = `${inputEmail}@vgt.tech`;
       }
 
-      // 2. Check if it's a Provisioned User
+      // 1. Retrieve Users
       const storedUsers = JSON.parse(localStorage.getItem('vgtw_users') || '[]');
-      const user = storedUsers.find(u => u.email === email);
 
-      if (user && password === 'admin123') { // Using same mock password for all for now
-        localStorage.setItem('vgtw_admin_session', JSON.stringify({ ...user, isMaster: false }));
-        setState('success');
-        setTimeout(() => navigate('/admin/dashboard'), 1500);
+      // 2. Find User
+      const user = storedUsers.find(u => u.email.toLowerCase() === inputEmail);
+
+      // 3. Validation
+      if (user && (user.password === password || (user.email === 'admin@vgt.tech' && password === 'admin123'))) {
+        // Allow legacy admin123 for master if not changed, but prefer user.password
+
+        // Generate OTP
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        setGeneratedOtp(code);
+        setCurrentUser(user);
+
+        // Send OTP
+        const emailSent = await sendOtpEmail(user, code);
+
+        if (emailSent) {
+          setState('otp_sent');
+          setShowOtpInput(true);
+        } else {
+          // Fallback for demo/error if email fails (or allow bypass in dev if needed, currently showing error)
+          setState('error');
+          setTimeout(() => setState('idle'), 2000);
+          alert("Could not send OTP. Check console or EmailJS quota.");
+        }
+
       } else {
         setState('error');
         setTimeout(() => setState('idle'), 2000);
       }
-    }, 2500);
+    }, 1500);
+  };
+
+  const handleVerifyOtp = (e) => {
+    e.preventDefault();
+    setState('authenticating');
+
+    setTimeout(() => {
+      if (otp === generatedOtp) {
+        localStorage.setItem('vgtw_admin_session', JSON.stringify({ ...currentUser, isMaster: currentUser.role === 'Super Admin' }));
+        setState('success');
+        setTimeout(() => navigate('/admin/dashboard'), 1500);
+      } else {
+        setState('error');  // Use error state for visual shake
+        setTimeout(() => setState('otp_sent'), 2000); // Return to OTP input state
+      }
+    }, 1000);
   };
 
   return (
@@ -154,48 +239,88 @@ const AdminLogin = () => {
 
               {/* Access Identity */}
               <div className="space-y-4">
-                <div className="flex justify-between items-center px-1">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                    <FaTerminal className="text-blue-500 text-xs" /> Access Identity
-                  </label>
-                  <span className="text-[9px] font-bold text-blue-500/30 uppercase tracking-tighter">Auth Node 01</span>
-                </div>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-7 flex items-center pointer-events-none">
-                    <FaUser className="text-gray-600 group-focus-within:text-blue-500 transition-colors" />
+                {showOtpInput ? (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center px-1">
+                      <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2">
+                        <FaShieldAlt className="text-emerald-500 text-xs" /> OTP Verification
+                      </label>
+                      <span className="text-[9px] font-bold text-emerald-500/30 uppercase tracking-tighter">Code Sent to {currentUser?.actualEmail?.replace(/(.{2})(.*)(?=@)/,
+                        (gp1, gp2, gp3) => {
+                          for (let i = 0; i < gp3.length; i++) {
+                            gp2 += "*";
+                          } return gp2;
+                        }
+                      )}</span>
+                    </div>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-7 flex items-center pointer-events-none">
+                        <FaLock className="text-emerald-600 group-focus-within:text-emerald-500 transition-colors" />
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        placeholder="XXXXXX"
+                        className="w-full bg-emerald-950/20 border border-emerald-500/20 rounded-2xl py-6 pl-16 pr-6 text-emerald-400 text-2xl font-black placeholder:text-emerald-900/50 transition-all focus:outline-none focus:border-emerald-500/50 focus:bg-emerald-900/30 text-center tracking-[0.5em]"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="text-center">
+                      <button type="button" onClick={() => setShowOtpInput(false)} className="text-[9px] text-gray-500 hover:text-white uppercase tracking-widest underline decoration-dashed underline-offset-4">Resend / Change Identity</button>
+                    </div>
                   </div>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@vgt.tech"
-                    className="w-full bg-black/40 border border-white/10 rounded-2xl py-6 pl-16 pr-6 text-white text-sm font-bold placeholder:text-gray-800 transition-all focus:outline-none focus:border-blue-500/40 focus:bg-black/60 focus:ring-[6px] focus:ring-blue-500/5 shadow-inner"
-                  />
-                </div>
-              </div>
+                ) : (
+                  <>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center px-1">
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                          <FaTerminal className="text-blue-500 text-xs" /> Access Identity
+                        </label>
+                        <span className="text-[9px] font-bold text-blue-500/30 uppercase tracking-tighter">Auth Node 01</span>
+                      </div>
+                      <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-7 flex items-center pointer-events-none">
+                          <FaUser className="text-gray-600 group-focus-within:text-blue-500 transition-colors" />
+                        </div>
+                        <input
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="username"
+                          className="w-full bg-black/40 border border-white/10 rounded-2xl py-6 pl-16 pr-24 text-white text-sm font-bold placeholder:text-gray-800 transition-all focus:outline-none focus:border-blue-500/40 focus:bg-black/60 focus:ring-[6px] focus:ring-blue-500/5 shadow-inner"
+                        />
+                        <div className="absolute top-1/2 right-6 -translate-y-1/2 text-gray-500 text-xs font-black select-none pointer-events-none">
+                          @vgt.tech
+                        </div>
+                      </div>
+                    </div>
 
-              {/* Security Key */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-center px-1">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                    <FaLock className="text-blue-500 text-xs" /> Security Key
-                  </label>
-                  <span className="text-[9px] font-bold text-blue-500/30 uppercase tracking-tighter">Level-5 Clearance</span>
-                </div>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-7 flex items-center pointer-events-none">
-                    <FaShieldAlt className="text-gray-600 group-focus-within:text-blue-500 transition-colors" />
-                  </div>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••"
-                    className="w-full bg-black/40 border border-white/10 rounded-2xl py-6 pl-16 pr-6 text-white text-sm font-bold placeholder:text-gray-800 transition-all focus:outline-none focus:border-blue-500/40 focus:bg-black/60 focus:ring-[6px] focus:ring-blue-500/5 shadow-inner"
-                  />
-                </div>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center px-1">
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                          <FaLock className="text-blue-500 text-xs" /> Security Key
+                        </label>
+                        <span className="text-[9px] font-bold text-blue-500/30 uppercase tracking-tighter">Level-5 Clearance</span>
+                      </div>
+                      <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-7 flex items-center pointer-events-none">
+                          <FaShieldAlt className="text-gray-600 group-focus-within:text-blue-500 transition-colors" />
+                        </div>
+                        <input
+                          type="password"
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••••••"
+                          className="w-full bg-black/40 border border-white/10 rounded-2xl py-6 pl-16 pr-6 text-white text-sm font-bold placeholder:text-gray-800 transition-all focus:outline-none focus:border-blue-500/40 focus:bg-black/60 focus:ring-[6px] focus:ring-blue-500/5 shadow-inner"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Submit Button */}
@@ -209,9 +334,14 @@ const AdminLogin = () => {
                         'bg-white text-black hover:bg-blue-600 hover:text-white hover:shadow-blue-500/30 active:scale-95'}`}
                 >
                   <AnimatePresence mode="wait">
-                    {state === 'idle' && (
+                    {!showOtpInput && state === 'idle' && (
                       <motion.div key="idle" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-4">
-                        <FaFingerprint className="text-xl" /> Authorize Uplink
+                        <FaFingerprint className="text-xl" /> Initiate Sequence
+                      </motion.div>
+                    )}
+                    {showOtpInput && state === 'otp_sent' && (
+                      <motion.div key="otp" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-4">
+                        <FaLock className="text-xl" /> Verify OTP
                       </motion.div>
                     )}
                     {state === 'authenticating' && (
