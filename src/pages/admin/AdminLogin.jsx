@@ -33,9 +33,10 @@ const AdminLogin = () => {
   };
 
   const sendOtpEmail = async (user, code) => {
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    // Identity Service (OTP & Contact)
+    const serviceId = import.meta.env.VITE_EMAILJS_IDENTITY_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_IDENTITY_TEMPLATE_OTP;
+    const publicKey = import.meta.env.VITE_EMAILJS_IDENTITY_PUBLIC_KEY;
 
     const otpDestination = user.actualEmail || 'connectvertexglobal2209@gmail.com'; // Fallback for safety
 

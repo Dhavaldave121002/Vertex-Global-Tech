@@ -69,10 +69,10 @@ export default function Referral() {
     const code = `VTX-${formData.name.substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`
 
     // EmailJS Configuration
-    // REPLACE THESE WITH YOUR ACTUAL EMAILJS CREDENTIALS
-    const SERVICE_ID = 'service_YOUR_SERVICE_ID'; // e.g. service_xyz
-    const TEMPLATE_ID = 'template_YOUR_TEMPLATE_ID'; // e.g. template_abc
-    const PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; // e.g. user_123456
+    // EmailJS Configuration (Marketing Service)
+    const SERVICE_ID = import.meta.env.VITE_EMAILJS_MARKETING_SERVICE_ID;
+    const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_MARKETING_TEMPLATE_REFERRAL;
+    const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_MARKETING_PUBLIC_KEY;
 
     const templateParams = {
       to_name: formData.name,

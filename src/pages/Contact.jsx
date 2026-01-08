@@ -55,9 +55,10 @@ export default function Contact() {
     window.dispatchEvent(new Event('storage'));
 
     // EmailJS Integration
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    // EmailJS Integration (Identity Service)
+    const serviceId = import.meta.env.VITE_EMAILJS_IDENTITY_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_IDENTITY_TEMPLATE_CONTACT;
+    const publicKey = import.meta.env.VITE_EMAILJS_IDENTITY_PUBLIC_KEY;
 
     // Prepare template parameters
     const templateParams = {
