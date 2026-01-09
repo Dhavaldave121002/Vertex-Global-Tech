@@ -31,6 +31,21 @@ export default function Contact() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\+?[0-9\s-]{10,}$/; // Basic international friendly check
+
+    if (!emailRegex.test(formData.email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    if (formData.phone && !phoneRegex.test(formData.phone)) {
+      alert("Please enter a valid phone number (at least 10 digits).");
+      return;
+    }
+
     setStatus('submitting');
 
     // Save to localStorage (Backup)
@@ -62,10 +77,21 @@ export default function Contact() {
 
     // Prepare template parameters
     const templateParams = {
+      to_name: "Admin",
+      to_email: "connectvertexglobal2209@gmail.com",
+
+      // Standard Fields
       from_name: formData.name,
+      name: formData.name, // Alias for default template
+
       from_email: formData.email,
+      email: formData.email, // Alias for default template
+
       phone: formData.phone,
+
       subject: activeTab === 'schedule' ? 'New Consultation Request' : (formData.subject || 'New Contact Request'),
+      title: activeTab === 'schedule' ? 'New Consultation Request' : (formData.subject || 'New Contact Request'), // Alias for default template
+
       service_type: formData.service,
       message: formData.message,
       type: activeTab === 'schedule' ? 'Consultation Schedule' : 'General Inquiry',
@@ -73,6 +99,8 @@ export default function Contact() {
       time: formData.time || 'N/A',
       page_source: 'Contact Page'
     };
+
+    console.log("Params:", templateParams);
 
     try {
       await emailjs.send(serviceId, templateId, templateParams, publicKey);

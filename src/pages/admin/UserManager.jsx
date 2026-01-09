@@ -61,6 +61,17 @@ const UserManager = () => {
     e.preventDefault();
     if (!newUser.name || !newUser.actualEmail || !newUser.password) return;
 
+    // Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newUser.actualEmail)) {
+      alert("Please enter a valid email address for OTP delivery.");
+      return;
+    }
+    if (newUser.password.length < 5) {
+      alert("Password must be at least 5 characters.");
+      return;
+    }
+
     let updated;
     if (isEditing && editingId) {
       // Update existing

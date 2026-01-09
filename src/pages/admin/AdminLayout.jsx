@@ -61,7 +61,7 @@ const AdminLayout = () => {
   // 3. Filter Sidebar Links (Restrict Accounting, Marketing & Team Access)
   const filteredLinks = sidebarLinks.filter(link => {
     if (!isMaster) {
-      if (link?.path?.includes('accounting') || link?.path?.includes('marketing') || link?.path?.includes('users')) {
+      if (link?.path?.includes('accounting') || link?.path?.includes('marketing') || link?.path?.includes('users') || link?.path?.includes('pricing')) {
         return false;
       }
     }

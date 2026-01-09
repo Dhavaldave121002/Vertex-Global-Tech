@@ -60,13 +60,27 @@ export default function Referral() {
   }, [])
 
   // Handlers
+  const isGeneratingRef = React.useRef(false);
+
   const handleGenerateCode = (e) => {
     e.preventDefault()
     if (!formData.name || !formData.email) return
+
+    // Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    if (codeLoading || isGeneratingRef.current) return; // Prevent double firing
+
+    isGeneratingRef.current = true;
     setCodeLoading(true)
 
     // Generate unique code first
     const code = `VTX-${formData.name.substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`
+    console.log("Generating Referral Code:", code);
 
     // EmailJS Configuration
     // EmailJS Configuration (Marketing Service)
@@ -105,17 +119,29 @@ export default function Referral() {
 
         setGeneratedCode(code)
         setCodeLoading(false)
+        isGeneratingRef.current = false;
         setLead(prev => ({ ...prev, referralCode: code }))
 
       }, (err) => {
         console.log('FAILED...', err);
         alert('Failed to send email. Please check your internet connection or try again.');
         setCodeLoading(false);
+        isGeneratingRef.current = false;
       });
   }
 
   const handleLeadSubmit = (e) => {
     e.preventDefault()
+
+    // Optional Email Validation
+    if (lead.clientEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(lead.clientEmail)) {
+        alert("Please enter a valid client email address.");
+        return;
+      }
+    }
+
     setLeadSubmitting(true)
     // Simulate API
     setTimeout(() => {

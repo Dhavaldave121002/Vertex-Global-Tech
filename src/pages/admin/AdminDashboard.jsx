@@ -5,7 +5,7 @@ import {
   FaDollarSign, FaBolt, FaArrowRight, FaEllipsisV,
   FaDatabase, FaNetworkWired, FaShieldAlt, FaTerminal, FaCircle, FaStar, FaRoad, FaQuestionCircle,
   FaBriefcase, FaNewspaper, FaRocket, FaHandshake, FaMoneyBillWave, FaDownload, FaFilePdf, FaChartLine,
-  FaCalendarAlt, FaPhone, FaEnvelope, FaClock
+  FaCalendarAlt, FaPhone, FaEnvelope, FaClock, FaPaperPlane
 } from 'react-icons/fa';
 
 const StatCard = ({ stat, i }) => {
@@ -327,6 +327,7 @@ const AdminDashboard = () => {
       { label: 'Team Visionaries', value: calculateTotal('vgtw_team').toString(), icon: <FaUsers />, color: '#ec4899' },
       { label: 'Security Nodes', value: calculateTotal('vgtw_users').toString(), icon: <FaShieldAlt />, color: '#3b82f6' },
       { label: 'Content Streams', value: calculateTotal('vgtw_blog').toString(), icon: <FaNewspaper />, color: '#6366f1' },
+      { label: 'Newsletter Nodes', value: calculateTotal('vgtw_newsletter').toString(), icon: <FaPaperPlane />, color: '#10b981' },
       { label: 'Testimonials', value: calculateTotal('vgtw_testimonials').toString(), icon: <FaQuestionCircle />, color: '#8b5cf6' },
       { label: 'Open Protocols', value: calculateTotal('vgtw_jobs').toString(), icon: <FaRocket />, color: '#ef4444' },
     ]);
@@ -460,7 +461,7 @@ const AdminDashboard = () => {
 
       <PricingAnalytics />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
         {stats.map((stat, i) => <StatCard key={stat.label} stat={stat} i={i} />)}
       </div>
     </div>

@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEdit, FaTrash, FaPlus, FaCheck, FaTimes, FaSave, FaUndo, FaList, FaExchangeAlt, FaQuestionCircle, FaLayerGroup, FaEnvelope, FaUser, FaPhone, FaDollarSign, FaCalendarAlt } from 'react-icons/fa';
+
+// ... (skipping defaults for brevity if replacing whole block, but here I can target the top imports)
+// Wait, I should target specifically the top lines to add the import, and then the hook usage.
+
+// EDIT 1: Add Import
+// EDIT 2: Fix Hook usage.
+
+// Let's do a multi-replace or just rewrite the top section.
+// The file is huge, replacing the top lines is safer.
 
 // Default Data (Fallbacks)
 const DEFAULT_PLANS = [
@@ -69,6 +79,19 @@ const PricingManager = () => {
   const [comparisonData, setComparisonData] = useState([]);
   const [faqs, setFaqs] = useState([]);
   const [inquiries, setInquiries] = useState([]);
+  const navigate = useNavigate();
+
+  // Role Access Guard
+  useEffect(() => {
+    try {
+      const session = JSON.parse(localStorage.getItem('vgtw_admin_session') || 'null');
+      if (!session || !session.isMaster) {
+        navigate('/admin/dashboard');
+      }
+    } catch (e) {
+      navigate('/admin/dashboard');
+    }
+  }, [navigate]);
 
   // --- Helpers to get keys/defaults ---
   const getKeys = (type) => {

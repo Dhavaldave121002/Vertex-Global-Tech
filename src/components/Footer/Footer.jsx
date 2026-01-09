@@ -15,25 +15,19 @@ const Footer = () => {
     e.preventDefault();
     if (!email) return;
 
+    // Strict Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
     setStatus('loading');
 
     // EmailJS Configuration for Newsletter
-    // Service ID: Using the same one from env
-    // Template ID: User needs to create a NEW one "Newsletter Welcome" or reuse generic
-    // We will use a generic approach or assume they create one.
-
-    // Auto-Response Config:
-    // We want to send an email TO the user.
-    // So 'to_email' must be the user's email.
-
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID; // Ideally should be a different ID for Newsletter, but we can reuse if mapped correctly
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-    // We'll mimic the "Contact" flow but with type="Newsletter" so the template can handle it contextually
-    // OR ideally, user sets up a specific "Welcome" template.
-    // For now, we will send a payload that tries to force a welcome message if possible,
-    // or just acknowledges receipt.
+    const serviceId = import.meta.env.VITE_EMAILJS_MARKETING_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_MARKETING_TEMPLATE_NEWSLETTER;
+    const publicKey = import.meta.env.VITE_EMAILJS_MARKETING_PUBLIC_KEY;
 
     const templateParams = {
       to_email: email, // The subscriber
@@ -46,6 +40,23 @@ const Footer = () => {
 
     try {
       await emailjs.send(serviceId, templateId, templateParams, publicKey);
+
+      // Save to LocalStorage (Backup/Admin View)
+      const newSubscriber = {
+        id: Date.now(),
+        email: email,
+        subscribedAt: new Date().toISOString(),
+        status: 'Active'
+      };
+
+      const existingSubscribers = JSON.parse(localStorage.getItem('vgtw_newsletter') || '[]');
+      // Prevent duplicates
+      if (!existingSubscribers.some(s => s.email === email)) {
+        existingSubscribers.unshift(newSubscriber);
+        localStorage.setItem('vgtw_newsletter', JSON.stringify(existingSubscribers));
+        window.dispatchEvent(new Event('storage'));
+      }
+
       setStatus('success');
       setEmail('');
       setTimeout(() => setStatus('idle'), 5000); // Reset after 5s

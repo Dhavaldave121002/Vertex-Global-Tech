@@ -7,6 +7,7 @@ import emailjs from '@emailjs/browser';
 const MarketingManager = () => {
   const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
+  const [subscribers, setSubscribers] = useState([]);
   const [status, setStatus] = useState({ type: '', msg: '' });
   const navigate = useNavigate();
 
@@ -21,6 +22,15 @@ const MarketingManager = () => {
     } catch (e) {
       navigate('/admin/dashboard');
     }
+
+    // Load Subscribers
+    const loadSubs = () => {
+      const saved = JSON.parse(localStorage.getItem('vgtw_newsletter') || '[]');
+      setSubscribers(saved);
+    };
+    loadSubs();
+    window.addEventListener('storage', loadSubs);
+    return () => window.removeEventListener('storage', loadSubs);
   }, [navigate]);
 
   const handleDispatch = async (e) => {
@@ -163,6 +173,56 @@ const MarketingManager = () => {
             </AnimatePresence>
           </form>
         </motion.div>
+
+        {/* SUBSCRIBERS LIST SECTION */}
+        <div className="mt-12">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+            <h4 className="text-white font-black text-[10px] uppercase tracking-[0.4em]">Subscribed_Identities</h4>
+          </div>
+
+          <div className="bg-[#0f172a]/40 border border-white/5 rounded-[2rem] overflow-hidden">
+            {subscribers.length > 0 ? (
+              <div className="grid gap-px bg-white/5">
+                {subscribers.map((sub, idx) => (
+                  <div key={sub.id || idx} className="bg-[#0f172a] p-6 flex flex-col md:flex-row items-center justify-between gap-4 group hover:bg-[#1e293b] transition-colors">
+                    <div className="flex items-center gap-4 w-full md:w-auto">
+                      <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold text-xs uppercase">
+                        {sub.email.substring(0, 2)}
+                      </div>
+                      <div>
+                        <div className="text-white font-bold text-sm">{sub.email}</div>
+                        <div className="text-[9px] text-gray-500 font-black uppercase tracking-widest mt-1">
+                          Since {new Date(sub.subscribedAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-[8px] font-black text-emerald-500 uppercase tracking-widest">Active_Node</span>
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Terminate this subscription node?')) {
+                            const updated = subscribers.filter(s => s.id !== sub.id);
+                            localStorage.setItem('vgtw_newsletter', JSON.stringify(updated));
+                            setSubscribers(updated);
+                            window.dispatchEvent(new Event('storage'));
+                          }
+                        }}
+                        className="text-gray-600 hover:text-red-500 transition-colors p-2"
+                      >
+                        <span className="text-[8px] font-black uppercase tracking-widest">Terminate</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-10 text-center text-gray-500 text-xs font-black uppercase tracking-widest">
+                No active subscriptions detected in the grid.
+              </div>
+            )}
+          </div>
+        </div>
 
         <footer className="mt-12 text-center">
           <p className="text-gray-700 text-[8px] font-black uppercase tracking-[0.5em]">System_Integrity: VERIFIED_ENCRYPTION_LAYER</p>
