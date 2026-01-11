@@ -39,7 +39,7 @@ const StatCard = ({ stat, i }) => {
       style={{ rotateX, rotateY, scale, perspective: 1200 }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="bg-[#0f172a]/40 backdrop-blur-xl p-8 border border-white/5 group hover:border-blue-500/30 transition-all duration-500 relative overflow-hidden rounded-[2.5rem] flex flex-col justify-between h-full shadow-2xl"
+      className="bg-[#0f172a]/40 backdrop-blur-xl p-6 md:p-8 border border-white/5 group hover:border-blue-500/30 transition-all duration-500 relative overflow-hidden rounded-[2.5rem] flex flex-col justify-between h-full shadow-2xl"
     >
       <motion.div
         style={{ x: useTransform(x, [-100, 100], [-10, 10]), y: useTransform(y, [-100, 100], [-10, 10]) }}
@@ -69,7 +69,7 @@ const StatCard = ({ stat, i }) => {
 };
 
 const PricingAnalytics = () => {
-  const [pricingData, setPricingData] = useState({ website: [], application: [], uiux: [], odoo: [] });
+  const [pricingData, setPricingData] = useState({ website: [], application: [], uiux: [], odoo: [], social: [] });
   const [planStats, setPlanStats] = useState([]);
 
   useEffect(() => {
@@ -104,13 +104,19 @@ const PricingAnalytics = () => {
         { name: 'Business Pro', price: '$12,000', features: ['Custom', 'Inventory'], popular: true },
         { name: 'Infinite Suite', price: 'Custom', features: ['Infinite', 'Migration'], popular: false }
       ]);
+      const socialPlans = getStored('vgtw_social_pricing_plans', [
+        { name: 'Ignition', price: '$1,200', features: ['1 Platform', '3 Posts/Week'], popular: false },
+        { name: 'Growth', price: '$2,500', features: ['3 Platforms', '5 Posts/Week'], popular: true },
+        { name: 'Viral Corp', price: 'Custom', features: ['5+ Platforms', '24/7 Monitoring'], popular: false }
+      ]);
 
-      setPricingData({ website: websitePlans, application: appPlans, uiux: uiuxPlans, odoo: odooPlans });
+      setPricingData({ website: websitePlans, application: appPlans, uiux: uiuxPlans, odoo: odooPlans, social: socialPlans });
       const allPlans = [
         ...websitePlans.map(p => ({ ...p, type: 'Website' })),
         ...appPlans.map(p => ({ ...p, type: 'Application' })),
         ...uiuxPlans.map(p => ({ ...p, type: 'UI/UX' })),
-        ...odooPlans.map(p => ({ ...p, type: 'Odoo ERP' }))
+        ...odooPlans.map(p => ({ ...p, type: 'Odoo ERP' })),
+        ...socialPlans.map(p => ({ ...p, type: 'Social Media' }))
       ];
       setPlanStats(allPlans.map(plan => ({ name: plan.name, type: plan.type, price: plan.price, features: plan.features?.length || 0, popular: plan.popular || false })));
     };
@@ -123,7 +129,7 @@ const PricingAnalytics = () => {
 
   return (
     <div className="bg-[#0f172a]/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
-      <div className="p-10 border-b border-white/5 bg-white/[0.01] flex items-center justify-between">
+      <div className="p-6 md:p-10 border-b border-white/5 bg-white/[0.01] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 className="text-white font-black text-sm uppercase tracking-[0.3em] flex items-center gap-4">
             <FaDollarSign className="text-blue-500" />
@@ -135,29 +141,30 @@ const PricingAnalytics = () => {
             <span className="text-[8px] text-blue-500/50 font-black uppercase tracking-widest">Last_Transmission {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
           </div>
         </div>
-        <div className="px-5 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-[10px] font-black text-blue-500 uppercase tracking-widest">
+        <div className="w-fit px-5 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-[10px] font-black text-blue-500 uppercase tracking-widest">
           {totalPlans} Active_Protocols
         </div>
       </div>
 
-      <div className="p-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+      <div className="p-6 md:p-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6 mb-12">
           {[
             { label: 'Web Protocols', count: pricingData.website.length, color: 'blue', icon: <FaGlobe /> },
             { label: 'App Protocols', count: pricingData.application.length, color: 'purple', icon: <FaRocket /> },
             { label: 'UX Protocols', count: pricingData.uiux.length, color: 'emerald', icon: <FaStar /> },
-            { label: 'ERP Protocols', count: pricingData.odoo.length, color: 'orange', icon: <FaShieldAlt /> }
+            { label: 'ERP Protocols', count: pricingData.odoo.length, color: 'orange', icon: <FaShieldAlt /> },
+            { label: 'Social Protocols', count: (pricingData.social || []).length, color: 'pink', icon: <FaPaperPlane /> }
           ].map((cat, idx) => (
-            <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className={`bg-[#030712]/60 border border-white/5 rounded-[2rem] p-8 shadow-xl group hover:border-${cat.color}-500/30 transition-all`}>
+            <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className={`bg-[#030712]/60 border border-white/5 rounded-[2rem] p-6 shadow-xl group hover:border-${cat.label === 'Social Protocols' ? 'pink' : cat.color}-500/30 transition-all`}>
               <div className="flex items-center gap-4 mb-4">
-                <div className={`w-12 h-12 rounded-2xl bg-${cat.color}-500/10 flex items-center justify-center text-${cat.color}-500 border border-${cat.color}-500/10 group-hover:scale-110 transition-transform`}>{cat.icon}</div>
-                <span className={`text-[10px] font-black text-gray-500 group-hover:text-${cat.color}-500 uppercase tracking-widest transition-colors`}>{cat.label}</span>
+                <div className={`w-10 h-10 rounded-2xl bg-${cat.label === 'Social Protocols' ? 'pink' : cat.color}-500/10 flex items-center justify-center text-${cat.label === 'Social Protocols' ? 'pink' : cat.color}-500 border border-${cat.label === 'Social Protocols' ? 'pink' : cat.color}-500/10 group-hover:scale-110 transition-transform`}>{cat.icon}</div>
+                <span className={`text-[8px] font-black text-gray-500 group-hover:text-${cat.label === 'Social Protocols' ? 'pink' : cat.color}-500 uppercase tracking-widest transition-colors`}>{cat.label}</span>
               </div>
               <div className="flex items-end justify-between">
-                <div className="text-4xl font-black text-white tracking-tighter">{cat.count}</div>
+                <div className="text-3xl font-black text-white tracking-tighter">{cat.count}</div>
                 <div className="text-right">
-                  <div className={`text-2xl font-black text-${cat.color}-500`}>{totalPlans > 0 ? Math.round((cat.count / totalPlans) * 100) : 0}%</div>
-                  <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest">Protocol_Share</p>
+                  <div className={`text-xl font-black text-${cat.label === 'Social Protocols' ? 'pink' : cat.color}-500`}>{totalPlans > 0 ? Math.round((cat.count / totalPlans) * 100) : 0}%</div>
+                  <p className="text-[7px] text-gray-600 font-black uppercase tracking-widest">Global_Share</p>
                 </div>
               </div>
             </motion.div>
@@ -217,7 +224,7 @@ const UpcomingMeetings = () => {
 
   return (
     <div className="bg-[#0f172a]/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
-      <div className="p-10 border-b border-white/5 bg-white/[0.01] flex items-center justify-between">
+      <div className="p-6 md:p-10 border-b border-white/5 bg-white/[0.01] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 className="text-white font-black text-sm uppercase tracking-[0.3em] flex items-center gap-4">
             <FaCalendarAlt className="text-purple-500" />
@@ -225,11 +232,11 @@ const UpcomingMeetings = () => {
           </h3>
           <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-2 pl-8">Scheduled Synergy Protocol</p>
         </div>
-        <div className="px-5 py-2 bg-purple-500/10 border border-purple-500/20 rounded-xl text-[10px] font-black text-purple-500 uppercase tracking-widest">
+        <div className="w-fit px-5 py-2 bg-purple-500/10 border border-purple-500/20 rounded-xl text-[10px] font-black text-purple-500 uppercase tracking-widest">
           {meetings.length} Scheduled_Nodes
         </div>
       </div>
-      <div className="p-10 text-white">
+      <div className="p-6 md:p-10 text-white">
         {meetings.length > 0 ? (
           <div className="space-y-4">
             {meetings.map((meeting, idx) => (
@@ -245,7 +252,7 @@ const UpcomingMeetings = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-purple-500 font-black text-sm flex items-center justify-end gap-3 uppercase tracking-tighter mb-1"><FaClock className="animate-pulse" /> {formatMeetingTime(meeting.date, meeting.time)}</div>
+                  <div className="text-purple-500 font-black text-[10px] sm:text-sm flex items-center justify-end gap-2 sm:gap-3 uppercase tracking-tighter mb-1"><FaClock className="animate-pulse" /> {formatMeetingTime(meeting.date, meeting.time)}</div>
                   <span className="text-[8px] text-gray-700 font-black uppercase tracking-widest">{meeting.status}_State</span>
                 </div>
               </motion.div>
@@ -267,7 +274,7 @@ const GrowthChart = ({ financials }) => {
 
   return (
     <div className="bg-[#0f172a]/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
-      <div className="p-10 border-b border-white/5 bg-white/[0.01] flex items-center justify-between">
+      <div className="p-6 md:p-10 border-b border-white/5 bg-white/[0.01] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 className="text-white font-black text-sm uppercase tracking-[0.3em] flex items-center gap-4">
             <FaChartLine className="text-emerald-500" />
@@ -275,11 +282,11 @@ const GrowthChart = ({ financials }) => {
           </h3>
           <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-2 pl-8">Enterprise Momentum Analytics</p>
         </div>
-        <div className="flex items-center gap-3 px-5 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-[10px] font-black text-emerald-500 uppercase tracking-widest shadow-xl shadow-emerald-500/5">
+        <div className="w-fit flex items-center gap-3 px-5 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-[10px] font-black text-emerald-500 uppercase tracking-widest shadow-xl shadow-emerald-500/5">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> Upward_Shift
         </div>
       </div>
-      <div className="p-12 relative overflow-hidden h-[360px]">
+      <div className="p-6 md:p-12 relative overflow-hidden h-[300px] md:h-[360px]">
         <svg viewBox={`0 0 ${maxX} ${maxY}`} className="w-full h-full overflow-visible">
           <defs><linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10b981" stopOpacity="0.3" /><stop offset="100%" stopColor="#10b981" stopOpacity="0" /></linearGradient></defs>
           {[0, 1, 2, 3].map(i => <line key={i} x1="0" y1={i * (maxY / 3)} x2={maxX} y2={i * (maxY / 3)} stroke="rgba(255,255,255,0.03)" strokeDasharray="8 8" />)}
@@ -287,11 +294,11 @@ const GrowthChart = ({ financials }) => {
           <motion.path d={pathData} fill="none" stroke="#10b981" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2 }} style={{ filter: 'drop-shadow(0 0 20px rgba(16,185,129,0.4))' }} />
           {points.map((p, i) => <motion.circle key={i} cx={(i / (points.length - 1)) * maxX} cy={maxY - (p / 100) * maxY} r="4" fill="#fff" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.5 + (i * 0.1) }} />)}
         </svg>
-        <div className="absolute top-12 left-12">
-          <h4 className="text-5xl font-black text-white tracking-tighter mb-1">
+        <div className="absolute top-6 left-6 md:top-12 md:left-12">
+          <h4 className="text-3xl md:text-5xl font-black text-white tracking-tighter mb-1">
             {financials.income > 0 ? `+${Math.round((financials.profit / financials.income) * 100)}%` : '+0%'}
           </h4>
-          <p className="text-[10px] text-emerald-500 font-black uppercase tracking-[0.4em]">Yield_Margin_Node</p>
+          <p className="text-[8px] md:text-[10px] text-emerald-500 font-black uppercase tracking-[0.4em]">Yield_Margin_Node</p>
         </div>
       </div>
     </div>
@@ -307,14 +314,73 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+
+    // Global Cold Start Initialization
+    const INITIAL_DATA = {
+      vgtw_projects: [
+        { id: 1, title: 'Crypto Wallet v2', type: 'FinTech', img: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=300', logo: 'https://cdn-icons-png.flaticon.com/512/825/825540.png', liveUrl: '#' },
+        { id: 2, title: 'Nexus E-Commerce', type: 'SaaS', img: 'https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=300', logo: 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png', liveUrl: '#' }
+      ],
+      vgtw_leads: [
+        { id: 1, name: 'Jessica Miller', service: 'E-Commerce', date: 'Oct 24, 2023', status: 'New', priority: 'High', email: 'jessica@example.com' },
+        { id: 2, name: 'CloudScale Inc', service: 'Cloud App', date: 'Oct 23, 2023', status: 'In Review', priority: 'Medium', email: 'ops@cloudscale.io' }
+      ],
+      vgtw_applications: [
+        { id: 1, name: 'John Doe', role: 'Frontend Dev', jobTitle: 'Frontend Dev', status: 'New', submittedAt: new Date().toISOString() },
+        { id: 2, name: 'Sarah Connor', role: 'UI/UX Designer', jobTitle: 'UI/UX Designer', status: 'Reviewing', submittedAt: new Date().toISOString() }
+      ],
+      vgtw_referrals: [
+        { id: '1', name: 'Alex Rivera', email: 'alex@partners.com', code: 'ALEX-50', tier: 'Nexus', status: 'Active', referralCount: 12, totalEarnings: 12000 },
+        { id: '2', name: 'Bespoke Media', email: 'ads@bespoke.com', code: 'BSPK-10', tier: 'Bridge', status: 'Active', referralCount: 3, totalEarnings: 3000 }
+      ],
+      vgtw_brands: [
+        { id: '1', name: "TechNova", icon: "cpu", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
+        { id: '2', name: "FinStream", icon: "graph-up-arrow", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" }
+      ],
+      vgtw_contacts: [
+        { id: 1, name: 'Marcus Aurelius', email: 'marcus@empire.it', service: 'Maintenance', status: 'New', submittedAt: new Date().toISOString(), message: 'System audit required.' },
+        { id: 2, name: 'Elon T.', email: 'elon@x.com', service: 'Dynamic App', status: 'Contacted', submittedAt: new Date().toISOString(), message: 'Mars deployment sync.' }
+      ],
+      vgtw_team: Array(4).fill({ id: 0 }),
+      vgtw_users: [{ id: 1, name: 'System Auditor', role: 'Admin', clearance: 'L4' }],
+      vgtw_blog: Array(3).fill({ id: 0 }),
+      vgtw_newsletter: Array(12).fill({ id: 0 }),
+      vgtw_testimonials: Array(4).fill({ id: 0 }),
+      vgtw_jobs: [
+        { id: 'fe-dev', title: 'Frontend Developer (React)', type: 'Full-time' },
+        { id: 'uiux', title: 'UI/UX Designer', type: 'Part-time' }
+      ],
+      vgtw_service_informative: { features: Array(6).fill({ title: 'Node' }) },
+      vgtw_service_ecommerce: { features: Array(6).fill({ title: 'Node' }) },
+      vgtw_service_application: { features: Array(6).fill({ title: 'Node' }) },
+      vgtw_service_uiux: { features: Array(6).fill({ title: 'Node' }) },
+      vgtw_service_maintenance: { features: Array(6).fill({ title: 'Node' }) },
+      vgtw_service_dynamic: { features: Array(6).fill({ title: 'Node' }) },
+      vgtw_service_odoo: { features: Array(6).fill({ title: 'Node' }) },
+      vgtw_service_social: { features: Array(6).fill({ title: 'Node' }) }
+    };
+
+    Object.entries(INITIAL_DATA).forEach(([key, val]) => {
+      const existing = localStorage.getItem(key);
+      if (!existing || existing === '[]' || existing === '{}') {
+        localStorage.setItem(key, JSON.stringify(val));
+      }
+    });
+
+    calculateStats();
+    window.dispatchEvent(new Event('storage'));
     return () => clearInterval(timer);
   }, []);
 
   const calculateTotal = (key) => { const data = localStorage.getItem(key); return data ? JSON.parse(data).length : 0; };
   const calculateStats = () => {
-    const services = ['informative', 'ecommerce', 'application', 'uiux', 'maintenance', 'dynamic', 'odoo'];
+    const services = ['informative', 'ecommerce', 'application', 'uiux', 'maintenance', 'dynamic', 'odoo', 'social'];
     let totalFeatures = 0;
-    services.forEach(s => totalFeatures += JSON.parse(localStorage.getItem(`vgtw_service_${s}`) || '{}').features?.length || 0);
+    services.forEach(s => {
+      const saved = localStorage.getItem(`vgtw_service_${s}`);
+      if (saved) totalFeatures += JSON.parse(saved).features?.length || 0;
+    });
+
     setStats([
       { label: 'Active Services', value: services.length.toString(), icon: <FaGlobe />, color: '#3b82f6' },
       { label: 'Service Sectors', value: totalFeatures.toString(), icon: <FaStar />, color: '#10b981' },
@@ -396,68 +462,10 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
         <GrowthChart financials={financials} />
         <UpcomingMeetings />
       </div>
-
-      {/* Quick Outreach Node */}
-      {JSON.parse(localStorage.getItem('vgtw_admin_session') || '{}').isMaster && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-[#0f172a]/60 backdrop-blur-2xl border border-purple-500/20 p-10 rounded-[2.5rem] shadow-3xl relative overflow-hidden"
-        >
-          <div className="absolute -right-4 -bottom-4 opacity-5 pointer-events-none rotate-12">
-            <FaRocket size={150} className="text-purple-500" />
-          </div>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-            <div className="text-center md:text-left">
-              <div className="flex items-center gap-3 mb-3 justify-center md:justify-start">
-                <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse shadow-[0_0_10px_#a855f7]"></div>
-                <span className="text-purple-400 font-black text-[10px] uppercase tracking-[0.4em]">Propulsion_Node</span>
-              </div>
-              <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Quick Outreach</h3>
-              <p className="text-gray-500 text-[10px] font-medium uppercase tracking-[0.2em] mt-1">Deploy service briefings instantly</p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto md:min-w-[500px]">
-              <input
-                type="email"
-                placeholder="TARGET_CLIENT_IDENTITY"
-                className="flex-1 bg-black/40 border border-white/10 rounded-2xl py-5 px-8 text-white placeholder-gray-800 focus:border-purple-500 outline-none transition-all font-black text-[10px] uppercase tracking-widest"
-                id="quick-outreach-email"
-              />
-              <button
-                onClick={async () => {
-                  const emailInput = document.getElementById('quick-outreach-email');
-                  const val = emailInput.value;
-                  if (!val) return;
-                  const btn = document.getElementById('quick-outreach-btn');
-                  const originalText = btn.innerHTML;
-                  btn.innerHTML = 'SYNCING...';
-                  btn.disabled = true;
-                  try {
-                    const emailjs = (await import('@emailjs/browser')).default;
-                    await emailjs.send('YOUR_SERVICE_ID', 'YOUR_MARKETING_TEMPLATE_ID', { to_email: val, subject: 'Transforming Your Digital Vision | Vertex Global Tech' }, 'YOUR_PUBLIC_KEY');
-                    alert('DEPLOYMENT_SUCCESSFUL: PAYLOAD_DELIVERED');
-                    emailInput.value = '';
-                  } catch (e) {
-                    alert('SYSTEM_ERROR: PROTOCOL_ABORTED');
-                  } finally {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                  }
-                }}
-                id="quick-outreach-btn"
-                className="px-10 py-5 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-xl shadow-purple-900/20 active:scale-95 whitespace-nowrap"
-              >
-                Dispatch_Brief
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      )}
 
       <PricingAnalytics />
 

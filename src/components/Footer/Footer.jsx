@@ -145,9 +145,9 @@ const Footer = () => {
             </p>
 
             <div className="space-y-4 pt-2">
-              <div className="flex items-start gap-4 text-sm text-gray-400 group cursor-pointer hover:text-white transition-colors">
-                <div className="mt-1 min-w-[20px]"><FaMapMarkerAlt className="text-blue-500" /></div>
-                <span className="leading-snug">123 Innovation Drive, Tech Valley,<br />Silicon Corridor, CA  94025</span>
+              <div className="flex items-center gap-4 text-sm text-gray-400 group cursor-pointer hover:text-white transition-colors">
+                <div className="min-w-[20px]"><FaPhone className="text-blue-500" /></div>
+                <span>+91 98765 43210 / +91 98765 43211</span>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-400 group cursor-pointer hover:text-white transition-colors">
                 <div className="min-w-[20px]"><FaEnvelope className="text-blue-500" /></div>
@@ -179,11 +179,19 @@ const Footer = () => {
               <span className="w-1 h-4 bg-blue-500 rounded-full"></span> Services
             </h4>
             <ul className="space-y-4 text-sm text-gray-400 font-medium">
-              {['Web Applications', 'UI/UX Design', 'E-Commerce', 'Dynamic Websites', 'Odoo ERP', 'Social Media', 'Maintenance'].map((item, i) => (
+              {[
+                { name: 'Web Applications', path: '/services/application' },
+                { name: 'UI/UX Design', path: '/services/uiux' },
+                { name: 'E-Commerce', path: '/services/ecommerce' },
+                { name: 'Dynamic Websites', path: '/services/dynamic' },
+                { name: 'Odoo ERP', path: '/services/odoo' },
+                { name: 'Social Media', path: '/services/social-media' },
+                { name: 'Maintenance', path: '/services/maintenance' }
+              ].map((item, i) => (
                 <li key={i}>
-                  <Link to={item === 'Social Media' ? '/services/social-media' : '#'} className="hover:text-white hover:translate-x-2 inline-flex items-center gap-2 transition-all duration-300 group">
+                  <Link to={item.path} className="hover:text-white hover:translate-x-2 inline-flex items-center gap-2 transition-all duration-300 group">
                     <span className="w-0 overflow-hidden group-hover:w-2 transition-all duration-300 h-[1px] bg-blue-500"></span>
-                    {item}
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -196,11 +204,18 @@ const Footer = () => {
               <span className="w-1 h-4 bg-purple-500 rounded-full"></span> Company
             </h4>
             <ul className="space-y-4 text-sm text-gray-400 font-medium">
-              {['About Us', 'Our Team', 'Portfolio', 'Careers', 'Blog & News', 'Contact'].map((item, i) => (
+              {[
+                { name: 'About Us', path: '/about' },
+                { name: 'Our Team', path: '/about' },
+                { name: 'Portfolio', path: '/portfolio' },
+                { name: 'Careers', path: '/career' },
+                { name: 'Blog & News', path: '/blog' },
+                { name: 'Contact', path: '/contact' }
+              ].map((item, i) => (
                 <li key={i}>
-                  <Link to="#" className="hover:text-white hover:translate-x-2 inline-flex items-center gap-2 transition-all duration-300 group">
+                  <Link to={item.path} className="hover:text-white hover:translate-x-2 inline-flex items-center gap-2 transition-all duration-300 group">
                     <span className="w-0 overflow-hidden group-hover:w-2 transition-all duration-300 h-[1px] bg-purple-500"></span>
-                    {item}
+                    {item.name}
                   </Link>
                 </li>
               ))}

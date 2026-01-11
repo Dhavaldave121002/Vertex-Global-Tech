@@ -196,9 +196,9 @@ export default function Contact() {
 
                     <div className="space-y-8">
                       {[
-                        { icon: FaMapMarkerAlt, title: "Our HQ", desc: <>123 Innovation Drive,<br />Silicon Valley, CA 94025</>, color: "blue", link: "#" },
-                        { icon: FaEnvelope, title: "Email Us", desc: <>info@vertexglobal.tech<br />support@vertexglobal.tech</>, color: "purple", link: "mailto:info@vertexglobal.tech" },
-                        { icon: FaPhoneAlt, title: "Call Us", desc: <>+1 (888) 123-4567<br /><span className="text-gray-500 text-[10px] uppercase tracking-wider font-black">Mon-Fri 9am-6pm PST</span></>, color: "cyan", link: "tel:+18881234567" }
+                        { icon: FaPhoneAlt, title: "Sales Enquiry", desc: <>+91 98765 43210<br /><span className="text-gray-500 text-[10px] uppercase tracking-wider font-black">Mon-Fri 9am-6pm</span></>, color: "blue", link: "tel:+919876543210" },
+                        { icon: FaEnvelope, title: "Email Us", desc: <>hello@vgt.tech<br />support@vgt.tech</>, color: "purple", link: "mailto:hello@vgt.tech" },
+                        { icon: FaPhoneAlt, title: "Technical Support", desc: <>+91 98765 43211<br /><span className="text-gray-500 text-[10px] uppercase tracking-wider font-black">24/7 Digital Hub</span></>, color: "cyan", link: "tel:+919876543211" }
                       ].map((item, index) => (
                         <motion.div
                           key={index}
