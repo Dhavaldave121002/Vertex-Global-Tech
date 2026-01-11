@@ -11,10 +11,15 @@ export default function Privacy() {
   const [data, setData] = useState({ sections: DEFAULT_SECTIONS, lastUpdated: 'December 28, 2025' });
 
   useEffect(() => {
-    const saved = localStorage.getItem('vgtw_legal_privacy');
-    if (saved) {
-      setData(JSON.parse(saved));
-    }
+    const loadPrivacy = () => {
+      const saved = localStorage.getItem('vgtw_legal_privacy');
+      if (saved) {
+        setData(JSON.parse(saved));
+      }
+    };
+    loadPrivacy();
+    window.addEventListener('storage', loadPrivacy);
+    return () => window.removeEventListener('storage', loadPrivacy);
   }, []);
 
   return (

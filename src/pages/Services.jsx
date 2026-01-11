@@ -40,50 +40,78 @@ const ServiceCard = ({ icon: Icon, title, description, delay, features }) => (
 );
 
 export default function Services() {
-  const services = [
+  const [services, setServices] = React.useState([
     {
       icon: FaGlobe,
       title: "Informative Website",
       description: "Establish a powerful online presence with high-performance, SEO-optimized business websites.",
       features: ["Responsive Design", "SEO Optimized", "Content Strategy", "Fast Loading"],
-      delay: 0.1
+      delay: 0.1,
+      slug: 'informative'
     },
     {
       icon: FaCogs,
       title: "Dynamic Website",
       description: "Scale your operations with CMS-driven portals and feature-rich interactive web platforms.",
       features: ["Custom Dashboards", "User Auth", "Real-time Data", "Scalable Architecture"],
-      delay: 0.2
+      delay: 0.2,
+      slug: 'dynamic'
     },
     {
       icon: FaShoppingCart,
       title: "E-Commerce Solution",
       description: "Drive sales with secure, high-converting online stores tailored to your business needs.",
       features: ["Payment Integration", "Inventory Management", "Secure Checkout", "Analytics"],
-      delay: 0.3
+      delay: 0.3,
+      slug: 'ecommerce'
     },
     {
       icon: FaMobileAlt,
       title: "Application Development",
       description: "Reach your users anywhere with native and cross-platform mobile app solutions.",
       features: ["iOS & Android", "Cloud Sync", "Push Notifications", "App Store Support"],
-      delay: 0.4
+      delay: 0.4,
+      slug: 'application'
     },
     {
       icon: FaPalette,
       title: "UI/UX Design",
       description: "Crafting beautiful, intuitive interfaces that prioritize user experience and brand identity.",
       features: ["User Research", "Wireframing", "Prototyping", "Design Systems"],
-      delay: 0.5
+      delay: 0.5,
+      slug: 'ui-ux'
     },
     {
       icon: FaTools,
       title: "Maintenance",
       description: "Ensure your systems remain secure, up-to-date, and peak-performing with our care plans.",
       features: ["Security Patches", "Performance Tuning", "Regular Backups", "Technical Support"],
-      delay: 0.6
+      delay: 0.6,
+      slug: 'maintenance'
     }
-  ];
+  ]);
+
+  React.useEffect(() => {
+    const loadServices = () => {
+      setServices(prev => prev.map(service => {
+        const saved = localStorage.getItem(`vgtw_service_${service.slug}`);
+        if (saved) {
+          const data = JSON.parse(saved);
+          return {
+            ...service,
+            title: data.title || service.title,
+            description: data.subtitle || service.description,
+            features: data.features?.map(f => f.title) || service.features
+          };
+        }
+        return service;
+      }));
+    };
+
+    loadServices();
+    window.addEventListener('storage', loadServices);
+    return () => window.removeEventListener('storage', loadServices);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#030712] relative overflow-hidden">

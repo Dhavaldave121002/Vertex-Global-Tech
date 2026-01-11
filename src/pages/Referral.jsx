@@ -28,35 +28,41 @@ export default function Referral() {
   const [tiers, setTiers] = useState([])
 
   React.useEffect(() => {
-    const savedTiers = localStorage.getItem('vgtw_referral_tiers')
-    if (savedTiers) {
-      const parsed = JSON.parse(savedTiers)
+    const loadTiers = () => {
+      const savedTiers = localStorage.getItem('vgtw_referral_tiers')
+      if (savedTiers) {
+        const parsed = JSON.parse(savedTiers)
 
-      // Migration: Check if old percentage-based tiers exist and convert them
-      const needsMigration = parsed.some(t =>
-        (t.name === 'Starter' || t.name === 'Pro') &&
-        parseInt(t.commission) < 100
-      )
+        // Migration: Check if old percentage-based tiers exist and convert them
+        const needsMigration = parsed.some(t =>
+          (t.name === 'Starter' || t.name === 'Pro') &&
+          parseInt(t.commission) < 100
+        )
 
-      if (needsMigration) {
-        // Replace old tiers with new flat-rate tiers
-        const migratedTiers = [
+        if (needsMigration) {
+          // Replace old tiers with new flat-rate tiers
+          const migratedTiers = [
+            { name: 'Bridge', commission: '1000', description: 'Standard entry level partner status.', color: 'blue' },
+            { name: 'Nexus', commission: '1500', description: 'Elite partner status after 3 successful referrals.', color: 'purple' }
+          ]
+          setTiers(migratedTiers)
+          localStorage.setItem('vgtw_referral_tiers', JSON.stringify(migratedTiers))
+        } else {
+          setTiers(parsed)
+        }
+      } else {
+        const defaultTiers = [
           { name: 'Bridge', commission: '1000', description: 'Standard entry level partner status.', color: 'blue' },
           { name: 'Nexus', commission: '1500', description: 'Elite partner status after 3 successful referrals.', color: 'purple' }
         ]
-        setTiers(migratedTiers)
-        localStorage.setItem('vgtw_referral_tiers', JSON.stringify(migratedTiers))
-      } else {
-        setTiers(parsed)
+        setTiers(defaultTiers)
+        localStorage.setItem('vgtw_referral_tiers', JSON.stringify(defaultTiers))
       }
-    } else {
-      const defaultTiers = [
-        { name: 'Bridge', commission: '1000', description: 'Standard entry level partner status.', color: 'blue' },
-        { name: 'Nexus', commission: '1500', description: 'Elite partner status after 3 successful referrals.', color: 'purple' }
-      ]
-      setTiers(defaultTiers)
-      localStorage.setItem('vgtw_referral_tiers', JSON.stringify(defaultTiers))
-    }
+    };
+
+    loadTiers();
+    window.addEventListener('storage', loadTiers);
+    return () => window.removeEventListener('storage', loadTiers);
   }, [])
 
   // Handlers

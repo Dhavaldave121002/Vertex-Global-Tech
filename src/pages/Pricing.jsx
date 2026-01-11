@@ -57,11 +57,11 @@ const PricingCard = ({ title, price, icon: Icon, features, delay, recommended, t
 );
 
 export default function Pricing() {
-  const plans = [
+  const [plans, setPlans] = useState([
     {
       title: "Website Basic",
       tag: "Startup Essential",
-      price: "₹15,000",
+      price: "15,000",
       icon: FaRocket,
       features: [
         "Up to 5 Responsive Pages",
@@ -72,12 +72,13 @@ export default function Pricing() {
         "SSL Certificate Support"
       ],
       delay: 0.1,
-      recommended: false
+      recommended: false,
+      key: 'vgtw_pricing_plans'
     },
     {
       title: "Application Pro",
       tag: "Growth Focused",
-      price: "₹45,000",
+      price: "45,000",
       icon: FaCrown,
       features: [
         "Android / iOS Solutions",
@@ -88,12 +89,13 @@ export default function Pricing() {
         "3 Months Premium Support"
       ],
       delay: 0.2,
-      recommended: true
+      recommended: true,
+      key: 'vgtw_app_pricing_plans'
     },
     {
       title: "Enterprise Suite",
       tag: "Scale Ready",
-      price: "₹95,000",
+      price: "95,000",
       icon: FaBuilding,
       features: [
         "Full-Stack Web & Mobile",
@@ -104,9 +106,38 @@ export default function Pricing() {
         "Lifetime Critical Support"
       ],
       delay: 0.3,
-      recommended: false
+      recommended: false,
+      key: 'vgtw_odoo_pricing_plans' // Or a dedicated enterprise key if exists
     }
-  ];
+  ]);
+
+  useEffect(() => {
+    const loadPlans = () => {
+      setPlans(prev => prev.map(plan => {
+        const saved = localStorage.getItem(plan.key);
+        if (saved) {
+          const data = JSON.parse(saved);
+          // PricingManager stores plans as an array. We pick the most relevant one or map carefully.
+          // For simplicity in the overview, we'll try to match by name or just take the first few.
+          const matchingPlan = data.find(p => p.name.toLowerCase().includes(plan.title.split(' ')[0].toLowerCase()));
+          if (matchingPlan) {
+            return {
+              ...plan,
+              title: matchingPlan.name,
+              price: matchingPlan.price,
+              features: matchingPlan.features || plan.features,
+              recommended: matchingPlan.isPopular || plan.recommended
+            };
+          }
+        }
+        return plan;
+      }));
+    };
+
+    loadPlans();
+    window.addEventListener('storage', loadPlans);
+    return () => window.removeEventListener('storage', loadPlans);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#030712] relative overflow-hidden">
