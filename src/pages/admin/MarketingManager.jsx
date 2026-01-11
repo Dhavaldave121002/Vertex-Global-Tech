@@ -41,16 +41,19 @@ const MarketingManager = () => {
     setStatus({ type: '', msg: '' });
 
     try {
-      // Replace with actual EmailJS credentials
-      const SERVICE_ID = 'YOUR_SERVICE_ID';
-      const TEMPLATE_ID = 'YOUR_MARKETING_TEMPLATE_ID';
-      const PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+      // EmailJS Configuration (Same as Newsletter)
+      const SERVICE_ID = import.meta.env.VITE_EMAILJS_MARKETING_SERVICE_ID;
+      const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_MARKETING_TEMPLATE_NEWSLETTER;
+      const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_MARKETING_PUBLIC_KEY;
 
-      // Parameters for the template
+      // Parameters matching the Newsletter Template structure
       const templateParams = {
         to_email: email,
-        reply_to: 'contact@vgt.tech',
-        subject: 'Transforming Your Digital Vision | Vertex Global Tech',
+        from_name: "Vertex Global Tech Admin",
+        type: "Marketing Brief Dispatch",
+        message: "Here is the requested digital transformation roadmap and marketing brief.", // Dynamic message content
+        otp_code: "", // Empty as not needed
+        page_source: "Admin Marketing Node"
       };
 
       await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);

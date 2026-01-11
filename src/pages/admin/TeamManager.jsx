@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaTrash, FaEdit, FaUser, FaBriefcase, FaImage, FaCheck, FaTimes, FaQuoteLeft } from 'react-icons/fa';
 
@@ -13,8 +14,21 @@ const TeamManager = () => {
   const [team, setTeam] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentMember, setCurrentMember] = useState({ id: '', name: '', role: '', bio: '', image: '', linkedin: '', twitter: '', instagram: '', facebook: '' });
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // 1. Role-Based Access Guard
+    try {
+      const session = JSON.parse(localStorage.getItem('vgtw_admin_session') || 'null');
+      if (!session || !session.isMaster) {
+        navigate('/admin/dashboard');
+        return;
+      }
+    } catch (e) {
+      navigate('/admin/dashboard');
+      return;
+    }
+
     const saved = localStorage.getItem('vgtw_team');
     if (saved) setTeam(JSON.parse(saved));
     else { setTeam(DEFAULT_TEAM); localStorage.setItem('vgtw_team', JSON.stringify(DEFAULT_TEAM)); }

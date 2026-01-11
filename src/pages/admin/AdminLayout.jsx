@@ -27,6 +27,7 @@ const sidebarLinks = [
   { name: 'Services', path: '/admin/dashboard/services', icon: <FaLayerGroup /> },
   { name: 'Timeline History', path: '/admin/dashboard/timeline', icon: <FaHistory /> },
   { name: 'Marketing Node', path: '/admin/dashboard/marketing', icon: <FaPaperPlane /> },
+  { name: 'Legal Policies', path: '/admin/dashboard/legal', icon: <FaShieldAlt /> },
   { name: 'Contacts & Meetings', path: '/admin/dashboard/contacts', icon: <FaComments /> },
 ];
 
@@ -61,7 +62,7 @@ const AdminLayout = () => {
   // 3. Filter Sidebar Links (Restrict Accounting, Marketing & Team Access)
   const filteredLinks = sidebarLinks.filter(link => {
     if (!isMaster) {
-      if (link?.path?.includes('accounting') || link?.path?.includes('marketing') || link?.path?.includes('users') || link?.path?.includes('pricing')) {
+      if (link?.path?.includes('accounting') || link?.path?.includes('marketing') || link?.path?.includes('users') || link?.path?.includes('pricing') || link?.path?.includes('legal') || link?.path?.includes('team')) {
         return false;
       }
     }

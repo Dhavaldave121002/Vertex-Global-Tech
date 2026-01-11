@@ -91,8 +91,12 @@ const AdminLogin = () => {
     setState('authenticating');
 
     setTimeout(async () => {
-      // Normalize email: Append @vgt.tech if not present
       let inputEmail = email.toLowerCase().trim();
+
+      // Fix common typos in domain
+      if (inputEmail.endsWith('@vgt.ech')) inputEmail = inputEmail.replace('@vgt.ech', '@vgt.tech');
+      if (inputEmail.endsWith('@vgttech')) inputEmail = inputEmail.replace('@vgttech', '@vgt.tech');
+
       if (!inputEmail.includes('@')) {
         inputEmail = `${inputEmail}@vgt.tech`;
       }
@@ -104,20 +108,27 @@ const AdminLogin = () => {
       let user = storedUsers.find(u => u.email.toLowerCase() === inputEmail);
 
       // --- MASTER ADMIN BACKDOOR ---
-      // If Admin is not yet in the system (first run), allow them to login anyway.
-      if (!user && inputEmail === 'admin@vgt.tech') {
+      // Ensure master accounts work even if local storage is cleared
+      const isDhavalMaster = inputEmail === 'dhaval@vgt.tech';
+      const isAdminMaster = inputEmail === 'admin@vgt.tech';
+
+      if (!user && (isAdminMaster || isDhavalMaster)) {
         user = {
-          id: 'master-admin',
-          name: 'Master Command',
-          email: 'admin@vgt.tech',
+          id: isAdminMaster ? 'master-admin' : 'dhaval-master',
+          name: isAdminMaster ? 'Master Command' : 'Dhaval Dave',
+          email: inputEmail,
           role: 'Super Admin',
-          actualEmail: 'connectvertexglobal2209@gmail.com', // Override to ensure OTP goes to you
-          password: 'admin123'
+          actualEmail: isAdminMaster ? 'connectvertexglobal2209@gmail.com' : 'dhavaldave121002@gmail.com',
+          password: isAdminMaster ? 'admin123' : 'vgtw1210',
+          clearance: 'L5'
         };
       }
 
       // 3. Validation
-      if (user && (user.password === password || (user.email === 'admin@vgt.tech' && password === 'admin123'))) {
+      const isMasterEmail = inputEmail === 'admin@vgt.tech' || inputEmail === 'dhaval@vgt.tech';
+      const isMasterPass = password === 'admin123' || password === 'vgtw1210' || password === 'admin';
+
+      if (user && (user.password === password || (isMasterEmail && isMasterPass))) {
         // Allow legacy admin123 for master if not changed, but prefer user.password
 
         // Generate OTP

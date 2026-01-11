@@ -139,6 +139,37 @@ const SERVICE_DEFAULTS = {
       { num: '04', title: 'Quality Check', desc: 'Testing data integrity and workflow accuracy across the system.', icon: 'bi-patch-check' },
       { num: '05', title: 'Deployment', desc: 'Go-live and staff training for a smooth transition to your new ERP.', icon: 'bi-rocket' }
     ]
+  },
+  social: {
+    name: 'Social Media Marketing',
+    features: [
+      { title: 'Viral Strategy', icon: 'bi-rocket', desc: 'Data-driven content calendars designed to capture attention and ignite growth.' },
+      { title: 'Community Growth', icon: 'bi-people', desc: 'Organic engagement strategies that turn followers into loyal brand advocates.' },
+      { title: 'Creative Direction', icon: 'bi-palette', desc: 'Stunning visuals and copy that stop the scroll and tell your story.' },
+      { title: 'Performance Ads', icon: 'bi-megaphone', desc: 'High-ROI paid campaigns that target your ideal customer with laser precision.' },
+      { title: 'Trend Jacking', icon: 'bi-hash', desc: 'Real-time content adaptation to ride the waves of viral cultural moments.' },
+      { title: 'Deep Analytics', icon: 'bi-bar-chart', desc: 'Comprehensive reporting on reach, engagement, and conversion metrics.' },
+    ],
+    techStack: [
+      { name: 'Instagram', icon: 'bi-instagram', color: 'text-pink-500' },
+      { name: 'LinkedIn', icon: 'bi-linkedin', color: 'text-blue-600' },
+      { name: 'TikTok', icon: 'bi-tiktok', color: 'text-white' },
+      { name: 'Facebook', icon: 'bi-facebook', color: 'text-blue-600' },
+      { name: 'YouTube', icon: 'bi-youtube', color: 'text-red-500' },
+      { name: 'X / Twitter', icon: 'bi-twitter-x', color: 'text-gray-300' },
+    ],
+    faqs: [
+      { q: "Which platforms should I be on?", a: "We analyze your target audience to recommend the platforms where they are most active. B2B often thrives on LinkedIn, while lifestyle brands shine on Instagram and TikTok." },
+      { q: "Do you create the content?", a: "Yes! Our team handles everything from graphic design and video editing to copywriting and scheduling." },
+      { q: "How do you measure success?", a: "We focus on KPIs that matter to your business: engagement rate, click-through rate, lead generation, and overall community growth." },
+    ],
+    process: [
+      { num: '01', title: 'Audit & Strategy', desc: 'We deep dive into your current presence and competitors to build a winning roadmap.', icon: 'bi-search' },
+      { num: '02', title: 'Content Creation', desc: 'Our creative team produces high-quality visuals, videos, and copy.', icon: 'bi-camera-reels' },
+      { num: '03', title: 'Deployment', desc: 'Strategic scheduling for maximum visibility and engagement.', icon: 'bi-send' },
+      { num: '04', title: 'Engagement', desc: 'Active community management to foster relationships.', icon: 'bi-chat-heart' },
+      { num: '05', title: 'Optimization', desc: 'Monthly reports and data-backed adjustments to improve performance.', icon: 'bi-graph-up' },
+    ]
   }
 };
 
@@ -148,17 +179,38 @@ const ServiceManager = () => {
 
   const [serviceData, setServiceData] = useState(SERVICE_DEFAULTS.informative);
 
+  // --- INITIALIZE ALL ON FIRST LOAD ---
+  useEffect(() => {
+    Object.entries(SERVICE_DEFAULTS).forEach(([slug, defaults]) => {
+      const key = `vgtw_service_${slug}`;
+      if (!localStorage.getItem(key)) {
+        localStorage.setItem(key, JSON.stringify(defaults));
+      } else {
+        // Migration: Ensure new fields like 'process' exist even in old saved data
+        const saved = JSON.parse(localStorage.getItem(key));
+        let changed = false;
+        if (!saved.process && defaults.process) {
+          saved.process = defaults.process;
+          changed = true;
+        }
+        if (!saved.faqs && defaults.faqs) {
+          saved.faqs = defaults.faqs;
+          changed = true;
+        }
+        if (changed) {
+          localStorage.setItem(key, JSON.stringify(saved));
+        }
+      }
+    });
+    window.dispatchEvent(new Event('storage'));
+  }, []);
+
   // --- LOAD DATA ---
   useEffect(() => {
     const key = `vgtw_service_${selectedService}`;
     const saved = localStorage.getItem(key);
     if (saved) {
       setServiceData(JSON.parse(saved));
-    } else {
-      // Fallback for previous data without process
-      const defaults = SERVICE_DEFAULTS[selectedService];
-      setServiceData({ ...defaults, ...JSON.parse(localStorage.getItem(key) || '{}') });
-      if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(defaults));
     }
   }, [selectedService]);
 

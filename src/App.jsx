@@ -31,12 +31,14 @@ const Ecommerce = lazy(() => import('./pages/services/Ecommerce'))
 const Application = lazy(() => import('./pages/services/Application'))
 const UIUX = lazy(() => import('./pages/services/UIUX')) // single UI/UX page
 const Odoo = lazy(() => import('./pages/services/Odoo'))
+const SocialMedia = lazy(() => import('./pages/services/SocialMedia'))
 
 /* Pricing pages (direct) */
 const WebsitePricing = lazy(() => import('./pages/pricing/WebsitePricing'))
 const ApplicationPricing = lazy(() => import('./pages/pricing/ApplicationPricing'))
 const UIUXPricing = lazy(() => import('./pages/pricing/UIUXPricing'))
 const OdooPricing = lazy(() => import('./pages/pricing/OdooPricing'))
+const SocialPricing = lazy(() => import('./pages/pricing/SocialPricing'))
 
 /* Other pages */
 const Career = lazy(() => import('./pages/Career'))
@@ -72,6 +74,7 @@ const AccountingManager = lazy(() => import('./pages/admin/AccountingManager'))
 const ContactManager = lazy(() => import('./pages/admin/ContactManager'))
 const TimelineManager = lazy(() => import('./pages/admin/TimelineManager'))
 const MarketingManager = lazy(() => import('./pages/admin/MarketingManager'))
+const LegalManager = lazy(() => import('./pages/admin/LegalManager'))
 
 import ScrollToTop from './components/UI/ScrollToTop'
 
@@ -112,12 +115,14 @@ const AppContent = () => {
             <Route path="/services/uiux" element={<UIUX />} />
             <Route path="/services/maintenance" element={<Maintenance />} />
             <Route path="/services/odoo" element={<Odoo />} />
+            <Route path="/services/social-media" element={<SocialMedia />} />
 
             {/* Pricing direct routes */}
             <Route path="/pricing/website" element={<WebsitePricing />} />
             <Route path="/pricing/application" element={<ApplicationPricing />} />
             <Route path="/pricing/uiux" element={<UIUXPricing />} />
             <Route path="/pricing/odoo" element={<OdooPricing />} />
+            <Route path="/pricing/social-media" element={<SocialPricing />} />
 
             <Route path="/career" element={<Career />} />
             <Route path="/referral" element={<Referral />} />
@@ -151,6 +156,7 @@ const AppContent = () => {
               <Route path="contacts" element={<ContactManager />} />
               <Route path="timeline" element={<TimelineManager />} />
               <Route path="marketing" element={<MarketingManager />} />
+              <Route path="legal" element={<LegalManager />} />
             </Route>
 
             <Route path="/404" element={<NotFound />} />

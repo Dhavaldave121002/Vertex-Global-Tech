@@ -40,6 +40,7 @@ const Header = () => {
         { name: 'UI/UX Design', path: '/services/uiux' },
         { name: 'Maintenance', path: '/services/maintenance' },
         { name: 'Odoo Customization', path: '/services/odoo' },
+        { name: 'Social Media Marketing', path: '/services/social-media' },
       ]
     },
     {
@@ -49,6 +50,7 @@ const Header = () => {
         { name: 'Application Plans', path: '/pricing/application' },
         { name: 'UI/UX Services', path: '/pricing/uiux' },
         { name: 'Odoo ERP Plans', path: '/pricing/odoo' },
+        { name: 'Social Media Plans', path: '/pricing/social-media' },
       ]
     },
     { name: 'Portfolio', path: '/portfolio' },

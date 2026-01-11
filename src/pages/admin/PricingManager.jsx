@@ -71,8 +71,22 @@ const DEFAULT_ODOO_FAQS = [
   { id: 2, q: "How long does implementation take?", a: "A standard implementation takes 4-8 weeks, while complex migrations can take 3-6 months depending on data volume." }
 ];
 
+const DEFAULT_SOCIAL_PLANS = [
+  { id: 1, name: 'Ignition', price: '$1,200', desc: 'Essential presence for growing brands.', features: ['1 Platform Managed', '3 Posts / Week', 'Community Management', 'Monthly Analytics', 'Content Creation'], isPopular: false },
+  { id: 2, name: 'Growth', price: '$2,500', desc: 'Aggressive growth and engagement strategy.', features: ['3 Platforms Managed', '5 Posts / Week', 'Reels / TikToks Production', 'Influencer Outreach', 'Paid Ad Management (Setup)'], isPopular: true },
+  { id: 3, name: 'Viral Corp', price: 'Custom', desc: 'Full-scale domination and brand authority.', features: ['5+ Platforms Managed', 'Daily Content & Stories', 'Dedicated AC', 'Crisis Management', 'advanced Ad Scaling', '24/7 Monitoring'], isPopular: false }
+];
+const DEFAULT_SOCIAL_COMP = [
+  { category: 'Content', items: [{ name: 'Posts per Week', values: ['3', '5', 'Daily'] }, { name: 'Video/Reels', values: [false, 'Weekly', 'Daily'] }] },
+  { category: 'Growth', items: [{ name: 'Community Man.', values: ['Basic', 'Active', '24/7'] }, { name: 'Ad Management', values: [false, 'Setup Only', 'Full Scale'] }] }
+];
+const DEFAULT_SOCIAL_FAQS = [
+  { id: 1, q: 'Is ad spend included?', a: 'No, ad spend is paid directly to the platform (Meta/LinkedIn/TikTok). Our fee covers strategy, creation, and management.' },
+  { id: 2, q: 'What is the contract length?', a: 'We recommend a minimum of 3 months to see significant results, as social algorithms take time to optimize.' }
+];
+
 const PricingManager = () => {
-  const [pricingType, setPricingType] = useState('website'); // 'website' | 'application' | 'uiux' | 'odoo'
+  const [pricingType, setPricingType] = useState('website'); // 'website' | 'application' | 'uiux' | 'odoo' | 'social'
   const [activeTab, setActiveTab] = useState('plans'); // plans, comparison, faq, inquiries
 
   const [plans, setPlans] = useState([]);
@@ -98,6 +112,7 @@ const PricingManager = () => {
     if (type === 'application') return { plans: 'vgtw_app_pricing_plans', comp: 'vgtw_app_pricing_comparison', faq: 'vgtw_app_pricing_faq' };
     if (type === 'uiux') return { plans: 'vgtw_uiux_pricing_plans', comp: 'vgtw_uiux_pricing_comparison', faq: 'vgtw_uiux_pricing_faq' };
     if (type === 'odoo') return { plans: 'vgtw_odoo_pricing_plans', comp: 'vgtw_odoo_pricing_comparison', faq: 'vgtw_odoo_pricing_faq' };
+    if (type === 'social') return { plans: 'vgtw_social_pricing_plans', comp: 'vgtw_social_pricing_comparison', faq: 'vgtw_social_pricing_faq' };
     return { plans: 'vgtw_pricing_plans', comp: 'vgtw_pricing_comparison', faq: 'vgtw_pricing_faq' };
   };
 
@@ -105,8 +120,21 @@ const PricingManager = () => {
     if (type === 'application') return { plans: DEFAULT_APP_PLANS, comp: DEFAULT_APP_COMP, faq: DEFAULT_APP_FAQS };
     if (type === 'uiux') return { plans: DEFAULT_UIUX_PLANS, comp: DEFAULT_UIUX_COMP, faq: DEFAULT_UIUX_FAQS };
     if (type === 'odoo') return { plans: DEFAULT_ODOO_PLANS, comp: DEFAULT_ODOO_COMP, faq: DEFAULT_ODOO_FAQS };
+    if (type === 'social') return { plans: DEFAULT_SOCIAL_PLANS, comp: DEFAULT_SOCIAL_COMP, faq: DEFAULT_SOCIAL_FAQS };
     return { plans: DEFAULT_PLANS, comp: DEFAULT_COMP, faq: DEFAULT_FAQS };
   };
+
+  // --- INITIALIZE ALL ON FIRST LOAD ---
+  useEffect(() => {
+    ['website', 'application', 'uiux', 'odoo', 'social'].forEach(type => {
+      const keys = getKeys(type);
+      const defaults = getDefaults(type);
+      if (!localStorage.getItem(keys.plans)) localStorage.setItem(keys.plans, JSON.stringify(defaults.plans));
+      if (!localStorage.getItem(keys.comp)) localStorage.setItem(keys.comp, JSON.stringify(defaults.comp));
+      if (!localStorage.getItem(keys.faq)) localStorage.setItem(keys.faq, JSON.stringify(defaults.faq));
+    });
+    window.dispatchEvent(new Event('storage'));
+  }, []);
 
   // --- LOAD DATA ---
   useEffect(() => {
@@ -115,15 +143,12 @@ const PricingManager = () => {
 
     const loadedPlans = localStorage.getItem(keys.plans);
     setPlans(loadedPlans ? JSON.parse(loadedPlans) : defaults.plans);
-    if (!loadedPlans) localStorage.setItem(keys.plans, JSON.stringify(defaults.plans));
 
     const loadedComp = localStorage.getItem(keys.comp);
     setComparisonData(loadedComp ? JSON.parse(loadedComp) : defaults.comp);
-    if (!loadedComp) localStorage.setItem(keys.comp, JSON.stringify(defaults.comp));
 
     const loadedFaqs = localStorage.getItem(keys.faq);
     setFaqs(loadedFaqs ? JSON.parse(loadedFaqs) : defaults.faq);
-    if (!loadedFaqs) localStorage.setItem(keys.faq, JSON.stringify(defaults.faq));
   }, [pricingType]);
 
   // --- SAVE DATA ---
@@ -152,15 +177,18 @@ const PricingManager = () => {
   }, [faqs, pricingType]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('vgtw_pricing_inquiries');
+    const saved = localStorage.getItem('vgtw_leads');
     if (saved) {
       const allInquiries = JSON.parse(saved);
       const filtered = allInquiries.filter(inq => {
-        const plan = inq.selectedPlan.toLowerCase();
-        if (pricingType === 'website') return plan.includes('website');
-        if (pricingType === 'application') return plan.includes('application') || plan.includes('app');
-        if (pricingType === 'uiux') return plan.includes('ui/ux') || plan.includes('uiux');
-        if (pricingType === 'odoo') return plan.includes('odoo');
+        const service = (inq.service || '').toLowerCase();
+        const plan = (inq.plan || '').toLowerCase();
+
+        if (pricingType === 'website') return service.includes('website');
+        if (pricingType === 'application') return service.includes('application') || service.includes('app');
+        if (pricingType === 'uiux') return service.includes('ui/ux') || service.includes('uiux');
+        if (pricingType === 'odoo') return service.includes('odoo');
+        if (pricingType === 'social') return service.includes('social');
         return true;
       });
       setInquiries(filtered);
@@ -225,7 +253,7 @@ const PricingManager = () => {
           </div>
 
           <div className="bg-[#0f172a] p-1 rounded-2xl flex border border-white/10 shadow-xl overflow-x-auto no-scrollbar">
-            {['website', 'application', 'uiux', 'odoo'].map((type) => (
+            {['website', 'application', 'uiux', 'odoo', 'social'].map((type) => (
               <button
                 key={type}
                 onClick={() => setPricingType(type)}
@@ -481,10 +509,10 @@ const PricingManager = () => {
                         </div>
                       </td>
                       <td className="py-8 pr-12">
-                        <span className="px-4 py-1.5 bg-blue-500/10 text-blue-500 rounded-lg text-[10px] font-black uppercase tracking-widest">{inquiry.selectedPlan}</span>
+                        <span className="px-4 py-1.5 bg-blue-500/10 text-blue-500 rounded-lg text-[10px] font-black uppercase tracking-widest">{inquiry.plan}</span>
                       </td>
                       <td className="py-8">
-                        <button onClick={() => { if (window.confirm('Wipe this record?')) { const all = JSON.parse(localStorage.getItem('vgtw_pricing_inquiries') || '[]'); const updated = all.filter((_, i) => i !== idx); localStorage.setItem('vgtw_pricing_inquiries', JSON.stringify(updated)); setInquiries(inquiries.filter((_, i) => i !== idx)); } }} className="p-3 text-white/10 hover:text-red-500 transition-all"><FaTrash size={14} /></button>
+                        <button onClick={() => { if (window.confirm('Wipe this record?')) { const all = JSON.parse(localStorage.getItem('vgtw_leads') || '[]'); const updated = all.filter(item => item.id !== inquiry.id); localStorage.setItem('vgtw_leads', JSON.stringify(updated)); setInquiries(inquiries.filter(item => item.id !== inquiry.id)); window.dispatchEvent(new Event('storage')); } }} className="p-3 text-white/10 hover:text-red-500 transition-all"><FaTrash size={14} /></button>
                       </td>
                     </tr>
                   ))}

@@ -42,7 +42,7 @@ const ServiceFAQ = ({ category = "General", customFaqs }) => {
     { q: "Can you help with legacy code?", a: "Absolutely. We can audit, refactor, and modernize your existing codebase to improve performance and security without interrupting your business operations." },
   ];
 
-  const faqs = customFaqs || defaultFaqs;
+  const faqs = (customFaqs && customFaqs.length > 0) ? customFaqs : defaultFaqs;
 
   return (
     <section className="py-20 bg-[#020617]">

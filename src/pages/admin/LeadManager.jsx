@@ -103,7 +103,10 @@ const LeadManager = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="py-8 px-10"><span className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-gray-400 uppercase tracking-widest">{lead.service}</span></td>
+                      <td className="py-8 px-10">
+                        <span className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-gray-400 uppercase tracking-widest block w-fit mb-1">{lead.service}</span>
+                        {lead.plan && lead.plan !== 'N/A' && <p className="text-[9px] font-black text-blue-500 uppercase tracking-tighter ml-1">Plan: {lead.plan}</p>}
+                      </td>
                       <td className="py-8 px-10">
                         <button onClick={() => toggleStatus(lead.id)} className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${lead.status === 'New' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : lead.status === 'In Review' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'}`}>
                           <div className="flex items-center gap-3"><div className={`w-1.5 h-1.5 rounded-full ${lead.status === 'New' ? 'bg-blue-500 animate-pulse' : lead.status === 'In Review' ? 'bg-amber-500' : 'bg-emerald-500'}`} /> {lead.status}</div>

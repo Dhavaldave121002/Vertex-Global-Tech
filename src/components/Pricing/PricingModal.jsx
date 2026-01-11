@@ -24,17 +24,21 @@ export default function PricingModal({ isOpen, onClose, selectedPlan, planType }
 
     // Save to localStorage for admin
     const inquiry = {
+      id: Date.now(),
       name: formData.name,
       email: formData.email,
       phone: formData.phone,
-      selectedPlan: formData.plan,
+      service: planType,
+      plan: formData.plan,
       message: formData.message,
-      date: new Date().toISOString()
+      date: new Date().toLocaleDateString(),
+      status: 'New',
+      priority: 'Medium'
     };
 
-    const existing = JSON.parse(localStorage.getItem('vgtw_pricing_inquiries') || '[]');
-    existing.push(inquiry);
-    localStorage.setItem('vgtw_pricing_inquiries', JSON.stringify(existing));
+    const existing = JSON.parse(localStorage.getItem('vgtw_leads') || '[]');
+    existing.unshift(inquiry);
+    localStorage.setItem('vgtw_leads', JSON.stringify(existing));
     window.dispatchEvent(new Event('storage'));
 
     // Open email client

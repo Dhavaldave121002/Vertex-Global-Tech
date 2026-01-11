@@ -179,9 +179,9 @@ const Footer = () => {
               <span className="w-1 h-4 bg-blue-500 rounded-full"></span> Services
             </h4>
             <ul className="space-y-4 text-sm text-gray-400 font-medium">
-              {['Web Applications', 'UI/UX Design', 'E-Commerce', 'Dynamic Websites', 'Odoo ERP', 'Maintenance'].map((item, i) => (
+              {['Web Applications', 'UI/UX Design', 'E-Commerce', 'Dynamic Websites', 'Odoo ERP', 'Social Media', 'Maintenance'].map((item, i) => (
                 <li key={i}>
-                  <Link to="#" className="hover:text-white hover:translate-x-2 inline-flex items-center gap-2 transition-all duration-300 group">
+                  <Link to={item === 'Social Media' ? '/services/social-media' : '#'} className="hover:text-white hover:translate-x-2 inline-flex items-center gap-2 transition-all duration-300 group">
                     <span className="w-0 overflow-hidden group-hover:w-2 transition-all duration-300 h-[1px] bg-blue-500"></span>
                     {item}
                   </Link>

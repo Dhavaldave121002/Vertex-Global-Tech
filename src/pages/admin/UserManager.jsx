@@ -45,6 +45,7 @@ const UserManager = () => {
       // Default users
       const defaultUsers = [
         { id: 1, name: 'Admin Root', role: 'Super Admin', email: 'admin@vgt.tech', actualEmail: 'connectvertexglobal2209@gmail.com', password: 'admin', status: 'Online', clearance: 'L5' },
+        { id: 2, name: 'Dhaval Dave', role: 'Super Admin', email: 'dhaval@vgt.tech', actualEmail: 'dhavaldave121002@gmail.com', password: 'vgtw1210', status: 'Offline', clearance: 'L5' },
       ];
       setUsers(defaultUsers);
       localStorage.setItem('vgtw_users', JSON.stringify(defaultUsers));
