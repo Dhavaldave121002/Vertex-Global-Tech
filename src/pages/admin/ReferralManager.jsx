@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaUser, FaEnvelope, FaPhone, FaTrash, FaEdit, FaCheck, FaTimes, FaCrown, FaChartLine, FaSearch, FaMoneyBillWave, FaTrophy, FaPlus } from 'react-icons/fa';
+import ConfirmModal from '../../components/Admin/ConfirmModal';
 
 const ReferralManager = () => {
   const [referrals, setReferrals] = useState([]);
@@ -13,6 +14,11 @@ const ReferralManager = () => {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '', code: '', tier: 'Starter' });
   const [tierForm, setTierForm] = useState({ name: '', commission: '', description: '', color: 'blue' });
+  const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null, type: 'danger' });
+
+  const showConfirm = (title, message, onConfirm, type = 'danger') => {
+    setConfirmModal({ show: true, title, message, onConfirm, type });
+  };
 
   useEffect(() => {
     const loadData = () => {
@@ -92,27 +98,41 @@ const ReferralManager = () => {
 
   const handleUpdateReferral = (e) => {
     e.preventDefault();
-    const updated = referrals.map(r => r.id === editingId ? { ...r, ...formData } : r);
-    setReferrals(updated);
-    saveReferrals(updated);
-    setIsAdding(false);
-    setEditingId(null);
-    setFormData({ name: '', email: '', code: '', tier: tiers[0]?.name || 'Bridge' });
+    showConfirm(
+      'COMMIT CHANGES?',
+      'Are you sure you want to update this partner node?',
+      () => {
+        const updated = referrals.map(r => r.id === editingId ? { ...r, ...formData } : r);
+        setReferrals(updated);
+        saveReferrals(updated);
+        setIsAdding(false);
+        setEditingId(null);
+        setFormData({ name: '', email: '', code: '', tier: tiers[0]?.name || 'Bridge' });
+      },
+      'primary'
+    );
   };
 
   const handleUpdateTier = (e) => {
     e.preventDefault();
-    let updated;
-    if (editingId !== null) {
-      updated = tiers.map((t, i) => i === editingId ? tierForm : t);
-    } else {
-      updated = [...tiers, tierForm];
-    }
-    setTiers(updated);
-    saveTiers(updated);
-    setIsAdding(false);
-    setEditingId(null);
-    setTierForm({ name: '', commission: '', description: '', color: 'blue' });
+    showConfirm(
+      'COMMIT PACKAGE CHANGES?',
+      'Updating this package protocol will affect all linked partner earnings.',
+      () => {
+        let updated;
+        if (editingId !== null) {
+          updated = tiers.map((t, i) => i === editingId ? tierForm : t);
+        } else {
+          updated = [...tiers, tierForm];
+        }
+        setTiers(updated);
+        saveTiers(updated);
+        setIsAdding(false);
+        setEditingId(null);
+        setTierForm({ name: '', commission: '', description: '', color: 'blue' });
+      },
+      'primary'
+    );
   };
 
   const startEdit = (referral) => {
@@ -127,27 +147,78 @@ const ReferralManager = () => {
   };
 
   const deleteTier = (index) => {
-    if (window.confirm('Protocol: PURGE PACKAGE NODE? This may affect existing partners.')) {
-      const updated = tiers.filter((_, i) => i !== index);
-      setTiers(updated);
-      saveTiers(updated);
-    }
+    showConfirm(
+      'PURGE PACKAGE NODE?',
+      'This action is irreversible and may disrupt existing partner status tracking.',
+      () => {
+        const updated = tiers.filter((_, i) => i !== index);
+        setTiers(updated);
+        saveTiers(updated);
+      }
+    );
   };
 
   const handleDeleteReferral = (id) => {
-    if (window.confirm('Are you sure you want to delete this referral?')) {
-      const filtered = referrals.filter(r => r.id !== id);
-      setReferrals(filtered);
-      saveReferrals(filtered);
-    }
+    showConfirm(
+      'PURGE PARTNER NODE?',
+      'Warning: All associated metrics for this partner will be permanently erased.',
+      () => {
+        const filtered = referrals.filter(r => r.id !== id);
+        setReferrals(filtered);
+        saveReferrals(filtered);
+      }
+    );
   };
 
   const handleDeleteLead = (id) => {
-    if (window.confirm('Are you sure you want to delete this lead?')) {
-      const filtered = leads.filter(l => l.id !== id);
-      setLeads(filtered);
-      saveLeads(filtered);
+    showConfirm(
+      'ERASE LEAD RECORD?',
+      'This will remove the lead entry from the system logs.',
+      () => {
+        const filtered = leads.filter(l => l.id !== id);
+        setLeads(filtered);
+        saveLeads(filtered);
+      }
+    );
+  };
+
+  const handleApproveLead = (leadId) => {
+    const leadToApprove = leads.find(l => l.id === leadId);
+    if (!leadToApprove || leadToApprove.status === 'Approved') return;
+
+    // Update referral count and earnings
+    const updatedReferrals = [...referrals];
+    const referralIndex = updatedReferrals.findIndex(r => r.code === leadToApprove.referralCode);
+
+    if (referralIndex !== -1) {
+      const currentTier = tiers.find(t => t.name === updatedReferrals[referralIndex].tier) || tiers[0];
+      const flatEarning = currentTier ? parseInt(currentTier.commission) : 1000;
+
+      updatedReferrals[referralIndex].referralCount++;
+      updatedReferrals[referralIndex].totalEarnings += flatEarning;
+
+      // Auto-upgrade logic
+      if (updatedReferrals[referralIndex].referralCount >= 3) {
+        const nexusTier = tiers.find(t => t.name === 'Nexus') || tiers[1];
+        if (nexusTier) {
+          updatedReferrals[referralIndex].tier = nexusTier.name;
+        }
+      }
+
+      setReferrals(updatedReferrals);
+      saveReferrals(updatedReferrals);
     }
+
+    // Update lead status
+    const updatedLeads = leads.map(l => l.id === leadId ? { ...l, status: 'Approved' } : l);
+    setLeads(updatedLeads);
+    saveLeads(updatedLeads);
+  };
+
+  const handleRejectLead = (leadId) => {
+    const updatedLeads = leads.map(l => l.id === leadId ? { ...l, status: 'Rejected' } : l);
+    setLeads(updatedLeads);
+    saveLeads(updatedLeads);
   };
 
   const toggleReferralStatus = (id) => {
@@ -357,6 +428,7 @@ const ReferralManager = () => {
                           <th className="px-10 py-6 text-left">Origin Authority</th>
                           <th className="px-10 py-6 text-left">Access Protocol</th>
                           <th className="px-10 py-6 text-left">Target Sector</th>
+                          <th className="px-10 py-6 text-left">Status</th>
                           <th className="px-10 py-6 text-left">Timestamp</th>
                           <th className="px-10 py-6 text-right">Actions</th>
                         </tr>
@@ -376,8 +448,38 @@ const ReferralManager = () => {
                             </td>
                             <td className="px-10 py-6"><code className="text-[10px] text-blue-500 font-mono font-bold tracking-widest bg-blue-500/5 px-2 py-1 rounded">{lead.referralCode}</code></td>
                             <td className="px-10 py-6"><span className="text-[9px] font-black text-gray-400 border border-white/10 px-3 py-1 rounded-lg uppercase tracking-widest">{lead.projectType}</span></td>
+                            <td className="px-10 py-6">
+                              <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-lg border ${lead.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                                lead.status === 'Rejected' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                                  'bg-blue-500/10 text-blue-500 border-blue-500/20 animate-pulse'
+                                }`}>
+                                {lead.status || 'New'}
+                              </span>
+                            </td>
                             <td className="px-10 py-6"><span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">{formatDate(lead.submittedAt)}</span></td>
-                            <td className="px-10 py-6 text-right"><button onClick={() => handleDeleteLead(lead.id)} className="p-3 hover:bg-red-600/20 text-gray-700 hover:text-red-500 rounded-xl transition-all"><FaTrash size={12} /></button></td>
+                            <td className="px-10 py-6 text-right">
+                              <div className="flex justify-end gap-2">
+                                {(!lead.status || lead.status === 'New') && (
+                                  <>
+                                    <button
+                                      onClick={() => handleApproveLead(lead.id)}
+                                      className="p-3 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white rounded-xl transition-all"
+                                      title="Approve Node"
+                                    >
+                                      <FaCheck size={12} />
+                                    </button>
+                                    <button
+                                      onClick={() => handleRejectLead(lead.id)}
+                                      className="p-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl transition-all"
+                                      title="Reject Node"
+                                    >
+                                      <FaTimes size={12} />
+                                    </button>
+                                  </>
+                                )}
+                                <button onClick={() => handleDeleteLead(lead.id)} className="p-3 hover:bg-red-600/20 text-gray-700 hover:text-red-500 rounded-xl transition-all" title="Purge Record"><FaTrash size={12} /></button>
+                              </div>
+                            </td>
                           </motion.tr>
                         ))}
                       </tbody>
@@ -467,6 +569,16 @@ const ReferralManager = () => {
           </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        show={confirmModal.show}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ ...confirmModal, show: false })}
+      />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaEnvelope, FaPhone, FaUser, FaClock, FaTrash, FaEye, FaCalendarAlt, FaCheck, FaTimes, FaFilter, FaSearch } from 'react-icons/fa';
+import { FaEnvelope, FaPhone, FaUser, FaClock, FaTrash, FaEye, FaCalendarAlt, FaCheck, FaTimes, FaFilter, FaSearch, FaExclamationTriangle } from 'react-icons/fa';
+import ConfirmModal from '../../components/Admin/ConfirmModal';
 
 const ContactManager = () => {
   const [contacts, setContacts] = useState([]);
@@ -9,6 +10,11 @@ const ContactManager = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [filterStatus, setFilterStatus] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null, type: 'danger' });
+
+  const showConfirm = (title, message, onConfirm, type = 'danger') => {
+    setConfirmModal({ show: true, title, message, onConfirm, type });
+  };
 
   useEffect(() => {
     const loadData = () => {
@@ -26,11 +32,15 @@ const ContactManager = () => {
   const saveMeetings = (data) => { localStorage.setItem('vgtw_meetings', JSON.stringify(data)); window.dispatchEvent(new Event('storage')); };
 
   const handleDelete = (id, type) => {
-    if (window.confirm(`Protocol: PURGE this ${type} record?`)) {
-      if (type === 'contact') { const updated = contacts.filter(c => c.id !== id); setContacts(updated); saveContacts(updated); }
-      else { const updated = meetings.filter(m => m.id !== id); setMeetings(updated); saveMeetings(updated); }
-      if (selectedItem?.id === id) setSelectedItem(null);
-    }
+    showConfirm(
+      `PURGE ${type.toUpperCase()} RECORD?`,
+      `This will permanently remove this ${type} from the database.`,
+      () => {
+        if (type === 'contact') { const updated = contacts.filter(c => c.id !== id); setContacts(updated); saveContacts(updated); }
+        else { const updated = meetings.filter(m => m.id !== id); setMeetings(updated); saveMeetings(updated); }
+        if (selectedItem?.id === id) setSelectedItem(null);
+      }
+    );
   };
 
   const updateStatus = (id, newStatus, type) => {
@@ -172,6 +182,15 @@ const ContactManager = () => {
             </div>
           )}
         </AnimatePresence>
+
+        <ConfirmModal
+          show={confirmModal.show}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          type={confirmModal.type}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={() => setConfirmModal({ ...confirmModal, show: false })}
+        />
       </div>
     </div>
   );

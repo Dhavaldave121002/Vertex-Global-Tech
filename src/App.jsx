@@ -32,6 +32,7 @@ const Application = lazy(() => import('./pages/services/Application'))
 const UIUX = lazy(() => import('./pages/services/UIUX')) // single UI/UX page
 const Odoo = lazy(() => import('./pages/services/Odoo'))
 const SocialMedia = lazy(() => import('./pages/services/SocialMedia'))
+const Redesign = lazy(() => import('./pages/services/Redesign'))
 
 /* Pricing pages (direct) */
 const WebsitePricing = lazy(() => import('./pages/pricing/WebsitePricing'))
@@ -116,6 +117,7 @@ const AppContent = () => {
             <Route path="/services/maintenance" element={<Maintenance />} />
             <Route path="/services/odoo" element={<Odoo />} />
             <Route path="/services/social-media" element={<SocialMedia />} />
+            <Route path="/services/redesign" element={<Redesign />} />
 
             {/* Pricing direct routes */}
             <Route path="/pricing/website" element={<WebsitePricing />} />

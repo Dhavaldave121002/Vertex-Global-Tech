@@ -116,7 +116,8 @@ const PricingAnalytics = () => {
         ...appPlans.map(p => ({ ...p, type: 'Application' })),
         ...uiuxPlans.map(p => ({ ...p, type: 'UI/UX' })),
         ...odooPlans.map(p => ({ ...p, type: 'Odoo ERP' })),
-        ...socialPlans.map(p => ({ ...p, type: 'Social Media' }))
+        ...socialPlans.map(p => ({ ...p, type: 'Social Media' })),
+        { name: 'Redesign Basic', price: '$3,000', type: 'Redesign', features: 5, popular: false }
       ];
       setPlanStats(allPlans.map(plan => ({ name: plan.name, type: plan.type, price: plan.price, features: plan.features?.length || 0, popular: plan.popular || false })));
     };
@@ -153,7 +154,8 @@ const PricingAnalytics = () => {
             { label: 'App Protocols', count: pricingData.application.length, color: 'purple', icon: <FaRocket /> },
             { label: 'UX Protocols', count: pricingData.uiux.length, color: 'emerald', icon: <FaStar /> },
             { label: 'ERP Protocols', count: pricingData.odoo.length, color: 'orange', icon: <FaShieldAlt /> },
-            { label: 'Social Protocols', count: (pricingData.social || []).length, color: 'pink', icon: <FaPaperPlane /> }
+            { label: 'Social Protocols', count: (pricingData.social || []).length, color: 'pink', icon: <FaPaperPlane /> },
+            { label: 'Redesign Node', count: 1, color: 'blue', icon: <FaGlobe /> }
           ].map((cat, idx) => (
             <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className={`bg-[#030712]/60 border border-white/5 rounded-[2rem] p-6 shadow-xl group hover:border-${cat.label === 'Social Protocols' ? 'pink' : cat.color}-500/30 transition-all`}>
               <div className="flex items-center gap-4 mb-4">
@@ -357,7 +359,8 @@ const AdminDashboard = () => {
       vgtw_service_maintenance: { features: Array(6).fill({ title: 'Node' }) },
       vgtw_service_dynamic: { features: Array(6).fill({ title: 'Node' }) },
       vgtw_service_odoo: { features: Array(6).fill({ title: 'Node' }) },
-      vgtw_service_social: { features: Array(6).fill({ title: 'Node' }) }
+      vgtw_service_social: { features: Array(6).fill({ title: 'Node' }) },
+      vgtw_service_redesign: { features: Array(6).fill({ title: 'Node' }) }
     };
 
     Object.entries(INITIAL_DATA).forEach(([key, val]) => {
@@ -374,12 +377,29 @@ const AdminDashboard = () => {
 
   const calculateTotal = (key) => { const data = localStorage.getItem(key); return data ? JSON.parse(data).length : 0; };
   const calculateStats = () => {
-    const services = ['informative', 'ecommerce', 'application', 'uiux', 'maintenance', 'dynamic', 'odoo', 'social'];
+    const services = ['informative', 'ecommerce', 'application', 'uiux', 'maintenance', 'dynamic', 'odoo', 'social', 'redesign'];
     let totalFeatures = 0;
+    let preparationNodes = 0;
     services.forEach(s => {
       const saved = localStorage.getItem(`vgtw_service_${s}`);
-      if (saved) totalFeatures += JSON.parse(saved).features?.length || 0;
+      if (saved) {
+        const data = JSON.parse(saved);
+        totalFeatures += data.features?.length || 0;
+        const hasPrep = data.process?.some(step =>
+          step.title.toLowerCase().includes('discovery') ||
+          step.title.toLowerCase().includes('preparation') ||
+          step.title.toLowerCase().includes('audit')
+        );
+        if (hasPrep) preparationNodes++;
+      }
     });
+
+    let redesignNodes = 0;
+    const redesignSaved = localStorage.getItem('vgtw_service_redesign');
+    if (redesignSaved) {
+      const data = JSON.parse(redesignSaved);
+      redesignNodes = data.protocolDetails?.reduce((acc, current) => acc + (current.specs?.length || 0), 0) || 0;
+    }
 
     setStats([
       { label: 'Active Services', value: services.length.toString(), icon: <FaGlobe />, color: '#3b82f6' },
@@ -396,6 +416,8 @@ const AdminDashboard = () => {
       { label: 'Newsletter Nodes', value: calculateTotal('vgtw_newsletter').toString(), icon: <FaPaperPlane />, color: '#10b981' },
       { label: 'Testimonials', value: calculateTotal('vgtw_testimonials').toString(), icon: <FaQuestionCircle />, color: '#8b5cf6' },
       { label: 'Open Protocols', value: calculateTotal('vgtw_jobs').toString(), icon: <FaRocket />, color: '#ef4444' },
+      { label: 'Preparation Nodes', value: preparationNodes.toString(), icon: <FaTerminal />, color: '#3b82f6' },
+      { label: 'Redesign Protocols', value: redesignNodes.toString(), icon: <FaShieldAlt />, color: '#06b6d4' },
     ]);
     const acc = JSON.parse(localStorage.getItem('vgtw_accounting') || '[]');
     const inc = acc.filter(d => d.type === 'Income').reduce((a, c) => a + cleanNum(c.amount), 0);

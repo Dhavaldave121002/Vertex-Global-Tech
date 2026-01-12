@@ -96,15 +96,15 @@ export default function ApplicationPricing() {
   return (
     <>
       <SEO
-        title="App Development Cost"
-        description="Scalable pricing plans for web application development. From MVPs to Enterprise SaaS platforms."
-        keywords="app development cost, saas pricing, software development rates, mvp cost"
+        title="Mobile Application Cost"
+        description="Scalable pricing plans for mobile application development. From MVPs to Enterprise SaaS platforms."
+        keywords="mobile application cost, saas pricing, software development rates, mvp cost"
       />
 
       <div className="min-h-screen bg-[#030712]">
 
         <ServiceHero3D
-          title="App Development"
+          title="Mobile Application"
           highlight="Pricing"
           badge="Investment"
           subtitle="Invest in scalable software that grows with your business."

@@ -42,7 +42,7 @@ export default function ApplyModal({ show, onClose, applyData, setApplyData, err
                 </button>
               </div>
 
-              <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
+              <div className="max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <ApplyForm
                   applyData={applyData}
                   setApplyData={setApplyData}

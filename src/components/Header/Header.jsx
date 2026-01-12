@@ -36,18 +36,19 @@ const Header = () => {
         { name: 'Informative Website', path: '/services/informative' },
         { name: 'Dynamic Website', path: '/services/dynamic' },
         { name: 'E-Commerce Solution', path: '/services/ecommerce' },
-        { name: 'Web Application', path: '/services/application' },
+        { name: 'Mobile Application', path: '/services/application' },
         { name: 'UI/UX Design', path: '/services/uiux' },
         { name: 'Maintenance', path: '/services/maintenance' },
         { name: 'Odoo Customization', path: '/services/odoo' },
         { name: 'Social Media Marketing', path: '/services/social-media' },
+        { name: 'Website Redesign', path: '/services/redesign' },
       ]
     },
     {
       name: 'Pricing',
       dropdown: [
         { name: 'Website Packages', path: '/pricing/website' },
-        { name: 'Application Plans', path: '/pricing/application' },
+        { name: 'Mobile Plans', path: '/pricing/application' },
         { name: 'UI/UX Services', path: '/pricing/uiux' },
         { name: 'Odoo ERP Plans', path: '/pricing/odoo' },
         { name: 'Social Media Plans', path: '/pricing/social-media' },
@@ -76,11 +77,11 @@ const Header = () => {
               alt="Vertex Global Tech"
               className="w-12 h-12 object-contain rounded-xl hover:scale-105 transition-transform duration-300 shadow-lg shadow-blue-500/20"
             />
-            <div className="flex flex-col hidden sm:flex">
-              <span className="text-xl font-bold tracking-tight text-white group-hover:text-blue-400 transition-colors leading-none">
+            <div className="flex flex-col">
+              <span className="text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-blue-400 transition-colors leading-none whitespace-nowrap">
                 Vertex <span className="text-blue-500">Global Tech</span>
               </span>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold mt-1 group-hover:text-blue-400/70 transition-colors">
+              <span className="text-[8px] sm:text-[10px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-gray-500 font-bold mt-0.5 sm:mt-1 group-hover:text-blue-400/70 transition-colors">
                 Innovate. Transform. Scale.
               </span>
             </div>
@@ -149,13 +150,49 @@ const Header = () => {
             </Link>
           </nav>
 
-          {/* Mobile Toggle */}
-          <button
-            className="lg:hidden text-white p-2 z-50 relative"
+          {/* Mobile Toggle - Professional Animated Design */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            className="lg:hidden relative z-50"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            <i className={`bi ${mobileMenuOpen ? 'bi-x-lg' : 'bi-list'} text-2xl`}></i>
-          </button>
+            {/* Highlighted Background Box */}
+            <div className={`relative overflow-hidden rounded-2xl transition-all duration-300 ${mobileMenuOpen
+                ? 'bg-gradient-to-br from-blue-600 to-purple-600 shadow-xl shadow-blue-500/50'
+                : 'bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/20'
+              }`}>
+              {/* Glow Effect */}
+              <div className={`absolute inset-0 bg-gradient-to-r from-blue-400/30 to-purple-400/30 blur-lg transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'
+                }`}></div>
+
+              {/* Icon Container */}
+              <div className="relative w-12 h-12 flex items-center justify-center">
+                <AnimatePresence mode="wait">
+                  {mobileMenuOpen ? (
+                    <motion.i
+                      key="close"
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                      transition={{ duration: 0.2 }}
+                      className="bi bi-x-lg text-2xl text-white"
+                    ></motion.i>
+                  ) : (
+                    <motion.i
+                      key="menu"
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                      transition={{ duration: 0.2 }}
+                      className="bi bi-list text-2xl text-white"
+                    ></motion.i>
+                  )}
+                </AnimatePresence>
+              </div>
+
+            </div>
+          </motion.button>
         </div>
       </motion.header>
 

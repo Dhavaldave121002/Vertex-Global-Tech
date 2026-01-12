@@ -75,7 +75,7 @@ ${formData.message}
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className="relative bg-[#0f172a] border border-white/10 rounded-2xl p-8 max-w-lg w-full shadow-2xl"
+            className="relative bg-[#0f172a] border border-white/10 rounded-2xl p-6 md:p-8 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
           >
             <button
               onClick={onClose}

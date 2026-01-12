@@ -5,6 +5,10 @@ import { FaCalendarAlt, FaClock, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaCheck
 import emailjs from '@emailjs/browser';
 import PageHero from '../components/UI/PageHero';
 import SEO from '../components/SEO';
+import { validateEmail, validateName, validatePhone, validateLength, validateFutureDate } from '../utils/ValidationUtils';
+import { safeGetLocalStorage, safeSetLocalStorage } from '../utils/LocalStorageUtils';
+import FormError from '../components/UI/FormError';
+import Toast from '../components/UI/Toast';
 
 export default function Contact() {
   const location = useLocation();
@@ -17,90 +21,111 @@ export default function Contact() {
     email: '',
     phone: '',
     subject: '',
-    service: 'Web Application Development',
+    service: 'Mobile Application Development',
     message: '',
     date: '',
     time: ''
   });
 
   const [status, setStatus] = useState('idle'); // idle, submitting, success, error
+  const [errors, setErrors] = useState({ name: '', email: '', phone: '', message: '', date: '', time: '' });
+  const [toast, setToast] = useState({ show: false, type: 'success', message: '' });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear error for this field
+    setErrors({ ...errors, [e.target.name]: '' });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\+?[0-9\s-]{10,}$/; // Basic international friendly check
+    // Validate all fields
+    const nameValidation = validateName(formData.name, 'Name');
+    const emailValidation = validateEmail(formData.email);
+    const phoneValidation = validatePhone(formData.phone);
+    const messageValidation = validateLength(formData.message, 10, 1000, 'Message');
 
-    if (!emailRegex.test(formData.email)) {
-      alert("Please enter a valid email address.");
-      return;
+    // Additional validation for schedule tab
+    let dateValidation = { valid: true };
+    let timeValidation = { valid: true };
+
+    if (activeTab === 'schedule') {
+      dateValidation = validateFutureDate(formData.date, formData.time, 'Date');
+      if (!formData.time) {
+        timeValidation = { valid: false, error: 'Time is required for scheduling' };
+      }
     }
 
-    if (formData.phone && !phoneRegex.test(formData.phone)) {
-      alert("Please enter a valid phone number (at least 10 digits).");
+    // Set errors
+    const newErrors = {
+      name: nameValidation.valid ? '' : nameValidation.error,
+      email: emailValidation.valid ? '' : emailValidation.error,
+      phone: phoneValidation.valid ? '' : phoneValidation.error,
+      message: messageValidation.valid ? '' : messageValidation.error,
+      date: dateValidation.valid ? '' : dateValidation.error,
+      time: timeValidation.valid ? '' : timeValidation.error
+    };
+
+    setErrors(newErrors);
+
+    // Check if any errors exist
+    const hasErrors = Object.values(newErrors).some(error => error !== '');
+    if (hasErrors) {
+      setToast({ show: true, type: 'error', message: 'Please fix the errors before submitting' });
       return;
     }
 
     setStatus('submitting');
 
-    // Save to localStorage (Backup)
+    // Save to localStorage
     const submission = {
       id: Date.now(),
-      type: activeTab, // 'message' or 'schedule'
-      ...formData,
+      type: activeTab,
+      name: nameValidation.value,
+      email: emailValidation.value,
+      phone: phoneValidation.value,
+      subject: formData.subject,
+      service: formData.service,
+      message: messageValidation.value,
+      date: formData.date,
+      time: formData.time,
       submittedAt: new Date().toISOString(),
       status: 'New'
     };
 
     if (activeTab === 'schedule') {
-      const existingMeetings = JSON.parse(localStorage.getItem('vgtw_meetings') || '[]');
-      existingMeetings.unshift(submission);
-      localStorage.setItem('vgtw_meetings', JSON.stringify(existingMeetings));
+      const existingMeetings = safeGetLocalStorage('vgtw_meetings', []);
+      safeSetLocalStorage('vgtw_meetings', [submission, ...existingMeetings]);
     } else {
-      const existingContacts = JSON.parse(localStorage.getItem('vgtw_contacts') || '[]');
-      existingContacts.unshift(submission);
-      localStorage.setItem('vgtw_contacts', JSON.stringify(existingContacts));
+      const existingContacts = safeGetLocalStorage('vgtw_contacts', []);
+      safeSetLocalStorage('vgtw_contacts', [submission, ...existingContacts]);
     }
 
     window.dispatchEvent(new Event('storage'));
 
     // EmailJS Integration
-    // EmailJS Integration (Identity Service)
     const serviceId = import.meta.env.VITE_EMAILJS_IDENTITY_SERVICE_ID;
     const templateId = import.meta.env.VITE_EMAILJS_IDENTITY_TEMPLATE_CONTACT;
     const publicKey = import.meta.env.VITE_EMAILJS_IDENTITY_PUBLIC_KEY;
 
-    // Prepare template parameters
     const templateParams = {
       to_name: "Admin",
       to_email: "connectvertexglobal2209@gmail.com",
-
-      // Standard Fields
-      from_name: formData.name,
-      name: formData.name, // Alias for default template
-
-      from_email: formData.email,
-      email: formData.email, // Alias for default template
-
-      phone: formData.phone,
-
+      from_name: nameValidation.value,
+      name: nameValidation.value,
+      from_email: emailValidation.value,
+      email: emailValidation.value,
+      phone: phoneValidation.value,
       subject: activeTab === 'schedule' ? 'New Consultation Request' : (formData.subject || 'New Contact Request'),
-      title: activeTab === 'schedule' ? 'New Consultation Request' : (formData.subject || 'New Contact Request'), // Alias for default template
-
+      title: activeTab === 'schedule' ? 'New Consultation Request' : (formData.subject || 'New Contact Request'),
       service_type: formData.service,
-      message: formData.message,
+      message: messageValidation.value,
       type: activeTab === 'schedule' ? 'Consultation Schedule' : 'General Inquiry',
       date: formData.date || 'N/A',
       time: formData.time || 'N/A',
       page_source: 'Contact Page'
     };
-
-    console.log("Params:", templateParams);
 
     try {
       await emailjs.send(serviceId, templateId, templateParams, publicKey);
@@ -113,20 +138,24 @@ export default function Contact() {
           email: '',
           phone: '',
           subject: '',
-          service: 'Web Application Development',
+          service: 'Mobile Application Development',
           message: '',
           date: '',
           time: ''
         });
+        setStatus('idle');
+        setErrors({ name: '', email: '', phone: '', message: '', date: '', time: '' });
       }, 3000);
+
+      setToast({
+        show: true,
+        type: 'success',
+        message: activeTab === 'schedule' ? 'Meeting scheduled successfully! We will contact you soon.' : 'Message sent successfully! We will get back to you soon.'
+      });
     } catch (error) {
-      console.error('EmailJS Error:', error);
-      // Fallback to success if localStorage worked but EmailJS failed, 
-      // or set error status if strict. For better UX, we might still show success 
-      // but log the error, or show a specific error message.
-      // Here, keeping the UI simple:
+      console.error('Email send failed:', error);
       setStatus('error');
-      alert("There was an error sending your message. Please try again later.");
+      setToast({ show: true, type: 'error', message: 'Failed to send message. Please try again or contact us directly.' });
     }
   };
 
@@ -329,7 +358,8 @@ export default function Contact() {
                             <option>Informative Website</option>
                             <option>Dynamic Website</option>
                             <option>E-Commerce Solution</option>
-                            <option>Web Application</option>
+                            <option>Mobile Application</option>
+                            <option>Website Redesign</option>
                             <option>UI/UX Design</option>
                             <option>Maintenance & Support</option>
                           </select>
@@ -352,6 +382,14 @@ export default function Contact() {
           </div>
         </section>
       </div>
+
+      {/* Toast Notification */}
+      <Toast
+        show={toast.show}
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast({ ...toast, show: false })}
+      />
     </div>
   );
 }

@@ -38,16 +38,16 @@ export default function Application() {
   return (
     <>
       <SEO
-        title="Web Application Development"
-        description="Build enterprise-grade SaaS platforms with Vertex Global Tech. Scalable, secure, and high-performance web applications."
-        keywords="web application, saas development, cloud software, vertex global tech"
+        title="Mobile Application Development"
+        description="Build enterprise-grade SaaS platforms with Vertex Global Tech. Scalable, secure, and high-performance mobile applications."
+        keywords="mobile application, saas development, cloud software, vertex global tech"
       />
 
       <div className="min-h-screen bg-[#030712]">
 
         {/* HERO */}
         <ServiceHero3D
-          title="Web Applications"
+          title="Mobile Applications"
           highlight="Applications"
           badge="Services"
           subtitle="Scalable, enterprise-grade SaaS platforms built for performance and growth."
@@ -68,7 +68,7 @@ export default function Application() {
                 Software that <span className="text-red-500">Works</span>
               </h2>
               <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                We transform complex business requirements into elegant, high-performance web applications. Whether you're building a new SaaS product or digitizing internal tools, we deliver code that scales.
+                We transform complex business requirements into elegant, high-performance mobile applications. Whether you're building a new SaaS product or digitizing internal tools, we deliver code that scales.
               </p>
             </motion.div>
           </div>

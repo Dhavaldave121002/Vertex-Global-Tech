@@ -4,21 +4,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaLinkedin, FaTwitter, FaGithub, FaInstagram, FaArrowRight, FaEnvelope, FaMapMarkerAlt, FaPhone, FaCheckCircle, FaSpinner } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
 import logo from '../../assets/vglogo.jpg';
+import { validateEmail } from '../../utils/ValidationUtils';
+import { safeGetLocalStorage, safeSetLocalStorage } from '../../utils/LocalStorageUtils';
+import Toast from '../UI/Toast';
 import './footer.css';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle, loading, success, error
+  const [toast, setToast] = useState({ show: false, type: 'success', message: '' });
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
     if (!email) return;
 
     // Strict Email Validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address.");
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      setToast({ show: true, type: 'error', message: emailValidation.error });
       return;
     }
 
@@ -30,11 +34,11 @@ const Footer = () => {
     const publicKey = import.meta.env.VITE_EMAILJS_MARKETING_PUBLIC_KEY;
 
     const templateParams = {
-      to_email: email, // The subscriber
+      to_email: emailValidation.value, // The subscriber
       from_name: "Vertex Global Tech",
       type: "Newsletter Subscription",
       message: "Welcome to the inner circle using Vertex Global Tech.",
-      otp_code: "", // Not needed, but preventing errors if reused template
+      otp_code: "",
       page_source: "Footer Newsletter"
     };
 
@@ -44,25 +48,27 @@ const Footer = () => {
       // Save to LocalStorage (Backup/Admin View)
       const newSubscriber = {
         id: Date.now(),
-        email: email,
+        email: emailValidation.value,
         subscribedAt: new Date().toISOString(),
         status: 'Active'
       };
 
-      const existingSubscribers = JSON.parse(localStorage.getItem('vgtw_newsletter') || '[]');
+      const existingSubscribers = safeGetLocalStorage('vgtw_newsletter', []);
+
       // Prevent duplicates
-      if (!existingSubscribers.some(s => s.email === email)) {
-        existingSubscribers.unshift(newSubscriber);
-        localStorage.setItem('vgtw_newsletter', JSON.stringify(existingSubscribers));
+      if (!existingSubscribers.some(s => s.email === emailValidation.value)) {
+        safeSetLocalStorage('vgtw_newsletter', [newSubscriber, ...existingSubscribers]);
         window.dispatchEvent(new Event('storage'));
       }
 
       setStatus('success');
+      setToast({ show: true, type: 'success', message: 'Subscribed successfully!' });
       setEmail('');
-      setTimeout(() => setStatus('idle'), 5000); // Reset after 5s
+      setTimeout(() => setStatus('idle'), 5000);
     } catch (error) {
       console.error("Newsletter Error:", error);
       setStatus('error');
+      setToast({ show: true, type: 'error', message: 'Subscription failed. Please try again.' });
       setTimeout(() => setStatus('idle'), 3000);
     }
   };
@@ -136,8 +142,12 @@ const Footer = () => {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-black text-white tracking-tight uppercase leading-none">Vertex</span>
-                <span className="text-xs font-bold text-blue-500 tracking-[0.3em] uppercase">Global Tech</span>
+                <span className="text-xl sm:text-2xl font-black text-white tracking-tight leading-none whitespace-nowrap">
+                  Vertex <span className="text-blue-500">Global Tech</span>
+                </span>
+                <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 tracking-[0.2em] sm:tracking-[0.3em] uppercase mt-1">
+                  Innovate. Transform. Scale.
+                </span>
               </div>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed max-w-sm font-medium">
@@ -180,7 +190,7 @@ const Footer = () => {
             </h4>
             <ul className="space-y-4 text-sm text-gray-400 font-medium">
               {[
-                { name: 'Web Applications', path: '/services/application' },
+                { name: 'Mobile Applications', path: '/services/application' },
                 { name: 'UI/UX Design', path: '/services/uiux' },
                 { name: 'E-Commerce', path: '/services/ecommerce' },
                 { name: 'Dynamic Websites', path: '/services/dynamic' },
@@ -292,6 +302,14 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      <Toast
+        show={toast.show}
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast({ ...toast, show: false })}
+      />
     </footer>
   );
 };

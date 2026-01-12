@@ -1,8 +1,13 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { JOBS } from './jobs-data'
+import { validateEmail, validateName, validatePhone, validateLength } from '../../utils/ValidationUtils';
+import { safeGetLocalStorage, safeSetLocalStorage } from '../../utils/LocalStorageUtils';
+import FormError from '../UI/FormError';
+import Toast from '../UI/Toast';
 
 export default function ApplyForm({ applyData, setApplyData, errors, setErrors, inModal = false }) {
   const nameRef = useRef(null)
+  const [toast, setToast] = useState({ show: false, type: 'success', message: '' });
 
   useEffect(() => {
     if (!applyData) return
@@ -19,20 +24,28 @@ export default function ApplyForm({ applyData, setApplyData, errors, setErrors, 
   }, [applyData?.jobId, inModal]) // Simplified dependency
 
   function validate() {
-    const err = {}
-    if (!applyData.name.trim()) err.name = 'Name required'
-    if (!applyData.email.trim()) err.email = 'Email required'
-    else if (!/^\S+@\S+\.\S+$/.test(applyData.email)) err.email = 'Invalid email'
-    if (!applyData.jobId) err.jobId = 'Select a job'
-    if (!applyData.message.trim()) err.message = 'Write a short message'
-    return err
+    const nameValidation = validateName(applyData.name, 'Full name');
+    const emailValidation = validateEmail(applyData.email);
+    const phoneValidation = validatePhone(applyData.phone);
+    const messageValidation = validateLength(applyData.message, 10, 1000, 'Message');
+
+    const newErrors = {};
+    if (!nameValidation.valid) newErrors.name = nameValidation.error;
+    if (!emailValidation.valid) newErrors.email = emailValidation.error;
+    if (!phoneValidation.valid && applyData.phone) newErrors.phone = phoneValidation.error;
+    if (!messageValidation.valid) newErrors.message = messageValidation.error;
+    if (!applyData.jobId) newErrors.jobId = 'Please select a position';
+
+    return newErrors;
   }
 
   function submit(e) {
     e.preventDefault()
-    const err = validate()
-    if (Object.keys(err).length) {
-      setErrors(err)
+    const newErrors = validate()
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      setToast({ show: true, type: 'error', message: 'Please fix the errors before submitting.' });
       return
     }
 
@@ -67,10 +80,24 @@ export default function ApplyForm({ applyData, setApplyData, errors, setErrors, 
       status: 'New'
     };
 
-    const existingApplications = JSON.parse(localStorage.getItem('vgtw_applications') || '[]');
-    existingApplications.unshift(application);
-    localStorage.setItem('vgtw_applications', JSON.stringify(existingApplications));
+    const existingApplications = safeGetLocalStorage('vgtw_applications', []);
+
+    // Check for duplicates (same email and job within last 24 hours) - simplified check
+    const isDuplicate = existingApplications.some(app =>
+      app.email === applyData.email &&
+      app.jobId === applyData.jobId &&
+      new Date(app.submittedAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+    );
+
+    if (isDuplicate) {
+      setToast({ show: true, type: 'warning', message: 'You have already applied for this position recently.' });
+      return;
+    }
+
+    safeSetLocalStorage('vgtw_applications', [application, ...existingApplications]);
     window.dispatchEvent(new Event('storage'));
+
+    setToast({ show: true, type: 'success', message: 'Application saved! Opening email client...' });
 
     const subject = encodeURIComponent(`Job Application — ${job.title}`)
     const body = encodeURIComponent(`
@@ -138,7 +165,7 @@ ${applyData.message}
             className={`${inputClasses} ${errors.name ? 'border-red-500' : ''}`}
             placeholder="Your name"
           />
-          {errors.name && <div className={errorClasses}>{errors.name}</div>}
+          <FormError error={errors.name} />
         </div>
 
         <div>
@@ -151,7 +178,7 @@ ${applyData.message}
             className={`${inputClasses} ${errors.email ? 'border-red-500' : ''}`}
             placeholder="you@company.com"
           />
-          {errors.email && <div className={errorClasses}>{errors.email}</div>}
+          <FormError error={errors.email} />
         </div>
 
         <div>
@@ -160,9 +187,10 @@ ${applyData.message}
             name="phone"
             value={applyData.phone}
             onChange={update}
-            className={inputClasses}
+            className={`${inputClasses} ${errors.phone ? 'border-red-500' : ''}`}
             placeholder="+91 98765 43210"
           />
+          <FormError error={errors.phone} />
         </div>
 
         <div>
@@ -175,7 +203,7 @@ ${applyData.message}
             className={`${inputClasses} ${errors.message ? 'border-red-500' : ''}`}
             placeholder="Short cover note"
           ></textarea>
-          {errors.message && <div className={errorClasses}>{errors.message}</div>}
+          <FormError error={errors.message} />
         </div>
 
         <div>
@@ -198,6 +226,14 @@ ${applyData.message}
         </button>
 
       </form>
+
+      {/* Toast Notification */}
+      <Toast
+        show={toast.show}
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast({ ...toast, show: false })}
+      />
     </div>
   )
 }

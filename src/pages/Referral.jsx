@@ -3,6 +3,10 @@ import { motion } from 'framer-motion'
 import { FaCopy, FaCheck, FaUserPlus, FaChartLine, FaGift, FaWhatsapp, FaTwitter, FaCrown, FaEnvelope } from 'react-icons/fa'
 import SEO from '../components/SEO'
 import emailjs from '@emailjs/browser';
+import { validateEmail, validateName, validatePhone, validateReferralCode, validateRequired, checkDuplicate } from '../utils/ValidationUtils';
+import { safeGetLocalStorage } from '../utils/LocalStorageUtils';
+import FormError from '../components/UI/FormError';
+import Toast from '../components/UI/Toast';
 
 export default function Referral() {
   const [formData, setFormData] = useState({
@@ -11,6 +15,7 @@ export default function Referral() {
   })
   const [generatedCode, setGeneratedCode] = useState(null)
   const [codeLoading, setCodeLoading] = useState(false)
+  const [codeErrors, setCodeErrors] = useState({ name: '', email: '' })
 
   // Lead Form State
   const [lead, setLead] = useState({
@@ -23,6 +28,10 @@ export default function Referral() {
   })
   const [leadSubmitting, setLeadSubmitting] = useState(false)
   const [leadSuccess, setLeadSuccess] = useState(false)
+  const [leadErrors, setLeadErrors] = useState({ referralCode: '', clientName: '', clientPhone: '', clientEmail: '' })
+
+  // Toast state
+  const [toast, setToast] = useState({ show: false, type: 'success', message: '' })
 
   // Tiers from localStorage
   const [tiers, setTiers] = useState([])
@@ -70,67 +79,74 @@ export default function Referral() {
 
   const handleGenerateCode = (e) => {
     e.preventDefault()
-    if (!formData.name || !formData.email) return
 
-    // Email Validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      alert("Please enter a valid email address.");
+    // Validate name
+    const nameValidation = validateName(formData.name, 'Name');
+    const emailValidation = validateEmail(formData.email);
+
+    // Check for duplicate email
+    const existingReferrals = safeGetLocalStorage('vgtw_referrals', []);
+    const duplicateCheck = checkDuplicate(formData.email, existingReferrals, 'email', 'Email');
+
+    // Set errors
+    setCodeErrors({
+      name: nameValidation.valid ? '' : nameValidation.error,
+      email: !emailValidation.valid ? emailValidation.error : (!duplicateCheck.valid ? duplicateCheck.error : '')
+    });
+
+    // Stop if validation fails
+    if (!nameValidation.valid || !emailValidation.valid || !duplicateCheck.valid) {
+      setToast({ show: true, type: 'error', message: 'Please fix the errors before submitting' });
       return;
     }
 
-    if (codeLoading || isGeneratingRef.current) return; // Prevent double firing
+    if (codeLoading || isGeneratingRef.current) return;
 
     isGeneratingRef.current = true;
     setCodeLoading(true)
 
-    // Generate unique code first
-    const code = `VTX-${formData.name.substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`
-    console.log("Generating Referral Code:", code);
+    // Generate unique code
+    const code = `VTX-${nameValidation.value.substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`
 
     // EmailJS Configuration
-    // EmailJS Configuration (Marketing Service)
     const SERVICE_ID = import.meta.env.VITE_EMAILJS_MARKETING_SERVICE_ID;
     const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_MARKETING_TEMPLATE_REFERRAL;
     const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_MARKETING_PUBLIC_KEY;
 
     const templateParams = {
-      to_name: formData.name,
-      to_email: formData.email,
+      to_name: nameValidation.value,
+      to_email: emailValidation.value,
       referral_code: code,
       message: `Your exclusive partner referral code is: ${code}`
     };
 
     emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY)
       .then((response) => {
-        console.log('SUCCESS!', response.status, response.text);
-
-        // Save referral to localStorage only on success
         const referral = {
           id: Date.now(),
           code,
-          name: formData.name,
-          email: formData.email,
+          name: nameValidation.value,
+          email: emailValidation.value,
           createdAt: new Date().toISOString(),
-          tier: tiers[0]?.name || 'Starter',
+          tier: tiers[0]?.name || 'Bridge',
           referralCount: 0,
           totalEarnings: 0,
           status: 'Active'
         };
 
-        const existingReferrals = JSON.parse(localStorage.getItem('vgtw_referrals') || '[]');
-        existingReferrals.unshift(referral);
-        localStorage.setItem('vgtw_referrals', JSON.stringify(existingReferrals));
+        const updatedReferrals = [referral, ...existingReferrals];
+        localStorage.setItem('vgtw_referrals', JSON.stringify(updatedReferrals));
         window.dispatchEvent(new Event('storage'));
 
         setGeneratedCode(code)
         setCodeLoading(false)
         isGeneratingRef.current = false;
         setLead(prev => ({ ...prev, referralCode: code }))
+        setToast({ show: true, type: 'success', message: 'Referral code generated and sent to your email!' });
 
       }, (err) => {
-        console.log('FAILED...', err);
-        alert('Failed to send email. Please check your internet connection or try again.');
+        console.error('Email send failed:', err);
+        setToast({ show: true, type: 'error', message: 'Failed to send email. Please try again.' });
         setCodeLoading(false);
         isGeneratingRef.current = false;
       });
@@ -139,63 +155,58 @@ export default function Referral() {
   const handleLeadSubmit = (e) => {
     e.preventDefault()
 
-    // Optional Email Validation
-    if (lead.clientEmail) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(lead.clientEmail)) {
-        alert("Please enter a valid client email address.");
-        return;
-      }
+    // Validate all fields
+    const codeValidation = validateReferralCode(lead.referralCode);
+    const nameValidation = validateName(lead.clientName, 'Client name');
+    const phoneValidation = validatePhone(lead.clientPhone);
+    const emailValidation = lead.clientEmail ? validateEmail(lead.clientEmail) : { valid: true };
+
+    // Verify referral code exists
+    const existingReferrals = safeGetLocalStorage('vgtw_referrals', []);
+    const codeExists = existingReferrals.some(r => r.code === lead.referralCode.toUpperCase());
+
+    // Set errors
+    setLeadErrors({
+      referralCode: !codeValidation.valid ? codeValidation.error : (!codeExists ? 'Referral code not found' : ''),
+      clientName: nameValidation.valid ? '' : nameValidation.error,
+      clientPhone: phoneValidation.valid ? '' : phoneValidation.error,
+      clientEmail: emailValidation.valid ? '' : emailValidation.error
+    });
+
+    // Stop if validation fails
+    if (!codeValidation.valid || !codeExists || !nameValidation.valid || !phoneValidation.valid || !emailValidation.valid) {
+      setToast({ show: true, type: 'error', message: 'Please fix the errors before submitting' });
+      return;
     }
 
     setLeadSubmitting(true)
-    // Simulate API
+
     setTimeout(() => {
-      // Save lead to localStorage
       const leadData = {
         id: Date.now(),
-        ...lead,
+        referralCode: codeValidation.value,
+        clientName: nameValidation.value,
+        clientPhone: phoneValidation.value,
+        clientEmail: emailValidation.value || '',
+        projectType: lead.projectType,
+        notes: lead.notes.trim(),
         submittedAt: new Date().toISOString(),
         status: 'New'
       };
 
-      const existingLeads = JSON.parse(localStorage.getItem('vgtw_referral_leads') || '[]'); // Fixed naming consistency
-      existingLeads.unshift(leadData);
-      localStorage.setItem('vgtw_referral_leads', JSON.stringify(existingLeads));
-
-      // Update referral count
-      const referrals = JSON.parse(localStorage.getItem('vgtw_referrals') || '[]');
-      const referralIndex = referrals.findIndex(r => r.code === lead.referralCode);
-      if (referralIndex !== -1) {
-        referrals[referralIndex].referralCount++;
-
-        // Find current tier object to get commission
-        // Find current tier object to get flat earning
-        const currentTier = tiers.find(t => t.name === referrals[referralIndex].tier) || tiers[0];
-        const flatEarning = currentTier ? parseInt(currentTier.commission) : 1000;
-
-        // Apply flat earning
-        referrals[referralIndex].totalEarnings += flatEarning;
-
-        // Auto-upgrade logic: upgrade to Nexus (1500) after 3 referrals
-        if (referrals[referralIndex].referralCount >= 3) {
-          const nexusTier = tiers.find(t => t.name === 'Nexus') || tiers[1];
-          if (nexusTier) {
-            referrals[referralIndex].tier = nexusTier.name;
-          }
-        }
-
-        localStorage.setItem('vgtw_referrals', JSON.stringify(referrals));
-      }
-
+      const existingLeads = safeGetLocalStorage('vgtw_referral_leads', []);
+      const updatedLeads = [leadData, ...existingLeads];
+      localStorage.setItem('vgtw_referral_leads', JSON.stringify(updatedLeads));
       window.dispatchEvent(new Event('storage'));
 
       setLeadSubmitting(false)
       setLeadSuccess(true)
-      // Reset after 3s
+      setToast({ show: true, type: 'success', message: 'Lead submitted successfully! Awaiting admin approval.' });
+
       setTimeout(() => {
         setLeadSuccess(false)
         setLead(prev => ({ ...prev, clientName: '', clientPhone: '', clientEmail: '', notes: '' }))
+        setLeadErrors({ referralCode: '', clientName: '', clientPhone: '', clientEmail: '' });
       }, 3000)
     }, 1500)
   }
@@ -293,10 +304,11 @@ export default function Referral() {
                     <input
                       required
                       value={formData.name}
-                      onChange={e => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                      onChange={e => { setFormData({ ...formData, name: e.target.value }); setCodeErrors(prev => ({ ...prev, name: '' })); }}
+                      className={`w-full bg-white/5 border ${codeErrors.name ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors`}
                       placeholder="Enter name"
                     />
+                    <FormError error={codeErrors.name} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1">Email Address</label>
@@ -304,10 +316,11 @@ export default function Referral() {
                       required
                       type="email"
                       value={formData.email}
-                      onChange={e => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                      onChange={e => { setFormData({ ...formData, email: e.target.value }); setCodeErrors(prev => ({ ...prev, email: '' })); }}
+                      className={`w-full bg-white/5 border ${codeErrors.email ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors`}
                       placeholder="Enter email to receive code"
                     />
+                    <FormError error={codeErrors.email} />
                   </div>
                   <button
                     disabled={codeLoading}
@@ -402,26 +415,49 @@ export default function Referral() {
                 <input
                   required
                   value={lead.referralCode}
-                  onChange={e => setLead({ ...lead, referralCode: e.target.value })}
-                  className="w-full bg-blue-900/10 border border-blue-500/30 rounded-xl px-4 py-3 text-blue-300 font-mono font-bold placeholder-blue-700/50 focus:border-blue-500 focus:outline-none transition-colors"
+                  onChange={e => { setLead({ ...lead, referralCode: e.target.value }); setLeadErrors(prev => ({ ...prev, referralCode: '' })); }}
+                  className={`w-full bg-blue-900/10 border ${leadErrors.referralCode ? 'border-red-500' : 'border-blue-500/30'} rounded-xl px-4 py-3 text-blue-300 font-mono font-bold placeholder-blue-700/50 focus:border-blue-500 focus:outline-none transition-colors`}
                   placeholder="e.g. VTX-JOH-8291"
                 />
+                <FormError error={leadErrors.referralCode} />
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">Client Name</label>
-                  <input required value={lead.clientName} onChange={e => setLead({ ...lead, clientName: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none" placeholder="Client Name" />
+                  <input
+                    required
+                    value={lead.clientName}
+                    onChange={e => { setLead({ ...lead, clientName: e.target.value }); setLeadErrors(prev => ({ ...prev, clientName: '' })); }}
+                    className={`w-full bg-white/5 border ${leadErrors.clientName ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none`}
+                    placeholder="Client Name"
+                  />
+                  <FormError error={leadErrors.clientName} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">Client Phone</label>
-                  <input required type="tel" value={lead.clientPhone} onChange={e => setLead({ ...lead, clientPhone: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none" placeholder="Phone Number" />
+                  <input
+                    required
+                    type="tel"
+                    value={lead.clientPhone}
+                    onChange={e => { setLead({ ...lead, clientPhone: e.target.value }); setLeadErrors(prev => ({ ...prev, clientPhone: '' })); }}
+                    className={`w-full bg-white/5 border ${leadErrors.clientPhone ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none`}
+                    placeholder="Phone Number"
+                  />
+                  <FormError error={leadErrors.clientPhone} />
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Client Email (Optional)</label>
-                <input type="email" value={lead.clientEmail} onChange={e => setLead({ ...lead, clientEmail: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none" placeholder="client@example.com" />
+                <input
+                  type="email"
+                  value={lead.clientEmail}
+                  onChange={e => { setLead({ ...lead, clientEmail: e.target.value }); setLeadErrors(prev => ({ ...prev, clientEmail: '' })); }}
+                  className={`w-full bg-white/5 border ${leadErrors.clientEmail ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none`}
+                  placeholder="client@example.com"
+                />
+                <FormError error={leadErrors.clientEmail} />
               </div>
 
               <div>
@@ -470,6 +506,14 @@ export default function Referral() {
         </motion.div>
 
       </div>
+
+      {/* Toast Notification */}
+      <Toast
+        show={toast.show}
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast({ ...toast, show: false })}
+      />
     </div>
   )
 }

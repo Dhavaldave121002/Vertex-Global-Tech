@@ -55,7 +55,7 @@ const SERVICE_DEFAULTS = {
     process: DEFAULT_PROCESS_STEPS
   },
   application: {
-    name: 'Web Application',
+    name: 'Mobile Application',
     features: [
       { title: 'Scalable Platforms', icon: 'bi-cloud', desc: 'Growth-ready systems that handle thousands of users effortlessly.' },
       { title: 'Seamless Connections', icon: 'bi-code-square', desc: 'We connect your apps to other services for smooth data flow.' },
@@ -170,6 +170,56 @@ const SERVICE_DEFAULTS = {
       { num: '04', title: 'Engagement', desc: 'Active community management to foster relationships.', icon: 'bi-chat-heart' },
       { num: '05', title: 'Optimization', desc: 'Monthly reports and data-backed adjustments to improve performance.', icon: 'bi-graph-up' },
     ]
+  },
+  redesign: {
+    name: 'Website Redesign',
+    features: [
+      { title: 'Brand Alignment', icon: 'bi-palette', desc: 'Modernizing your visual identity to match your current brand values and vision.' },
+      { title: 'Performance Boost', icon: 'bi-lightning-charge', desc: 'Drastically improving load speeds and Core Web Vitals for better SEO and UX.' },
+      { title: 'Responsive Revamp', icon: 'bi-phone', desc: 'Ensuring your site looks and functions perfectly on all modern mobile and tablet devices.' },
+      { title: 'Conversion Focus', icon: 'bi-graph-up-arrow', desc: 'Restructuring layouts to guide users towards clear calls to action and higher sales.' },
+      { title: 'Modern Tech Stack', icon: 'bi-code-slash', desc: 'Migrating legacy code to powerful modern frameworks for easier maintenance.' },
+      { title: 'Accessibility Audit', icon: 'bi-eye', desc: 'Ensuring your website is usable by everyone, including those with disabilities.' },
+    ],
+    techStack: DEFAULT_TECH_STACK,
+    faqs: [
+      { q: "Why should I redesign my website instead of building a new one?", a: "A redesign often allows you to keep your existing content and SEO authority while upgrading the look, feel, and performance. It's usually faster and more cost-effective if your current platform is still viable." },
+      { q: "How long does a redesign take?", a: "A typical redesign takes between 3 to 6 weeks, depending on the complexity of the current site and the depth of the changes required." },
+      { q: "Will my SEO rankings be affected?", a: "We take great care to ensure your search rankings are protected or even improved. We manage all URL redirects and ensure that your site structure remains search-engine friendly." }
+    ],
+    process: [
+      { num: '01', title: 'Audit & Discovery', desc: 'We analyze your current site performance, user behavior, and brand goals.', icon: 'bi-search' },
+      { num: '02', title: 'Strategy & Wireframing', desc: 'Planning the new structure and user journey based on audit findings.', icon: 'bi-map' },
+      { num: '03', title: 'Modern Design', desc: 'Creating a fresh, responsive visual identity that aligns with your brand.', icon: 'bi-palette' },
+      { num: '04', title: 'Agile Development', desc: 'Implementing changes using modern frameworks for speed and stability.', icon: 'bi-code-slash' },
+      { num: '05', title: 'Testing & Launch', desc: 'Rigorous Cross-device testing followed by a seamless deployment.', icon: 'bi-rocket-takeoff' }
+    ],
+    protocolDetails: [
+      {
+        category: 'Informative', specs: [
+          { label: 'Brand Tone', value: 'Corporate/Tech' },
+          { label: 'Typography Alpha', value: 'Montserrat/Inter' },
+          { label: 'Loading Velocity', value: '< 1.5s' },
+          { label: 'SEO Index Scale', value: 'Premium Grade' }
+        ]
+      },
+      {
+        category: 'Dynamic', specs: [
+          { label: 'CMS Response Time', value: '< 200ms' },
+          { label: 'Database Optimization', value: 'L4 Scalability' },
+          { label: 'Scalability Layer', value: 'Next.js Edge' },
+          { label: 'Interaction Depth', value: 'Ultra-Immersive' }
+        ]
+      },
+      {
+        category: 'E-commerce', specs: [
+          { label: 'Conversion Multiplier', value: 'Target 2.5x' },
+          { label: 'Checkout Efficiency', value: 'Fast 3-Step' },
+          { label: 'UX Logic Flow', value: 'AI-Enhanced' },
+          { label: 'Payment Stability', value: '99.99% Global' }
+        ]
+      }
+    ]
   }
 };
 
@@ -195,6 +245,10 @@ const ServiceManager = () => {
         }
         if (!saved.faqs && defaults.faqs) {
           saved.faqs = defaults.faqs;
+          changed = true;
+        }
+        if (!saved.protocolDetails && defaults.protocolDetails) {
+          saved.protocolDetails = defaults.protocolDetails;
           changed = true;
         }
         if (changed) {
@@ -260,6 +314,18 @@ const ServiceManager = () => {
   const addProcess = () => setServiceData({ ...serviceData, process: [...(serviceData.process || []), { num: '00', title: 'New Step', desc: 'Step description.', icon: 'bi-circle' }] });
   const deleteProcess = (index) => setServiceData({ ...serviceData, process: serviceData.process.filter((_, i) => i !== index) });
 
+  const addProtocolSpec = (protoIdx) => {
+    const newProtocols = [...serviceData.protocolDetails];
+    newProtocols[protoIdx].specs.push({ label: 'New Spec', value: 'Value' });
+    setServiceData({ ...serviceData, protocolDetails: newProtocols });
+  };
+
+  const deleteProtocolSpec = (protoIdx, specIdx) => {
+    const newProtocols = [...serviceData.protocolDetails];
+    newProtocols[protoIdx].specs.splice(specIdx, 1);
+    setServiceData({ ...serviceData, protocolDetails: newProtocols });
+  };
+
   return (
     <div className="p-6 md:p-10 min-h-screen bg-[#020617] font-sans">
       <div className="max-w-7xl mx-auto">
@@ -291,6 +357,7 @@ const ServiceManager = () => {
             { id: 'process', label: 'Development Flow', icon: <FaRoad /> },
             { id: 'tech', label: 'Tech Stack', icon: <FaCode /> },
             { id: 'faq', label: 'Knowledge Base', icon: <FaQuestionCircle /> },
+            ...(selectedService === 'redesign' ? [{ id: 'protocol', label: 'Protocol Specs', icon: <FaShieldAlt /> }] : []),
           ].map((tab) => (
             <button
               key={tab.id}
@@ -415,6 +482,59 @@ const ServiceManager = () => {
                   </div>
                   <button onClick={() => deleteFaq(i)} className="self-start text-white/20 hover:text-red-500 p-3 mt-8 transition-colors"><FaTrash size={14} /></button>
                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'protocol' && (
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {serviceData.protocolDetails?.map((proto, idx) => (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  key={idx}
+                  className="bg-[#0f172a]/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 hover:border-blue-500/30 transition-all duration-500 shadow-xl"
+                >
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+                      {proto.category} <span className="text-blue-500 text-[10px]">PROTOCOL</span>
+                    </h3>
+                    <button onClick={() => addProtocolSpec(idx)} className="text-emerald-500 hover:text-emerald-400 p-2"><FaPlus size={14} /></button>
+                  </div>
+                  <div className="space-y-4">
+                    {proto.specs.map((spec, sIdx) => (
+                      <div key={sIdx} className="group/spec flex items-end gap-3">
+                        <div className="flex-1 space-y-2">
+                          <input
+                            value={spec.label}
+                            onChange={(e) => {
+                              const newProtocols = [...serviceData.protocolDetails];
+                              newProtocols[idx].specs[sIdx].label = e.target.value;
+                              setServiceData({ ...serviceData, protocolDetails: newProtocols });
+                            }}
+                            className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 text-gray-500 text-[8px] font-black uppercase outline-none focus:border-blue-500 transition-all"
+                            placeholder="Label"
+                          />
+                          <input
+                            value={spec.value}
+                            onChange={(e) => {
+                              const newProtocols = [...serviceData.protocolDetails];
+                              newProtocols[idx].specs[sIdx].value = e.target.value;
+                              setServiceData({ ...serviceData, protocolDetails: newProtocols });
+                            }}
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-blue-400 text-xs font-mono outline-none focus:border-blue-500 transition-all"
+                            placeholder="Value"
+                          />
+                        </div>
+                        <button onClick={() => deleteProtocolSpec(idx, sIdx)} className="text-red-500/50 hover:text-red-500 p-2 mb-1.5 opacity-0 group-hover/spec:opacity-100 transition-opacity"><FaTrash size={12} /></button>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
               ))}
             </div>
           </div>

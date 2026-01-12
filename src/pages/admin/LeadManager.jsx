@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaEnvelope, FaClock, FaCommentDots, FaUserCheck, FaTrash, FaCheckDouble, FaDatabase, FaFilter } from 'react-icons/fa';
+import { FaEnvelope, FaClock, FaCommentDots, FaUserCheck, FaTrash, FaCheckDouble, FaDatabase, FaFilter, FaExclamationTriangle } from 'react-icons/fa';
+import ConfirmModal from '../../components/Admin/ConfirmModal';
 
 const LeadManager = () => {
   const [leads, setLeads] = useState([]);
-
   const [filter, setFilter] = useState('All');
+  const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null, type: 'danger' });
+
+  const showConfirm = (title, message, onConfirm, type = 'danger') => {
+    setConfirmModal({ show: true, title, message, onConfirm, type });
+  };
 
   // Load leads from localStorage
   React.useEffect(() => {
@@ -31,11 +36,15 @@ const LeadManager = () => {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Protocol: PURGE LEAD NODE?')) {
-      const updated = leads.filter(l => l.id !== id);
-      setLeads(updated);
-      saveLeads(updated);
-    }
+    showConfirm(
+      'PURGE LEAD NODE?',
+      'Warning: This action will permanently erase the lead transmission from the logs.',
+      () => {
+        const updated = leads.filter(l => l.id !== id);
+        setLeads(updated);
+        saveLeads(updated);
+      }
+    );
   };
 
   const toggleStatus = (id) => {
@@ -146,6 +155,15 @@ const LeadManager = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        show={confirmModal.show}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ ...confirmModal, show: false })}
+      />
     </div>
   );
 };

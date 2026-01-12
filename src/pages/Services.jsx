@@ -88,6 +88,14 @@ export default function Services() {
       features: ["Security Patches", "Performance Tuning", "Regular Backups", "Technical Support"],
       delay: 0.6,
       slug: 'maintenance'
+    },
+    {
+      icon: FaCogs,
+      title: "Website Redesign",
+      description: "Breath new life into your digital presence with cutting-edge design and performance.",
+      features: ["Performance Boost", "Mobile Revamp", "SEO Recovery", "Modern Stack"],
+      delay: 0.7,
+      slug: 'redesign'
     }
   ]);
 
