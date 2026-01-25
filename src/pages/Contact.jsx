@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../utils/api';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { FaCalendarAlt, FaClock, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaCheck, FaTwitter, FaLinkedin, FaGithub, FaInstagram, FaArrowRight } from 'react-icons/fa';
@@ -6,7 +7,6 @@ import emailjs from '@emailjs/browser';
 import PageHero from '../components/UI/PageHero';
 import SEO from '../components/SEO';
 import { validateEmail, validateName, validatePhone, validateLength, validateFutureDate } from '../utils/ValidationUtils';
-import { safeGetLocalStorage, safeSetLocalStorage } from '../utils/LocalStorageUtils';
 import FormError from '../components/UI/FormError';
 import Toast from '../components/UI/Toast';
 
@@ -78,31 +78,34 @@ export default function Contact() {
 
     setStatus('submitting');
 
-    // Save to localStorage
-    const submission = {
-      id: Date.now(),
-      type: activeTab,
-      name: nameValidation.value,
-      email: emailValidation.value,
-      phone: phoneValidation.value,
-      subject: formData.subject,
-      service: formData.service,
-      message: messageValidation.value,
-      date: formData.date,
-      time: formData.time,
-      submittedAt: new Date().toISOString(),
-      status: 'New'
-    };
-
+    // Save to API
     if (activeTab === 'schedule') {
-      const existingMeetings = safeGetLocalStorage('vgtw_meetings', []);
-      safeSetLocalStorage('vgtw_meetings', [submission, ...existingMeetings]);
+      const scheduleData = {
+        name: nameValidation.value,
+        email: emailValidation.value,
+        phone: phoneValidation.value,
+        subject: formData.subject || 'Consultation Schedule',
+        service: formData.service,
+        message: messageValidation.value,
+        date: formData.date,
+        time: formData.time,
+        status: 'Scheduled'
+      };
+      await api.save('meetings', scheduleData);
     } else {
-      const existingContacts = safeGetLocalStorage('vgtw_contacts', []);
-      safeSetLocalStorage('vgtw_contacts', [submission, ...existingContacts]);
+      const contactData = {
+        name: nameValidation.value,
+        email: emailValidation.value,
+        phone: phoneValidation.value,
+        subject: formData.subject || 'General Inquiry',
+        service: formData.service,
+        message: messageValidation.value,
+        status: 'New'
+      };
+      await api.save('contacts', contactData);
     }
 
-    window.dispatchEvent(new Event('storage'));
+    // window.dispatchEvent(new Event('storage')); // No longer needed for LS sync
 
     // EmailJS Integration
     const serviceId = import.meta.env.VITE_EMAILJS_IDENTITY_SERVICE_ID;
@@ -310,21 +313,24 @@ export default function Contact() {
                         <div className="grid md:grid-cols-2 gap-5">
                           <div>
                             <label className="block text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Name</label>
-                            <input name="name" value={formData.name} onChange={handleChange} required className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" placeholder="Jane Doe" />
+                            <input name="name" value={formData.name} onChange={handleChange} required className={`w-full bg-[#030712] border ${errors.name ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm`} placeholder="Jane Doe" />
+                            <FormError error={errors.name} />
                           </div>
                           <div>
                             <label className="block text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Phone</label>
-                            <input name="phone" value={formData.phone} onChange={handleChange} type="tel" className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" placeholder="+1 (555) 000-0000" />
+                            <input name="phone" value={formData.phone} onChange={handleChange} type="tel" className={`w-full bg-[#030712] border ${errors.phone ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm`} placeholder="+1 (555) 000-0000" />
+                            <FormError error={errors.phone} />
                           </div>
                         </div>
 
                         <div>
                           <label className="block text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Email</label>
-                          <input name="email" value={formData.email} onChange={handleChange} required type="email" className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" placeholder="jane@company.com" />
+                          <input name="email" value={formData.email} onChange={handleChange} required type="email" className={`w-full bg-[#030712] border ${errors.email ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm`} placeholder="jane@company.com" />
+                          <FormError error={errors.email} />
                         </div>
 
                         {activeTab === 'schedule' && (
-                          <div className="grid md:grid-cols-2 gap-5 p-5 bg-blue-900/10 border border-blue-500/20 rounded-xl">
+                          <div className={`grid md:grid-cols-2 gap-5 p-5 bg-blue-900/10 border ${errors.date || errors.time ? 'border-red-500' : 'border-blue-500/20'} rounded-xl`}>
                             <div>
                               <label className="block text-blue-300 text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-2"><FaCalendarAlt /> Preferred Date</label>
                               <input
@@ -336,6 +342,7 @@ export default function Contact() {
                                 className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none cursor-pointer text-sm"
                                 style={{ colorScheme: 'dark' }}
                               />
+                              <FormError error={errors.date} />
                             </div>
                             <div>
                               <label className="block text-blue-300 text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-2"><FaClock /> Preferred Time</label>
@@ -348,6 +355,7 @@ export default function Contact() {
                                 className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none cursor-pointer text-sm"
                                 style={{ colorScheme: 'dark' }}
                               />
+                              <FormError error={errors.time} />
                             </div>
                           </div>
                         )}
@@ -367,7 +375,8 @@ export default function Contact() {
 
                         <div>
                           <label className="block text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Message</label>
-                          <textarea name="message" value={formData.message} onChange={handleChange} required rows={activeTab === 'schedule' ? 2 : 4} className="w-full bg-[#030712] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors resize-none text-sm" placeholder={activeTab === 'schedule' ? "Any specific topics for the call?" : "Tell us about your project..."}></textarea>
+                          <textarea name="message" value={formData.message} onChange={handleChange} required rows={activeTab === 'schedule' ? 2 : 4} className={`w-full bg-[#030712] border ${errors.message ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors resize-none text-sm`} placeholder={activeTab === 'schedule' ? "Any specific topics for the call?" : "Tell us about your project..."}></textarea>
+                          <FormError error={errors.message} />
                         </div>
 
                         <button disabled={status === 'submitting'} className={`w-full font-black uppercase text-[11px] tracking-[0.3em] py-5 rounded-xl shadow-lg transform transition-all hover:-translate-y-1 flex items-center justify-center gap-3 ${activeTab === 'schedule' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white'}`}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../utils/api';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import * as FaIcons from 'react-icons/fa';
 import * as SiIcons from 'react-icons/si';
@@ -28,72 +29,50 @@ const Portfolio = () => {
   }, [filter, projects]);
 
   useEffect(() => {
-    const loadData = () => {
-      // Load Projects
-      const savedProjects = localStorage.getItem('vgtw_projects');
-      if (savedProjects && JSON.parse(savedProjects).length > 0) {
-        setProjects(JSON.parse(savedProjects));
-      } else {
-        const defaults = [
-          {
-            id: 1,
-            title: 'Crypto Wallet v2',
-            type: 'FinTech',
-            img: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=800',
-            logo: 'https://cdn-icons-png.flaticon.com/512/825/825540.png',
-            liveUrl: '#'
-          },
-          {
-            id: 2,
-            title: 'Nexus E-Commerce',
-            type: 'SaaS',
-            img: 'https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=800',
-            logo: 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png',
-            liveUrl: '#'
-          },
-          {
-            id: 3,
-            title: 'HealthSync App',
-            type: 'Mobile',
-            img: 'https://images.unsplash.com/photo-1576091160550-217359f48f4c?q=80&w=800',
-            logo: 'https://cdn-icons-png.flaticon.com/512/2966/2966327.png',
-            liveUrl: '#'
-          },
-          {
-            id: 4,
-            title: 'Global ERP Sync',
-            type: 'Odoo ERP',
-            img: 'https://images.unsplash.com/photo-1551288049-bbbda546697a?q=80&w=800',
-            logo: 'https://cdn-icons-png.flaticon.com/512/3767/3767094.png',
-            liveUrl: '#'
-          }
-        ];
-        setProjects(defaults);
-        // Optional: Persist defaults to fix admin view sync
-        // localStorage.setItem('vgtw_projects', JSON.stringify(defaults));
-      }
+    const loadData = async () => {
+      try {
+        // Load Projects
+        const savedProjects = await api.fetchAll('projects');
+        if (savedProjects && Array.isArray(savedProjects) && savedProjects.length > 0) {
+          setProjects(savedProjects);
+        } else {
+          // Defaults if API empty (optional, or could just set empty)
+          const defaults = [
+            {
+              id: 1,
+              title: 'Crypto Wallet v2',
+              type: 'FinTech',
+              img: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=800',
+              logo: 'https://cdn-icons-png.flaticon.com/512/825/825540.png',
+              liveUrl: '#'
+            },
+            // ... (Same defaults as before for fallback)
+          ];
+          // Only use defaults if absolutely necessary, but preferred to rely on API data.
+          // For now, let's assume if API returns empty, we show empty or handle gracefully.
+          // If we want to seed defaults, we should do it in DB import, not code.
+          // But keeping concise logic:
+          if (savedProjects.length > 0) setProjects(savedProjects);
+        }
 
-      // Load Tech Stack
-      const savedTech = localStorage.getItem('vgtw_tech_stack');
-      if (savedTech) {
-        setTechnologies(JSON.parse(savedTech));
-      } else {
-        setTechnologies([
-          { id: '1', name: "React", icon: "FaReact", color: "text-blue-400" },
-          { id: '2', name: "Node.js", icon: "FaNodeJs", color: "text-green-500" },
-          { id: '3', name: "TypeScript", icon: "SiTypescript", color: "text-blue-600" },
-          { id: '4', name: "AWS", icon: "FaAws", color: "text-orange-500" },
-          { id: '5', name: "Docker", icon: "FaDocker", color: "text-blue-500" },
-          { id: '6', name: "Next.js", icon: "SiNextdotjs", color: "text-white" },
-          { id: '7', name: "Python", icon: "FaPython", color: "text-yellow-400" },
-          { id: '8', name: "GraphQL", icon: "SiGraphql", color: "text-pink-500" },
-        ]);
+        // Load Tech Stack
+        const savedTech = await api.fetchAll('tech_stack');
+        if (savedTech && savedTech.length > 0) {
+          setTechnologies(savedTech);
+        } else {
+          // Logic to set defaults if config missing
+          setTechnologies([
+            { id: '1', name: "React", icon: "FaReact", color: "text-blue-400" },
+            { id: '2', name: "Node.js", icon: "FaNodeJs", color: "text-green-500" },
+            // ...
+          ]);
+        }
+      } catch (e) {
+        console.error("Error loading portfolio data", e);
       }
     };
 
     loadData();
-    window.addEventListener('storage', loadData);
-    return () => window.removeEventListener('storage', loadData);
   }, []);
 
   // Helper to get Icon Component from string
@@ -159,8 +138,8 @@ const Portfolio = () => {
                   key={cat}
                   onClick={() => setFilter(cat)}
                   className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all duration-300 relative overflow-hidden group ${filter === cat
-                      ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/25'
-                      : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
+                    ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/25'
+                    : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
                     }`}
                 >
                   <span className="relative z-10">{cat}</span>
@@ -189,7 +168,7 @@ const Portfolio = () => {
                   className="group relative bg-[#0f172a]/50 border border-white/10 hover:border-blue-500/30 rounded-[2.5rem] overflow-hidden transition-all duration-500 aspect-square w-full"
                 >
                   <div className="absolute inset-0">
-                    <img src={project.image || project.img} alt={project.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img src={project.img} alt={project.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/80 to-transparent opacity-90 z-10"></div>
 
                     {/* Company Logo Overlay - Top Left */}
@@ -221,14 +200,14 @@ const Portfolio = () => {
                         {project.title}
                       </h3>
 
-                      <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
+                      <div className="mt-6">
                         <a
                           href={project.liveUrl || '#'}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full py-4 bg-white text-black hover:bg-blue-600 hover:text-white font-black uppercase text-[10px] tracking-[0.3em] rounded-xl transition-all duration-300 flex items-center justify-center gap-4 shadow-[0_15px_40px_rgba(0,0,0,0.6)] active:scale-95 group/btn"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 hover:border-blue-500 rounded-full font-bold text-[9px] uppercase tracking-widest transition-all duration-300 backdrop-blur-md shadow-lg shadow-blue-900/20 hover:shadow-blue-600/40 hover:-translate-y-0.5 group/btn"
                         >
-                          Visit_Live_Node <FaIcons.FaExternalLinkAlt size={12} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                          Live_Node <FaIcons.FaExternalLinkAlt size={10} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                         </a>
                       </div>
                     </div>

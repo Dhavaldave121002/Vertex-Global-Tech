@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaTrash, FaEdit, FaFileExcel, FaChartLine, FaArrowUp, FaArrowDown, FaFilter } from 'react-icons/fa';
+import { api } from '../../utils/api';
+import { SessionManager } from '../../utils/SessionManager';
 
 const DEFAULT_FY = "2025-2026";
 
@@ -15,45 +17,37 @@ const AccountingManager = () => {
 
   useEffect(() => {
     // Role Check
-    try {
-      const session = JSON.parse(localStorage.getItem('vgtw_admin_session') || 'null');
-      if (!session || !session.isMaster) {
-        navigate('/admin/dashboard');
-        return;
-      }
-    } catch (e) {
-      navigate('/admin/dashboard');
-      return;
-    }
+    // Role Check
+    if (!SessionManager.requireAuth(navigate, true)) return;
 
-    const saved = localStorage.getItem('vgtw_accounting');
-    if (saved) setData(JSON.parse(saved));
+    fetchData();
   }, [navigate]);
 
-  const saveToStorage = (newData) => {
-    localStorage.setItem('vgtw_accounting', JSON.stringify(newData));
-    window.dispatchEvent(new Event('storage'));
+  const fetchData = async () => {
+    const records = await api.fetchAll('accounting');
+    setData(records);
   };
+  // Removed saveToStorage as API handles persistence
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    let updated;
-    if (editingId) {
-      updated = data.map(d => d.id === editingId ? { ...form, id: editingId } : d);
+    const payload = { ...form };
+    if (editingId) payload.id = editingId;
+
+    const response = await api.save('accounting', payload);
+    if (response.success) {
+      fetchData();
+      setFilterFY(form.fy);
+      resetForm();
     } else {
-      updated = [{ ...form, id: Date.now() }, ...data];
+      alert("Error saving record");
     }
-    setData(updated);
-    saveToStorage(updated);
-    setFilterFY(form.fy); // Auto-jump to the year we just logged/modified
-    resetForm();
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Protocol: PURGE FINANCIAL NODE?')) {
-      const updated = data.filter(d => d.id !== id);
-      setData(updated);
-      saveToStorage(updated);
+      await api.delete('accounting', id);
+      fetchData();
     }
   };
 

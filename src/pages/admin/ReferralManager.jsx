@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaUser, FaEnvelope, FaPhone, FaTrash, FaEdit, FaCheck, FaTimes, FaCrown, FaChartLine, FaSearch, FaMoneyBillWave, FaTrophy, FaPlus } from 'react-icons/fa';
 import ConfirmModal from '../../components/Admin/ConfirmModal';
@@ -21,77 +22,49 @@ const ReferralManager = () => {
   };
 
   useEffect(() => {
-    const loadData = () => {
-      const savedReferrals = localStorage.getItem('vgtw_referrals');
-      const savedLeads = localStorage.getItem('vgtw_referral_leads');
-      const savedTiers = localStorage.getItem('vgtw_referral_tiers');
+    const init = async () => {
+      await loadData(); // Reuse our robust loadData
 
-      if (savedReferrals) setReferrals(JSON.parse(savedReferrals));
-      if (savedLeads) setLeads(JSON.parse(savedLeads));
-
-      if (savedTiers) {
-        const parsed = JSON.parse(savedTiers);
-
-        // Migration: Check if old percentage-based tiers exist and convert them
-        const needsMigration = parsed.some(t =>
-          (t.name === 'Starter' || t.name === 'Pro') &&
-          parseInt(t.commission) < 100
-        );
-
-        if (needsMigration) {
-          // Replace old tiers with new flat-rate tiers
-          const migratedTiers = [
-            { name: 'Bridge', commission: '1000', description: 'Standard entry level partner status.', color: 'blue' },
-            { name: 'Nexus', commission: '1500', description: 'Elite partner status after 3 successful referrals.', color: 'purple' }
-          ];
-          setTiers(migratedTiers);
-          localStorage.setItem('vgtw_referral_tiers', JSON.stringify(migratedTiers));
-        } else {
-          setTiers(parsed);
-        }
+      const tiersData = await api.fetchConfig('referral_tiers');
+      if (tiersData) {
+        setTiers(tiersData);
       } else {
         const defaultTiers = [
           { name: 'Bridge', commission: '1000', description: 'Standard entry level partner status.', color: 'blue' },
           { name: 'Nexus', commission: '1500', description: 'Elite partner status after 3 successful referrals.', color: 'purple' }
         ];
         setTiers(defaultTiers);
-        localStorage.setItem('vgtw_referral_tiers', JSON.stringify(defaultTiers));
       }
     };
 
-    loadData();
-    window.addEventListener('storage', loadData);
-    return () => window.removeEventListener('storage', loadData);
+    init();
   }, []);
 
-  const saveReferrals = (data) => {
-    localStorage.setItem('vgtw_referrals', JSON.stringify(data));
-    window.dispatchEvent(new Event('storage'));
+  const loadData = async () => {
+    const rawReferrals = await api.fetchAll('referrals');
+    const sanitizedReferrals = rawReferrals.map(r => ({
+      ...r,
+      referralCount: Number(r.referralCount || 0),
+      totalEarnings: Number(r.totalEarnings || 0)
+    }));
+    setReferrals(sanitizedReferrals);
+
+    const leadsData = await api.fetchAll('leads');
+    setLeads(leadsData);
   };
 
-  const saveLeads = (data) => {
-    localStorage.setItem('vgtw_referral_leads', JSON.stringify(data));
-    window.dispatchEvent(new Event('storage'));
-  };
 
-  const saveTiers = (data) => {
-    localStorage.setItem('vgtw_referral_tiers', JSON.stringify(data));
-    window.dispatchEvent(new Event('storage'));
-  };
-
-  const handleAddReferral = (e) => {
+  const handleAddReferral = async (e) => {
     e.preventDefault();
     const newReferral = {
-      id: Date.now().toString(),
       ...formData,
       status: 'Active',
       referralCount: 0,
       totalEarnings: 0,
       createdAt: new Date().toISOString()
     };
-    const updated = [newReferral, ...referrals];
-    setReferrals(updated);
-    saveReferrals(updated);
+    await api.save('referrals', newReferral);
+    loadData();
     setIsAdding(false);
     setFormData({ name: '', email: '', code: '', tier: tiers[0]?.name || 'Bridge' });
   };
@@ -101,13 +74,16 @@ const ReferralManager = () => {
     showConfirm(
       'COMMIT CHANGES?',
       'Are you sure you want to update this partner node?',
-      () => {
-        const updated = referrals.map(r => r.id === editingId ? { ...r, ...formData } : r);
-        setReferrals(updated);
-        saveReferrals(updated);
-        setIsAdding(false);
-        setEditingId(null);
-        setFormData({ name: '', email: '', code: '', tier: tiers[0]?.name || 'Bridge' });
+      async () => {
+        const referralToUpdate = referrals.find(r => r.id === editingId);
+        if (referralToUpdate) {
+          const updated = { ...referralToUpdate, ...formData };
+          await api.save('referrals', updated);
+          loadData();
+          setIsAdding(false);
+          setEditingId(null);
+          setFormData({ name: '', email: '', code: '', tier: tiers[0]?.name || 'Bridge' });
+        }
       },
       'primary'
     );
@@ -118,7 +94,7 @@ const ReferralManager = () => {
     showConfirm(
       'COMMIT PACKAGE CHANGES?',
       'Updating this package protocol will affect all linked partner earnings.',
-      () => {
+      async () => {
         let updated;
         if (editingId !== null) {
           updated = tiers.map((t, i) => i === editingId ? tierForm : t);
@@ -126,7 +102,7 @@ const ReferralManager = () => {
           updated = [...tiers, tierForm];
         }
         setTiers(updated);
-        saveTiers(updated);
+        await api.saveConfig('referral_tiers', updated);
         setIsAdding(false);
         setEditingId(null);
         setTierForm({ name: '', commission: '', description: '', color: 'blue' });
@@ -150,10 +126,10 @@ const ReferralManager = () => {
     showConfirm(
       'PURGE PACKAGE NODE?',
       'This action is irreversible and may disrupt existing partner status tracking.',
-      () => {
+      async () => {
         const updated = tiers.filter((_, i) => i !== index);
         setTiers(updated);
-        saveTiers(updated);
+        await api.saveConfig('referral_tiers', updated);
       }
     );
   };
@@ -162,10 +138,9 @@ const ReferralManager = () => {
     showConfirm(
       'PURGE PARTNER NODE?',
       'Warning: All associated metrics for this partner will be permanently erased.',
-      () => {
-        const filtered = referrals.filter(r => r.id !== id);
-        setReferrals(filtered);
-        saveReferrals(filtered);
+      async () => {
+        await api.delete('referrals', id);
+        loadData();
       }
     );
   };
@@ -174,15 +149,14 @@ const ReferralManager = () => {
     showConfirm(
       'ERASE LEAD RECORD?',
       'This will remove the lead entry from the system logs.',
-      () => {
-        const filtered = leads.filter(l => l.id !== id);
-        setLeads(filtered);
-        saveLeads(filtered);
+      async () => {
+        await api.delete('leads', id);
+        loadData();
       }
     );
   };
 
-  const handleApproveLead = (leadId) => {
+  const handleApproveLead = async (leadId) => {
     const leadToApprove = leads.find(l => l.id === leadId);
     if (!leadToApprove || leadToApprove.status === 'Approved') return;
 
@@ -191,42 +165,54 @@ const ReferralManager = () => {
     const referralIndex = updatedReferrals.findIndex(r => r.code === leadToApprove.referralCode);
 
     if (referralIndex !== -1) {
-      const currentTier = tiers.find(t => t.name === updatedReferrals[referralIndex].tier) || tiers[0];
+      const referral = updatedReferrals[referralIndex];
+      const currentTier = tiers.find(t => t.name === referral.tier) || tiers[0];
       const flatEarning = currentTier ? parseInt(currentTier.commission) : 1000;
 
-      updatedReferrals[referralIndex].referralCount++;
-      updatedReferrals[referralIndex].totalEarnings += flatEarning;
+      // Ensure we are doing numeric addition, not string concatenation
+      referral.referralCount = Number(referral.referralCount || 0) + 1;
+      referral.totalEarnings = Number(referral.totalEarnings || 0) + flatEarning;
 
       // Auto-upgrade logic
-      if (updatedReferrals[referralIndex].referralCount >= 3) {
+      if (referral.referralCount >= 3 && referral.tier !== 'Nexus') {
         const nexusTier = tiers.find(t => t.name === 'Nexus') || tiers[1];
         if (nexusTier) {
-          updatedReferrals[referralIndex].tier = nexusTier.name;
+          referral.tier = nexusTier.name;
         }
       }
 
       setReferrals(updatedReferrals);
-      saveReferrals(updatedReferrals);
+      // Persist referral update
+      await api.save('referrals', referral);
     }
 
     // Update lead status
-    const updatedLeads = leads.map(l => l.id === leadId ? { ...l, status: 'Approved' } : l);
+    const leadUpdate = { ...leadToApprove, status: 'Approved' };
+    const updatedLeads = leads.map(l => l.id === leadId ? leadUpdate : l);
     setLeads(updatedLeads);
-    saveLeads(updatedLeads);
+    // Persist lead update
+    await api.save('leads', leadUpdate);
   };
 
-  const handleRejectLead = (leadId) => {
-    const updatedLeads = leads.map(l => l.id === leadId ? { ...l, status: 'Rejected' } : l);
+  const handleRejectLead = async (leadId) => {
+    const leadToReject = leads.find(l => l.id === leadId);
+    if (!leadToReject) return;
+
+    const leadUpdate = { ...leadToReject, status: 'Rejected' };
+    const updatedLeads = leads.map(l => l.id === leadId ? leadUpdate : l);
     setLeads(updatedLeads);
-    saveLeads(updatedLeads);
+    // Persist lead update
+    await api.save('leads', leadUpdate);
   };
 
-  const toggleReferralStatus = (id) => {
-    const updated = referrals.map(r =>
-      r.id === id ? { ...r, status: r.status === 'Active' ? 'Inactive' : 'Active' } : r
-    );
+  const toggleReferralStatus = async (id) => {
+    const referral = referrals.find(r => r.id === id);
+    if (!referral) return;
+
+    const updatedReferral = { ...referral, status: referral.status === 'Active' ? 'Inactive' : 'Active' };
+    const updated = referrals.map(r => r.id === id ? updatedReferral : r);
     setReferrals(updated);
-    saveReferrals(updated);
+    await api.save('referrals', updatedReferral);
   };
 
   const formatDate = (isoString) => {
@@ -443,11 +429,12 @@ const ReferralManager = () => {
                             className="hover:bg-white/[0.02] transition-colors group"
                           >
                             <td className="px-10 py-6">
-                              <div className="text-sm font-black text-white uppercase tracking-tight">{lead.clientName}</div>
-                              <div className="text-[10px] text-gray-500 font-bold uppercase mt-1 tracking-widest">{lead.clientEmail || lead.clientPhone}</div>
+                              <div className="text-sm font-black text-white uppercase tracking-tight">{lead.name}</div>
+                              <div className="text-[10px] text-gray-500 font-bold uppercase mt-1 tracking-widest">{lead.email || lead.phone}</div>
+                              {lead.plan && <div className="text-[10px] text-blue-400 font-medium italic mt-1 max-w-[200px] truncate" title={lead.plan}>Note: {lead.plan}</div>}
                             </td>
                             <td className="px-10 py-6"><code className="text-[10px] text-blue-500 font-mono font-bold tracking-widest bg-blue-500/5 px-2 py-1 rounded">{lead.referralCode}</code></td>
-                            <td className="px-10 py-6"><span className="text-[9px] font-black text-gray-400 border border-white/10 px-3 py-1 rounded-lg uppercase tracking-widest">{lead.projectType}</span></td>
+                            <td className="px-10 py-6"><span className="text-[9px] font-black text-gray-400 border border-white/10 px-3 py-1 rounded-lg uppercase tracking-widest">{lead.service}</span></td>
                             <td className="px-10 py-6">
                               <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-lg border ${lead.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
                                 lead.status === 'Rejected' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
@@ -459,24 +446,28 @@ const ReferralManager = () => {
                             <td className="px-10 py-6"><span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">{formatDate(lead.submittedAt)}</span></td>
                             <td className="px-10 py-6 text-right">
                               <div className="flex justify-end gap-2">
-                                {(!lead.status || lead.status === 'New') && (
-                                  <>
-                                    <button
-                                      onClick={() => handleApproveLead(lead.id)}
-                                      className="p-3 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white rounded-xl transition-all"
-                                      title="Approve Node"
-                                    >
-                                      <FaCheck size={12} />
-                                    </button>
-                                    <button
-                                      onClick={() => handleRejectLead(lead.id)}
-                                      className="p-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl transition-all"
-                                      title="Reject Node"
-                                    >
-                                      <FaTimes size={12} />
-                                    </button>
-                                  </>
-                                )}
+                                {(!lead.status ||
+                                  lead.status.toLowerCase() === 'new' ||
+                                  lead.status === 'Lead') && (
+                                    <>
+                                      <button
+                                        onClick={() => handleApproveLead(lead.id)}
+                                        className="flex items-center gap-1 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white rounded-lg transition-all border border-emerald-500/20"
+                                        title="Approve Lead"
+                                      >
+                                        <FaCheck size={10} />
+                                        <span className="text-[9px] font-black uppercase tracking-tighter">Approve</span>
+                                      </button>
+                                      <button
+                                        onClick={() => handleRejectLead(lead.id)}
+                                        className="flex items-center gap-1 px-3 py-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-all border border-red-500/20"
+                                        title="Reject Lead"
+                                      >
+                                        <FaTimes size={10} />
+                                        <span className="text-[9px] font-black uppercase tracking-tighter">Reject</span>
+                                      </button>
+                                    </>
+                                  )}
                                 <button onClick={() => handleDeleteLead(lead.id)} className="p-3 hover:bg-red-600/20 text-gray-700 hover:text-red-500 rounded-xl transition-all" title="Purge Record"><FaTrash size={12} /></button>
                               </div>
                             </td>

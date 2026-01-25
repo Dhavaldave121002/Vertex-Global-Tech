@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaPaperPlane, FaUserAstronaut, FaCompass, FaExternalLinkAlt, FaInfoCircle } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
 
+import { api } from '../../utils/api';
+import { SessionManager } from '../../utils/SessionManager';
+
 const MarketingManager = () => {
   const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
@@ -13,25 +16,15 @@ const MarketingManager = () => {
 
   useEffect(() => {
     // Role Check
-    try {
-      const session = JSON.parse(localStorage.getItem('vgtw_admin_session') || 'null');
-      if (!session || !session.isMaster) {
-        navigate('/admin/dashboard');
-        return;
-      }
-    } catch (e) {
-      navigate('/admin/dashboard');
-    }
+    if (!SessionManager.requireAuth(navigate, true)) return;
 
-    // Load Subscribers
-    const loadSubs = () => {
-      const saved = JSON.parse(localStorage.getItem('vgtw_newsletter') || '[]');
-      setSubscribers(saved);
-    };
-    loadSubs();
-    window.addEventListener('storage', loadSubs);
-    return () => window.removeEventListener('storage', loadSubs);
+    fetchSubscribers();
   }, [navigate]);
+
+  const fetchSubscribers = async () => {
+    const data = await api.fetchAll('subscribers');
+    setSubscribers(data);
+  };
 
   const handleDispatch = async (e) => {
     e.preventDefault();
@@ -196,19 +189,17 @@ const MarketingManager = () => {
                       <div>
                         <div className="text-white font-bold text-sm">{sub.email}</div>
                         <div className="text-[9px] text-gray-500 font-black uppercase tracking-widest mt-1">
-                          Since {new Date(sub.subscribedAt).toLocaleDateString()}
+                          Since {new Date(sub.subscribed_at).toLocaleDateString()}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-[8px] font-black text-emerald-500 uppercase tracking-widest">Active_Node</span>
                       <button
-                        onClick={() => {
+                        onClick={async () => {
                           if (window.confirm('Terminate this subscription node?')) {
-                            const updated = subscribers.filter(s => s.id !== sub.id);
-                            localStorage.setItem('vgtw_newsletter', JSON.stringify(updated));
-                            setSubscribers(updated);
-                            window.dispatchEvent(new Event('storage'));
+                            await api.delete('subscribers', sub.id);
+                            fetchSubscribers();
                           }
                         }}
                         className="text-gray-600 hover:text-red-500 transition-colors p-2"

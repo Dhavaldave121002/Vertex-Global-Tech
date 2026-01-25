@@ -4,6 +4,7 @@ import { FaRocket, FaEye, FaLinkedinIn, FaGithub, FaTwitter, FaHandshake, FaGlob
 import Counter from '../components/UI/Counter';
 import PageHero from '../components/UI/PageHero';
 import SEO from '../components/SEO';
+import { api } from '../utils/api';
 
 // --- SUB-COMPONENTS ---
 
@@ -11,24 +12,24 @@ const Timeline = () => {
   const [events, setEvents] = React.useState([]);
 
   React.useEffect(() => {
-    const loadEvents = () => {
-      const saved = localStorage.getItem('vgtw_timeline');
-      if (saved) {
-        setEvents(JSON.parse(saved));
-      } else {
-        // Default fallback if nothing in storage (though Admin usually sets it)
-        // Syncs with TimelineManager defaults
-        const defaultEvents = [
-          { id: 1, year: "2025", title: "The Genesis", desc: "Vertex Global Tech launches its next-gen digital ecosystem platform." },
-          { id: 2, year: "2026", title: "Global Scale", desc: "Expanding operations to key international markets in Europe and Asia." },
-          { id: 3, year: "2027", title: "AI Integration", desc: "Full-scale deployment of proprietary AI models across all client services." }
-        ];
-        setEvents(defaultEvents);
+    const loadEvents = async () => {
+      try {
+        const data = await api.fetchAll('timeline');
+        if (data && data.length > 0) {
+          setEvents(data);
+        } else {
+          const defaultEvents = [
+            { id: 1, year: "2025", title: "The Genesis", description: "Vertex Global Tech launches its next-gen digital ecosystem platform." },
+            { id: 2, year: "2026", title: "Global Scale", description: "Expanding operations to key international markets in Europe and Asia." },
+            { id: 3, year: "2027", title: "AI Integration", description: "Full-scale deployment of proprietary AI models across all client services." }
+          ];
+          setEvents(defaultEvents);
+        }
+      } catch (e) {
+        console.error("Failed to load timeline", e);
       }
     };
     loadEvents();
-    window.addEventListener('storage', loadEvents);
-    return () => window.removeEventListener('storage', loadEvents);
   }, []);
 
   return (
@@ -56,7 +57,7 @@ const Timeline = () => {
                 <div className={`w-full md:w-1/2 px-8 ${index % 2 === 0 ? 'md:text-right' : 'md:text-left'} text-center`}>
                   <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 mb-2">{event.year}</div>
                   <h3 className="text-xl font-bold text-white mb-2">{event.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed max-w-sm mx-auto md:mx-0 inline-block">{event.desc}</p>
+                  <p className="text-gray-400 text-sm leading-relaxed max-w-sm mx-auto md:mx-0 inline-block">{event.description}</p>
                 </div>
 
                 <div className="relative z-10">
@@ -161,8 +162,6 @@ const Process = () => {
   );
 }
 
-// ... (previous components)
-
 const GlobalReach = () => {
   return (
     <section className="py-32 relative overflow-hidden bg-[#030712]">
@@ -254,24 +253,31 @@ const About = () => {
   ];
 
   React.useEffect(() => {
-    const loadTeam = () => {
-      const saved = localStorage.getItem('vgtw_team');
-      if (saved) {
-        setTeam(JSON.parse(saved));
-      } else {
-        const defaultTeam = [
-          { id: 1, name: "James Anderson", role: "CEO & Founder", img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400", bio: "Visionary leader with 15+ years driving digital transformation.", linkedin: "#", twitter: "#", instagram: "#", facebook: "#" },
-          { id: 2, name: "Sarah Lin", role: "CTO", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400", bio: "Cloud architecture expert passionate about AI innovation.", linkedin: "#", twitter: "#", instagram: "#", facebook: "#" },
-          { id: 3, name: "Michael Chen", role: "Lead Developer", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400", bio: "Full-stack wizard specializing in scalable enterprise solutions.", linkedin: "#", twitter: "#", instagram: "#", facebook: "#" },
-          { id: 4, name: "Emily Davis", role: "Head of Design", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400", bio: "Award-winning designer creating intuitive user experiences.", linkedin: "#", twitter: "#", instagram: "#", facebook: "#" }
-        ];
-        setTeam(defaultTeam);
+    const loadTeam = async () => {
+      try {
+        const data = await api.fetchAll('teams');
+        if (data && data.length > 0) {
+          const processed = data.map(m => {
+            let socials = {};
+            try { socials = typeof m.social_links === 'string' ? JSON.parse(m.social_links) : (m.social_links || {}); } catch (e) { }
+            return { ...m, ...socials };
+          });
+          setTeam(processed);
+        } else {
+          const defaultTeam = [
+            { id: 1, name: "James Anderson", role: "CEO & Founder", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400", bio: "Visionary leader with 15+ years driving digital transformation.", linkedin: "#", github: "#", twitter: "#" },
+            { id: 2, name: "Sarah Lin", role: "CTO", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400", bio: "Cloud architecture expert passionate about AI innovation.", linkedin: "#", github: "#", twitter: "#" },
+            { id: 3, name: "Michael Chen", role: "Lead Developer", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400", bio: "Full-stack wizard specializing in scalable enterprise solutions.", linkedin: "#", github: "#", twitter: "#" },
+            { id: 4, name: "Emily Davis", role: "Head of Design", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400", bio: "Award-winning designer creating intuitive user experiences.", linkedin: "#", github: "#", twitter: "#" }
+          ];
+          setTeam(defaultTeam);
+        }
+      } catch (e) {
+        console.error("Failed to load team", e);
       }
     };
 
     loadTeam();
-    window.addEventListener('storage', loadTeam);
-    return () => window.removeEventListener('storage', loadTeam);
   }, []);
 
   return (
@@ -468,11 +474,11 @@ const About = () => {
                   </div>
                 </motion.div>
               ))}
-            </div >
-          </section >
-        </div >
-      </div >
-    </div >
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
   );
 };
 export default About;

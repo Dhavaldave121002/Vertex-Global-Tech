@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope, FaPhone, FaUser, FaBriefcase, FaClock, FaTrash, FaEye, FaCheckCircle, FaTimesCircle, FaSearch, FaFilter, FaFileDownload, FaFilePdf, FaPlus, FaTimes } from 'react-icons/fa';
 
@@ -7,59 +8,47 @@ const ApplicationManager = () => {
   const [selectedApp, setSelectedApp] = useState(null);
   const [filterStatus, setFilterStatus] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
-
-  useEffect(() => {
-    const loadApplications = () => {
-      const saved = localStorage.getItem('vgtw_applications');
-      if (saved) {
-        setApplications(JSON.parse(saved));
-      }
-    };
-
-    loadApplications();
-    window.addEventListener('storage', loadApplications);
-    return () => window.removeEventListener('storage', loadApplications);
-  }, []);
-
-  const saveToStorage = (data) => {
-    localStorage.setItem('vgtw_applications', JSON.stringify(data));
-    window.dispatchEvent(new Event('storage'));
-  };
-
   const [isAdding, setIsAdding] = useState(false);
   const [newApp, setNewApp] = useState({ name: '', email: '', phone: '', jobTitle: '', status: 'New', message: '' });
 
-  const handleAdd = (e) => {
+  useEffect(() => {
+    loadApplications();
+  }, []);
+
+  const loadApplications = async () => {
+    const data = await api.fetchAll('applications');
+    setApplications(data);
+  };
+
+  const handleAdd = async (e) => {
     e.preventDefault();
     const app = {
-      id: Date.now().toString(),
       ...newApp,
-      submittedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
     };
-    const updated = [app, ...applications];
-    setApplications(updated);
-    saveToStorage(updated);
+    await api.save('applications', app);
+    loadApplications();
     setIsAdding(false);
     setNewApp({ name: '', email: '', phone: '', jobTitle: '', status: 'New', message: '' });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this application?')) {
-      const filtered = applications.filter(app => app.id !== id);
-      setApplications(filtered);
-      saveToStorage(filtered);
+      await api.delete('applications', id);
+      loadApplications();
       if (selectedApp?.id === id) setSelectedApp(null);
     }
   };
 
-  const updateStatus = (id, newStatus) => {
-    const updated = applications.map(app =>
-      app.id === id ? { ...app, status: newStatus } : app
-    );
-    setApplications(updated);
-    saveToStorage(updated);
-    if (selectedApp?.id === id) {
-      setSelectedApp({ ...selectedApp, status: newStatus });
+  const updateStatus = async (id, newStatus) => {
+    const app = applications.find(a => a.id === id);
+    if (app) {
+      const updatedApp = { ...app, status: newStatus };
+      await api.save('applications', updatedApp);
+      loadApplications();
+      if (selectedApp?.id === id) {
+        setSelectedApp({ ...selectedApp, status: newStatus });
+      }
     }
   };
 

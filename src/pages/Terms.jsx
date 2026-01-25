@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { api } from '../utils/api';
 import { motion } from 'framer-motion';
 import SEO from '../components/SEO';
 
@@ -11,15 +12,13 @@ export default function Terms() {
   const [data, setData] = useState({ sections: DEFAULT_SECTIONS, lastUpdated: 'December 28, 2025' });
 
   useEffect(() => {
-    const loadTerms = () => {
-      const saved = localStorage.getItem('vgtw_legal_terms');
-      if (saved) {
-        setData(JSON.parse(saved));
+    const loadTerms = async () => {
+      const data = await api.fetchConfig('legal_terms');
+      if (data) {
+        setData(data); // Assuming FetchConfig returns the whole object including sections/lastUpdated for this key?
       }
     };
     loadTerms();
-    window.addEventListener('storage', loadTerms);
-    return () => window.removeEventListener('storage', loadTerms);
   }, []);
 
   return (

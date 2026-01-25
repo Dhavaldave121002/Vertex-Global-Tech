@@ -3,83 +3,44 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaExternalLinkAlt, FaImage, FaGripVertical, FaTrash, FaEdit, FaSave, FaUndo, FaSearch, FaRocket, FaReact, FaNodeJs, FaAws, FaDocker, FaPython } from 'react-icons/fa';
 import { SiTypescript, SiNextdotjs, SiGraphql } from 'react-icons/si';
 
-const PortfolioManager = () => {
-  const [projects, setProjects] = useState(() => {
-    const saved = localStorage.getItem('vgtw_projects');
-    return saved ? JSON.parse(saved) : [
-      {
-        id: 1,
-        title: 'Crypto Wallet v2',
-        type: 'FinTech',
-        img: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=300',
-        logo: 'https://cdn-icons-png.flaticon.com/512/825/825540.png',
-        liveUrl: 'https://vertex-crypto.example.com'
-      },
-      {
-        id: 2,
-        title: 'Nexus E-Commerce',
-        type: 'SaaS',
-        img: 'https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=300',
-        logo: 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png',
-        liveUrl: 'https://nexus-store.example.com'
-      },
-      {
-        id: 3,
-        title: 'HealthSync App',
-        type: 'Mobile',
-        img: 'https://images.unsplash.com/photo-1576091160550-217359f48f4c?q=80&w=300',
-        logo: 'https://cdn-icons-png.flaticon.com/512/2966/2966327.png',
-        liveUrl: 'https://healthsync.example.com'
-      },
-      {
-        id: 4,
-        title: 'Global ERP Sync',
-        type: 'Odoo ERP',
-        img: 'https://images.unsplash.com/photo-1551288049-bbbda546697a?q=80&w=300',
-        logo: 'https://cdn-icons-png.flaticon.com/512/3767/3767094.png',
-        liveUrl: '#'
-      },
-    ];
-  });
+import { api } from '../../utils/api';
 
-  const [techStack, setTechStack] = useState(() => {
-    const saved = localStorage.getItem('vgtw_tech_stack');
-    return saved ? JSON.parse(saved) : [
-      { id: '1', name: "React", icon: "FaReact", color: "text-blue-400" },
-      { id: '2', name: "Node.js", icon: "FaNodeJs", color: "text-green-500" },
-      { id: '3', name: "TypeScript", icon: "SiTypescript", color: "text-blue-600" },
-      { id: '4', name: "AWS", icon: "FaAws", color: "text-orange-500" },
-      { id: '5', name: "Docker", icon: "FaDocker", color: "text-blue-500" },
-      { id: '6', name: "Next.js", icon: "SiNextdotjs", color: "text-white" },
-      { id: '7', name: "Python", icon: "FaPython", color: "text-yellow-400" },
-      { id: '8', name: "GraphQL", icon: "SiGraphql", color: "text-pink-500" },
-    ];
-  });
+const PortfolioManager = () => {
+  const [projects, setProjects] = useState([]);
+  const [techStack, setTechStack] = useState([]);
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [newProj, setNewProj] = useState({ title: '', type: 'FinTech', img: '', logo: '', liveUrl: '' });
-  const [editProj, setEditProj] = useState({ title: '', type: 'FinTech', img: '', logo: '', liveUrl: '' });
+  const [newProj, setNewProj] = useState({ title: '', type: 'FinTech', category: 'FinTech', img: '', logo: '', liveUrl: '' });
+  const [editProj, setEditProj] = useState({ title: '', type: 'FinTech', category: 'FinTech', img: '', logo: '', liveUrl: '' });
 
   const [isAddingTech, setIsAddingTech] = useState(false);
   const [editingTechId, setEditingTechId] = useState(null);
   const [techForm, setTechForm] = useState({ name: '', icon: '', color: 'text-blue-400' });
 
   useEffect(() => {
-    localStorage.setItem('vgtw_projects', JSON.stringify(projects));
-  }, [projects]);
+    fetchProjects();
+    fetchTechStack();
+  }, []);
 
-  useEffect(() => {
-    localStorage.setItem('vgtw_tech_stack', JSON.stringify(techStack));
-    window.dispatchEvent(new Event('storage'));
-  }, [techStack]);
+  const fetchProjects = async () => {
+    const data = await api.fetchAll('projects');
+    setProjects(data);
+  };
 
-  const handleAdd = (e) => {
+  const fetchTechStack = async () => {
+    const data = await api.fetchAll('tech_stack');
+    setTechStack(data);
+  };
+
+  const handleAdd = async (e) => {
     e.preventDefault();
-    const id = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
-    setProjects([...projects, { ...newProj, id }]);
-    setNewProj({ title: '', type: 'FinTech', img: '', logo: '', liveUrl: '' });
-    setIsAdding(false);
+    const response = await api.save('projects', newProj);
+    if (response.success) {
+      fetchProjects();
+      setNewProj({ title: '', type: 'FinTech', category: 'FinTech', img: '', logo: '', liveUrl: '' });
+      setIsAdding(false);
+    }
   };
 
   const handleEdit = (proj) => {
@@ -87,24 +48,30 @@ const PortfolioManager = () => {
     setEditProj({ ...proj, logo: proj.logo || '', liveUrl: proj.liveUrl || '' });
   };
 
-  const handleSaveEdit = () => {
-    setProjects(projects.map(p => p.id === editingId ? { ...editProj } : p));
-    setEditingId(null);
+  const handleSaveEdit = async () => {
+    const response = await api.save('projects', { ...editProj, id: editingId });
+    if (response.success) {
+      fetchProjects();
+      setEditingId(null);
+    }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('PROTOCOL: DESTRUCT PROJECT NODE?')) {
-      setProjects(projects.filter(p => p.id !== id));
+      await api.delete('projects', id);
+      fetchProjects();
     }
   };
 
   // Tech Stack Handlers
-  const handleAddTech = (e) => {
+  const handleAddTech = async (e) => {
     e.preventDefault();
-    const newTech = { ...techForm, id: Date.now().toString() };
-    setTechStack([...techStack, newTech]);
-    setTechForm({ name: '', icon: '', color: 'text-blue-400' });
-    setIsAddingTech(false);
+    const response = await api.save('tech_stack', techForm);
+    if (response.success) {
+      fetchTechStack();
+      setTechForm({ name: '', icon: '', color: 'text-blue-400' });
+      setIsAddingTech(false);
+    }
   };
 
   const startEditTech = (tech) => {
@@ -113,17 +80,21 @@ const PortfolioManager = () => {
     setIsAddingTech(true);
   };
 
-  const handleUpdateTech = (e) => {
+  const handleUpdateTech = async (e) => {
     e.preventDefault();
-    setTechStack(techStack.map(t => t.id === editingTechId ? { ...techForm, id: editingTechId } : t));
-    setEditingTechId(null);
-    setTechForm({ name: '', icon: '', color: 'text-blue-400' });
-    setIsAddingTech(false);
+    const response = await api.save('tech_stack', { ...techForm, id: editingTechId });
+    if (response.success) {
+      fetchTechStack();
+      setEditingTechId(null);
+      setTechForm({ name: '', icon: '', color: 'text-blue-400' });
+      setIsAddingTech(false);
+    }
   };
 
-  const handleDeleteTech = (id) => {
+  const handleDeleteTech = async (id) => {
     if (window.confirm('PROTOCOL: DESTRUCT TECH NODE?')) {
-      setTechStack(techStack.filter(t => t.id !== id));
+      await api.delete('tech_stack', id);
+      fetchTechStack();
     }
   };
 
@@ -186,7 +157,7 @@ const PortfolioManager = () => {
                   <input
                     type="text" required
                     value={newProj.type}
-                    onChange={e => setNewProj({ ...newProj, type: e.target.value })}
+                    onChange={e => setNewProj({ ...newProj, type: e.target.value, category: e.target.value })}
                     className="w-full bg-black/40 border border-white/5 rounded-lg p-3 text-white text-xs focus:outline-none focus:border-blue-500 transition-all font-mono"
                   />
                 </div>
@@ -239,7 +210,7 @@ const PortfolioManager = () => {
               {editingId === proj.id ? (
                 <div className="p-6 space-y-4 bg-blue-600/5">
                   <input className="w-full bg-black/60 border border-blue-500/50 rounded p-2 text-white text-xs font-mono" value={editProj.title} onChange={e => setEditProj({ ...editProj, title: e.target.value })} placeholder="Title" />
-                  <input className="w-full bg-black/60 border border-blue-500/50 rounded p-2 text-white text-xs font-mono" value={editProj.type} onChange={e => setEditProj({ ...editProj, type: e.target.value })} placeholder="Type" />
+                  <input className="w-full bg-black/60 border border-blue-500/50 rounded p-2 text-white text-xs font-mono" value={editProj.type} onChange={e => setEditProj({ ...editProj, type: e.target.value, category: e.target.value })} placeholder="Type" />
                   <input className="w-full bg-black/60 border border-blue-500/50 rounded p-2 text-white text-xs font-mono" value={editProj.img} onChange={e => setEditProj({ ...editProj, img: e.target.value })} placeholder="Img URL" />
                   <input className="w-full bg-black/60 border border-blue-500/50 rounded p-2 text-white text-xs font-mono" value={editProj.logo} onChange={e => setEditProj({ ...editProj, logo: e.target.value })} placeholder="Logo URL" />
                   <input className="w-full bg-black/60 border border-blue-500/50 rounded p-2 text-white text-xs font-mono" value={editProj.liveUrl} onChange={e => setEditProj({ ...editProj, liveUrl: e.target.value })} placeholder="Live URL" />

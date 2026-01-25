@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { api } from '../../utils/api';
 import { motion } from 'framer-motion';
 import PricingModal from '../../components/Pricing/PricingModal';
 import ServiceHero3D from '../../components/UI/ServiceHero3D';
@@ -56,21 +57,38 @@ export default function ApplicationPricing() {
   const [customFaqs, setCustomFaqs] = useState(DEFAULT_FAQS);
 
   // Load Data
+  // Load Data
   React.useEffect(() => {
-    const loadData = () => {
-      const localPlans = localStorage.getItem('vgtw_app_pricing_plans');
-      if (localPlans) setPlans(JSON.parse(localPlans));
+    const loadData = async () => {
+      try {
+        // 1. Fetch Plans
+        const allPlans = await api.fetchAll('pricing');
+        if (allPlans && Array.isArray(allPlans)) {
+          const myPlans = allPlans
+            .filter(p => p.type === 'application')
+            .map(p => ({
+              ...p,
+              features: typeof p.features === 'string' ? JSON.parse(p.features) : p.features
+            }));
+          if (myPlans.length > 0) setPlans(myPlans.sort((a, b) => a.id - b.id));
+        }
 
-      const localComp = localStorage.getItem('vgtw_app_pricing_comparison');
-      if (localComp) setTableFeatures(JSON.parse(localComp));
+        // 2. Fetch Comparison
+        const comp = await api.fetchConfig('pricing_comparison_application');
+        if (comp) setTableFeatures(comp);
 
-      const localFaqs = localStorage.getItem('vgtw_app_pricing_faq');
-      if (localFaqs) setCustomFaqs(JSON.parse(localFaqs));
+        // 3. Fetch FAQs
+        const allFaqs = await api.fetchAll('pricing_faqs');
+        if (allFaqs && Array.isArray(allFaqs)) {
+          const myFaqs = allFaqs.filter(f => f.type === 'application');
+          if (myFaqs.length > 0) setCustomFaqs(myFaqs);
+        }
+      } catch (error) {
+        console.error("Failed to load pricing data:", error);
+      }
     };
 
     loadData();
-    window.addEventListener('storage', loadData);
-    return () => window.removeEventListener('storage', loadData);
   }, []);
 
   const container = {

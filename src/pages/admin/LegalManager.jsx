@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../../utils/api';
+import { SessionManager } from '../../utils/SessionManager';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaShieldAlt, FaFileContract, FaCookieBite, FaPlus, FaTrash, FaSave, FaEdit, FaEye, FaSync } from 'react-icons/fa';
@@ -27,39 +29,36 @@ const LegalManager = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const saved = localStorage.getItem('vgtw_admin_session');
-    if (saved) {
-      const sess = JSON.parse(saved);
-      if (!sess.isMaster) navigate('/admin/dashboard');
-    } else {
-      navigate('/admin');
-    }
+    const checkSession = async () => {
+      SessionManager.requireAuth(navigate, true);
+    };
+    checkSession();
   }, [navigate]);
 
-  const getStorageKey = (tab) => `vgtw_legal_${tab}`;
+  const getStorageKey = (tab) => `legal_${tab}`; // Clean key for config table
 
   useEffect(() => {
-    const key = getStorageKey(activeTab);
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      const data = JSON.parse(saved);
-      setSections(data.sections || []);
-      setLastUpdated(data.lastUpdated || new Date().toLocaleDateString());
-    } else {
-      const defaults = activeTab === 'privacy' ? DEFAULT_PRIVACY : activeTab === 'terms' ? DEFAULT_TERMS : DEFAULT_COOKIES;
-      const initialData = { sections: defaults, lastUpdated: new Date().toLocaleDateString() };
-      setSections(defaults);
-      setLastUpdated(initialData.lastUpdated);
-      localStorage.setItem(key, JSON.stringify(initialData));
-    }
+    const loadLegal = async () => {
+      const key = getStorageKey(activeTab);
+      const data = await api.fetchConfig(key);
+
+      if (data) {
+        setSections(data.sections || []);
+        setLastUpdated(data.lastUpdated || new Date().toLocaleDateString());
+      } else {
+        const defaults = activeTab === 'privacy' ? DEFAULT_PRIVACY : activeTab === 'terms' ? DEFAULT_TERMS : DEFAULT_COOKIES;
+        setSections(defaults);
+      }
+    };
+    loadLegal();
   }, [activeTab]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const key = getStorageKey(activeTab);
     const newData = { sections, lastUpdated: new Date().toLocaleDateString() };
-    localStorage.setItem(key, JSON.stringify(newData));
+
+    await api.saveConfig(key, newData);
     setLastUpdated(newData.lastUpdated);
-    window.dispatchEvent(new Event('storage'));
     alert('Policy Updated Successfully!');
   };
 

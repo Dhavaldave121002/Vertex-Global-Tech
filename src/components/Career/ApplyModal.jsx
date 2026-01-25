@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes } from 'react-icons/fa';
 import ApplyForm from './ApplyForm';
 
-export default function ApplyModal({ show, onClose, applyData, setApplyData, errors, setErrors }) {
+export default function ApplyModal({ show, onClose, applyData, setApplyData, errors, setErrors, jobs }) {
   useEffect(() => {
     if (show) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = '';
@@ -49,6 +49,8 @@ export default function ApplyModal({ show, onClose, applyData, setApplyData, err
                   errors={errors}
                   setErrors={setErrors}
                   inModal={true}
+                  jobs={jobs}
+                  onSuccess={onClose}
                 />
               </div>
             </div>

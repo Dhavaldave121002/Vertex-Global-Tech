@@ -7,7 +7,7 @@ import {
   FaBars, FaTimes, FaCog, FaSignOutAlt, FaShieldAlt, FaBriefcase, FaQuoteLeft, FaNewspaper, FaEnvelope, FaUserShield, FaLayerGroup, FaCalculator, FaComments, FaExternalLinkAlt, FaHistory, FaPaperPlane
 } from 'react-icons/fa';
 import logo from '../../assets/vglogo.jpg';
-
+import { SessionManager } from '../../utils/SessionManager';
 
 
 const sidebarLinks = [
@@ -43,9 +43,9 @@ const AdminLayout = () => {
 
   React.useEffect(() => {
     try {
-      const saved = localStorage.getItem('vgtw_admin_session');
+      const saved = SessionManager.getSession();
       if (saved) {
-        setSession(JSON.parse(saved));
+        setSession(saved);
       } else {
         navigate('/admin');
       }
@@ -70,7 +70,7 @@ const AdminLayout = () => {
   });
 
   const handleSignOut = () => {
-    localStorage.removeItem('vgtw_admin_session');
+    SessionManager.clearSession();
     setSession(null);
     navigate('/admin');
   };

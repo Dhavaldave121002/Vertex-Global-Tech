@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { api } from '../utils/api';
 import { motion } from 'framer-motion';
 import SEO from '../components/SEO';
 
@@ -11,15 +12,13 @@ export default function Privacy() {
   const [data, setData] = useState({ sections: DEFAULT_SECTIONS, lastUpdated: 'December 28, 2025' });
 
   useEffect(() => {
-    const loadPrivacy = () => {
-      const saved = localStorage.getItem('vgtw_legal_privacy');
-      if (saved) {
-        setData(JSON.parse(saved));
+    const loadPrivacy = async () => {
+      const data = await api.fetchConfig('legal_privacy');
+      if (data) {
+        setData(data);
       }
     };
     loadPrivacy();
-    window.addEventListener('storage', loadPrivacy);
-    return () => window.removeEventListener('storage', loadPrivacy);
   }, []);
 
   return (

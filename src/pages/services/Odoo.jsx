@@ -1,4 +1,6 @@
 import React from 'react';
+import { api } from '../../utils/api';
+
 import { motion } from 'framer-motion';
 import ProcessTimeline from '../../components/Services/ProcessTimeline';
 import TechStack from '../../components/Services/TechStack';
@@ -37,10 +39,9 @@ export default function Odoo() {
   ]);
 
   React.useEffect(() => {
-    const loadData = () => {
-      const saved = localStorage.getItem('vgtw_service_odoo');
-      if (saved) {
-        const data = JSON.parse(saved);
+    const loadData = async () => {
+      const data = await api.fetchConfig('service_config_odoo');
+      if (data) {
         if (data.features) setFeatures(data.features);
         if (data.techStack) setTechStack(data.techStack);
         if (data.faqs) setFaqs(data.faqs);
@@ -48,8 +49,6 @@ export default function Odoo() {
       }
     };
     loadData();
-    window.addEventListener('storage', loadData);
-    return () => window.removeEventListener('storage', loadData);
   }, []);
 
   return (

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope, FaClock, FaCommentDots, FaUserCheck, FaTrash, FaCheckDouble, FaDatabase, FaFilter, FaExclamationTriangle } from 'react-icons/fa';
 import ConfirmModal from '../../components/Admin/ConfirmModal';
+import { api } from '../../utils/api';
 
 const LeadManager = () => {
   const [leads, setLeads] = useState([]);
@@ -12,52 +13,36 @@ const LeadManager = () => {
     setConfirmModal({ show: true, title, message, onConfirm, type });
   };
 
-  // Load leads from localStorage
+  // Load leads from API
   React.useEffect(() => {
-    const savedLeads = localStorage.getItem('vgtw_leads');
-    if (savedLeads) {
-      setLeads(JSON.parse(savedLeads));
-    } else {
-      // Default leads if none exist
-      const defaultLeads = [
-        { id: 1, name: 'Jessica Miller', service: 'E-Commerce', date: 'Oct 24, 2023', status: 'New', priority: 'High', email: 'jessica@example.com' },
-        { id: 2, name: 'CloudScale Inc', service: 'Cloud App', date: 'Oct 23, 2023', status: 'In Review', priority: 'Medium', email: 'ops@cloudscale.io' },
-        { id: 3, name: 'David Beckham', service: 'UI/UX Design', date: 'Oct 22, 2023', status: 'Resolved', priority: 'Low', email: 'david@legend.com' },
-      ];
-      setLeads(defaultLeads);
-      localStorage.setItem('vgtw_leads', JSON.stringify(defaultLeads));
-    }
+    fetchLeads();
   }, []);
 
-  // Save leads to localStorage
-  const saveLeads = (updatedLeads) => {
-    localStorage.setItem('vgtw_leads', JSON.stringify(updatedLeads));
-    window.dispatchEvent(new Event('storage'));
+  const fetchLeads = async () => {
+    const data = await api.fetchAll('leads');
+    setLeads(data);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     showConfirm(
       'PURGE LEAD NODE?',
       'Warning: This action will permanently erase the lead transmission from the logs.',
-      () => {
-        const updated = leads.filter(l => l.id !== id);
-        setLeads(updated);
-        saveLeads(updated);
+      async () => {
+        await api.delete('leads', id);
+        fetchLeads();
       }
     );
   };
 
-  const toggleStatus = (id) => {
-    const updated = leads.map(l => {
-      if (l.id === id) {
-        const statuses = ['New', 'In Review', 'Resolved'];
-        const nextIdx = (statuses.indexOf(l.status) + 1) % statuses.length;
-        return { ...l, status: statuses[nextIdx] };
-      }
-      return l;
-    });
-    setLeads(updated);
-    saveLeads(updated);
+  const toggleStatus = async (id) => {
+    const lead = leads.find(l => l.id === id);
+    if (lead) {
+      const statuses = ['New', 'In Review', 'Resolved'];
+      const nextIdx = (statuses.indexOf(lead.status) + 1) % statuses.length;
+      const updatedLead = { ...lead, status: statuses[nextIdx] };
+      await api.save('leads', updatedLead);
+      fetchLeads();
+    }
   };
 
   const filteredLeads = leads.filter(l => filter === 'All' || l.status === filter);
@@ -145,10 +130,13 @@ const LeadManager = () => {
           )}
 
           <div className="p-10 border-t border-white/5 bg-white/[0.01] text-center">
-            <button onClick={() => {
-              const updated = leads.map(l => ({ ...l, status: 'Resolved' }));
-              setLeads(updated);
-              saveLeads(updated);
+            <button onClick={async () => {
+              for (const lead of leads) {
+                if (lead.status !== 'Resolved') {
+                  await api.save('leads', { ...lead, status: 'Resolved' });
+                }
+              }
+              fetchLeads();
             }} className="text-[10px] font-black uppercase text-gray-600 hover:text-blue-500 transition-all tracking-[0.4em] flex items-center justify-center gap-4 mx-auto group">
               <FaCheckDouble className="group-hover:scale-125 transition-transform duration-500" /> SYNC AND RESOLVE ALL NODES
             </button>

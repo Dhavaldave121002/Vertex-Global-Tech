@@ -2,62 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaTrash, FaEdit, FaNewspaper, FaTag, FaImage, FaCheck, FaTimes, FaCalendarAlt, FaQuoteLeft } from 'react-icons/fa';
 
-const DEFAULT_POSTS = [
-  {
-    id: 1,
-    title: "The Future of Web Development in 2025",
-    category: "Technology",
-    date: "Dec 28, 2025",
-    excerpt: "Exploring the latest trends in AI-driven development, serverless edge computing, and the next generation of web frameworks.",
-    content: "As we move into 2025, web development is undergoing a paradigm shift. AI coding assistants, serverless edge computing, and WebAssembly are no longer just buzzwords but integral parts of the development workflow. Developers are now architects of complex systems rather than just code writers.",
-    image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&q=80&w=2070"
-  },
-  {
-    id: 2,
-    title: "Optimizing React Performance",
-    category: "Development",
-    date: "Dec 15, 2025",
-    excerpt: "Key strategies to ensure your React applications run smoothly on all devices, from mobile to desktop.",
-    content: "React 19 and beyond have introduced powerful concurrent features. However, fundamental optimization techniques like memoization, effective code splitting, and virtualization remain crucial for delivering 60fps experiences on mobile devices.",
-    image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=2070"
-  },
-  {
-    id: 3,
-    title: "UI/UX Best Practices for eCommerce",
-    category: "Design",
-    date: "Nov 30, 2025",
-    excerpt: "How to design interfaces that maximize conversion rates and turn visitors into loyal customers.",
-    content: "In the competitive world of eCommerce, friction is the enemy. We explore how simplified checkout flows, biometric authentication, and personalized product recommendations can significantly boost conversion rates.",
-    image: "https://images.unsplash.com/photo-1586717791821-3f44a5638d4f?auto=format&fit=crop&q=80&w=2070"
-  },
-  {
-    id: 4,
-    title: "The Rise of No-Code Platforms",
-    category: "Business",
-    date: "Nov 12, 2025",
-    excerpt: "Understanding how no-code tools are empowering businesses to launch products faster than ever.",
-    content: "No-code platforms are democratizing software creation. While custom code remains essential for scalar, complex systems, no-code solutions are perfect for MVP validation and internal tools, allowing businesses to move at unprecedented speeds.",
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=2070"
-  },
-  {
-    id: 5,
-    title: "Cybersecurity Essentials for Startups",
-    category: "Technology",
-    date: "Oct 28, 2025",
-    excerpt: "Protecting your digital assets is not optional. Here is a checklist for securing your startup's infrastructure.",
-    content: "Security cannot be an afterthought. From implementing Zero Trust architectures to regular penetration testing, we outline the non-negotiable security practices that every modern startup must adopt to survive in a hostile digital landscape.",
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2070"
-  },
-  {
-    id: 6,
-    title: "Mastering Tailwind CSS",
-    category: "Development",
-    date: "Oct 15, 2025",
-    excerpt: "A deep dive into utility-first CSS and how to build complex, responsive layouts in record time.",
-    content: "Tailwind CSS has revolutionized styling. We look at advanced configuration, creating custom plugins, and how to maintain strict design systems while enjoying the speed and flexibility of utility classes.",
-    image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&q=80&w=2070"
-  }
-];
+import { api } from '../../utils/api';
 
 const CATEGORIES = ["Technology", "Development", "Design", "Business"];
 
@@ -75,47 +20,40 @@ const BlogManager = () => {
   });
 
   useEffect(() => {
-    const saved = localStorage.getItem('vgtw_blog');
-    if (saved) {
-      setPosts(JSON.parse(saved));
-    } else {
-      setPosts(DEFAULT_POSTS);
-      localStorage.setItem('vgtw_blog', JSON.stringify(DEFAULT_POSTS));
-    }
+    fetchPosts();
   }, []);
 
-  const saveToStorage = (data) => {
-    localStorage.setItem('vgtw_blog', JSON.stringify(data));
-    window.dispatchEvent(new Event('storage'));
+  const fetchPosts = async () => {
+    const data = await api.fetchAll('blogs');
+    setPosts(data);
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    let newPosts;
-    if (currentPost.id) {
-      // Edit
-      newPosts = posts.map(p =>
-        p.id === currentPost.id ? currentPost : p
-      );
-    } else {
-      // Add
-      const newEntry = {
-        ...currentPost,
-        id: Date.now(),
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-      };
-      newPosts = [newEntry, ...posts];
+
+    const postData = { ...currentPost };
+
+    if (!postData.id) {
+      // Add new
+      postData.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      // Remove empty id so generic API treats it as INSERT and uses auto-increment
+      delete postData.id;
     }
-    setPosts(newPosts);
-    saveToStorage(newPosts);
-    resetForm();
+
+    const response = await api.save('blogs', postData);
+
+    if (response.success) {
+      await fetchPosts();
+      resetForm();
+    } else {
+      alert("Error saving post: " + response.error);
+    }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this blog post?')) {
-      const filtered = posts.filter(p => p.id !== id);
-      setPosts(filtered);
-      saveToStorage(filtered);
+      await api.delete('blogs', id);
+      fetchPosts();
     }
   };
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaTrash, FaEdit, FaBriefcase, FaMapMarkerAlt, FaClock, FaCheck, FaTimes, FaListUl } from 'react-icons/fa';
 
@@ -80,49 +81,64 @@ const JobsManager = () => {
   });
 
   useEffect(() => {
-    const saved = localStorage.getItem('vgtw_jobs');
-    if (saved) {
-      setJobs(JSON.parse(saved));
-    } else {
-      setJobs(DEFAULT_JOBS);
-      localStorage.setItem('vgtw_jobs', JSON.stringify(DEFAULT_JOBS));
-    }
+    loadJobs();
   }, []);
 
-  const saveToStorage = (data) => {
-    localStorage.setItem('vgtw_jobs', JSON.stringify(data));
-    window.dispatchEvent(new Event('storage'));
-  };
-
-  const handleSave = (e) => {
-    e.preventDefault();
-    let newJobs;
-    if (currentJob.id && jobs.find(j => j.id === currentJob.id)) {
-      // Edit existing
-      newJobs = jobs.map(j =>
-        j.id === currentJob.id ? currentJob : j
-      );
-    } else {
-      // Add new
-      const newEntry = {
-        ...currentJob,
-        id: currentJob.id || `job-${Date.now()}`,
-        skills: typeof currentJob.skills === 'string' ? currentJob.skills.split(',').map(s => s.trim()) : currentJob.skills,
-        responsibilities: currentJob.responsibilities.filter(r => r.trim() !== ''),
-        qualifications: currentJob.qualifications.filter(q => q.trim() !== '')
-      };
-      newJobs = [...jobs, newEntry];
+  // Helper to handle both JSON strings and comma-separated strings
+  const safeParse = (input) => {
+    if (Array.isArray(input)) return input;
+    if (!input || typeof input !== 'string') return [];
+    try {
+      const parsed = JSON.parse(input);
+      return Array.isArray(parsed) ? parsed : [input];
+    } catch (e) {
+      return input.split(',').map(s => s.trim()).filter(Boolean);
     }
-    setJobs(newJobs);
-    saveToStorage(newJobs);
-    resetForm();
   };
 
-  const handleDelete = (id) => {
+  const loadJobs = async () => {
+    const data = await api.fetchAll('jobs');
+    const processed = (Array.isArray(data) ? data : []).map(j => ({
+      ...j,
+      skills: safeParse(j.skills),
+      responsibilities: safeParse(j.responsibilities),
+      qualifications: safeParse(j.qualifications || j.requirements),
+      about: j.about || j.description || ''
+    }));
+    setJobs(processed);
+  };
+
+  const saveToStorage = (data) => {
+    // No longer using LocalStorage
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+
+    // Prepare data
+    const skillsArray = typeof currentJob.skills === 'string' ? currentJob.skills.split(',').map(s => s.trim()) : currentJob.skills;
+    const respArray = currentJob.responsibilities.filter(r => r.trim() !== '');
+    const qualArray = currentJob.qualifications.filter(q => q.trim() !== '');
+
+    const jobData = {
+      ...currentJob,
+      skills: skillsArray,
+      responsibilities: respArray,
+      qualifications: qualArray
+    };
+
+    const response = await api.save('jobs', jobData);
+
+    if (response.success) {
+      loadJobs();
+      resetForm();
+    }
+  };
+
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this job posting?')) {
-      const filtered = jobs.filter(j => j.id !== id);
-      setJobs(filtered);
-      saveToStorage(filtered);
+      await api.delete('jobs', id);
+      loadJobs();
     }
   };
 

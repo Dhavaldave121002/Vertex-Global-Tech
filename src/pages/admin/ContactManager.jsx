@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope, FaPhone, FaUser, FaClock, FaTrash, FaEye, FaCalendarAlt, FaCheck, FaTimes, FaFilter, FaSearch, FaExclamationTriangle } from 'react-icons/fa';
 import ConfirmModal from '../../components/Admin/ConfirmModal';
+import { api } from '../../utils/api';
 
 const ContactManager = () => {
   const [contacts, setContacts] = useState([]);
@@ -17,38 +18,50 @@ const ContactManager = () => {
   };
 
   useEffect(() => {
-    const loadData = () => {
-      const savedContacts = localStorage.getItem('vgtw_contacts');
-      const savedMeetings = localStorage.getItem('vgtw_meetings');
-      if (savedContacts) setContacts(JSON.parse(savedContacts));
-      if (savedMeetings) setMeetings(JSON.parse(savedMeetings));
-    };
     loadData();
-    window.addEventListener('storage', loadData);
-    return () => window.removeEventListener('storage', loadData);
   }, []);
 
-  const saveContacts = (data) => { localStorage.setItem('vgtw_contacts', JSON.stringify(data)); window.dispatchEvent(new Event('storage')); };
-  const saveMeetings = (data) => { localStorage.setItem('vgtw_meetings', JSON.stringify(data)); window.dispatchEvent(new Event('storage')); };
+  const loadData = async () => {
+    const contactsData = await api.fetchAll('contacts');
+    setContacts(contactsData);
+
+    const meetingsData = await api.fetchAll('meetings');
+    setMeetings(meetingsData);
+  };
 
   const handleDelete = (id, type) => {
     showConfirm(
       `PURGE ${type.toUpperCase()} RECORD?`,
       `This will permanently remove this ${type} from the database.`,
-      () => {
-        if (type === 'contact') { const updated = contacts.filter(c => c.id !== id); setContacts(updated); saveContacts(updated); }
-        else { const updated = meetings.filter(m => m.id !== id); setMeetings(updated); saveMeetings(updated); }
+      async () => {
+        if (type === 'contact') {
+          await api.delete('contacts', id);
+        } else {
+          await api.delete('meetings', id);
+        }
+        loadData();
         if (selectedItem?.id === id) setSelectedItem(null);
       }
     );
   };
 
-  const updateStatus = (id, newStatus, type) => {
-    if (type === 'contact') { const updated = contacts.map(c => c.id === id ? { ...c, status: newStatus } : c); setContacts(updated); saveContacts(updated); }
-    else { const updated = meetings.map(m => m.id === id ? { ...m, status: newStatus } : m); setMeetings(updated); saveMeetings(updated); }
+  const updateStatus = async (id, newStatus, type) => {
+    const table = type === 'contact' ? 'contacts' : 'meetings';
+    const items = type === 'contact' ? contacts : meetings;
+    const item = items.find(i => i.id === id);
+    if (item) {
+      // Create update object
+      const updateData = { ...item, status: newStatus };
+      // Cleanse data for update (remove created_at if API doesn't handle read-only well, but our API ignores non-column fields or handles them if valid)
+      // Usually good to just send partial update if API supports it, or full object.
+      // My generic API supports PUT with full fields (excluding ID in SET clause).
+      await api.save(table, updateData);
+      loadData();
+    }
   };
 
   const formatDate = (isoString) => {
+    if (!isoString) return 'N/A';
     const date = new Date(isoString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
       ' AT ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -57,7 +70,7 @@ const ContactManager = () => {
   const currentData = activeTab === 'contacts' ? contacts : meetings;
   const filteredData = currentData.filter(item => {
     const matchesStatus = filterStatus === 'All' || item.status === filterStatus;
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || item.email.toLowerCase().includes(searchTerm.toLowerCase()) || (item.service || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (item.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || (item.email || "").toLowerCase().includes(searchTerm.toLowerCase()) || (item.service || "").toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
@@ -124,20 +137,25 @@ const ContactManager = () => {
               <tbody className="divide-y divide-white/5">
                 {filteredData.map((item, idx) => (
                   <tr key={item.id} className="group/row transition-all hover:bg-white/[0.02]">
-                    <td className="py-8 px-10 text-[10px] font-black text-gray-500 uppercase tracking-tight">{formatDate(item.submittedAt)}</td>
-                    <td className="py-8 px-10"><span className="text-white font-black text-sm uppercase tracking-tight group-hover:text-blue-400 transition-colors">{item.name}</span></td>
+                    <td className="py-8 px-10 text-[10px] font-black text-gray-500 uppercase tracking-tight">{formatDate(item.submittedAt || item.created_at || item.submittedAt)}</td>
+                    <td className="py-8 px-10">
+                      <div className="space-y-1">
+                        <span className="text-white font-black text-sm uppercase tracking-tight group-hover:text-blue-400 transition-colors block">{item.name}</span>
+                        <span className="text-gray-500 text-[10px] font-black uppercase tracking-widest">{item.subject || 'N/A'}</span>
+                      </div>
+                    </td>
                     <td className="py-8 px-10">
                       <div className="space-y-1">
                         <div className="text-gray-300 text-xs font-medium">{item.email}</div>
                         {item.phone && <div className="text-gray-500 text-[10px] font-black uppercase">{item.phone}</div>}
                       </div>
                     </td>
-                    <td className="py-8 px-10"><span className="text-blue-500 font-black text-[10px] uppercase tracking-widest px-3 py-1 bg-blue-500/10 rounded-lg">{item.service}</span></td>
+                    <td className="py-8 px-10"><span className="text-blue-500 font-black text-[10px] uppercase tracking-widest px-3 py-1 bg-blue-500/10 rounded-lg">{item.service || 'N/A'}</span></td>
                     {activeTab === 'meetings' && (
                       <td className="py-8 px-10"><span className="text-emerald-500 font-black text-[10px] uppercase tracking-widest flex items-center gap-2"><FaClock /> {item.date} @ {item.time}</span></td>
                     )}
                     <td className="py-8 px-10">
-                      <select value={item.status} onChange={(e) => updateStatus(item.id, e.target.value, activeTab === 'contacts' ? 'contact' : 'meeting')} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${statusColors[item.status] || 'bg-white/5'} bg-transparent cursor-pointer focus:outline-none`}>
+                      <select value={item.status || 'New'} onChange={(e) => updateStatus(item.id, e.target.value, activeTab === 'contacts' ? 'contact' : 'meeting')} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${statusColors[item.status] || 'bg-white/5'} bg-transparent cursor-pointer focus:outline-none`}>
                         {statuses.filter(s => s !== 'All').map(status => <option key={status} value={status} className="bg-gray-900">{status}</option>)}
                       </select>
                     </td>
@@ -166,8 +184,9 @@ const ContactManager = () => {
                 <div className="space-y-8">
                   <div className="grid grid-cols-2 gap-8">
                     <div><label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block mb-1">Subject_Node</label><p className="text-white font-black text-lg uppercase tracking-tight">{selectedItem.name}</p></div>
-                    <div><label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block mb-1">Sector_Origin</label><p className="text-blue-500 font-black text-lg uppercase tracking-tight">{selectedItem.service}</p></div>
+                    <div><label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block mb-1">Sector_Origin</label><p className="text-blue-500 font-black text-lg uppercase tracking-tight">{selectedItem.service || 'General'}</p></div>
                   </div>
+                  <div><label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block mb-1">Inquiry_Topic</label><p className="text-purple-400 font-black text-md uppercase tracking-tight">{selectedItem.subject || 'N/A'}</p></div>
                   <div className="grid grid-cols-2 gap-8">
                     <div><label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block mb-1">Comm_Address</label><p className="text-gray-300 font-medium text-sm">{selectedItem.email}</p></div>
                     <div><label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block mb-1">Secure_Line</label><p className="text-gray-300 font-medium text-sm">{selectedItem.phone || 'N/A'}</p></div>
@@ -176,7 +195,7 @@ const ContactManager = () => {
                     <div className="p-6 bg-purple-500/10 border border-purple-500/20 rounded-2xl"><label className="text-[8px] font-black text-purple-400 uppercase tracking-widest block mb-2">Sync_Schedule</label><p className="text-white font-black text-xl uppercase tracking-tighter">{selectedItem.date} @ {selectedItem.time}</p></div>
                   )}
                   <div><label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block mb-2">Payload_Content</label><p className="text-gray-400 text-sm leading-relaxed p-6 bg-black/40 border border-white/5 rounded-2xl italic">"{selectedItem.message}"</p></div>
-                  <div className="flex justify-between items-center pt-6 border-t border-white/5"><span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Protocol_Logged: {formatDate(selectedItem.submittedAt)}</span><button onClick={() => setSelectedItem(null)} className="px-8 py-3 bg-white/5 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10">Dismiss</button></div>
+                  <div className="flex justify-between items-center pt-6 border-t border-white/5"><span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Protocol_Logged: {formatDate(selectedItem.created_at || selectedItem.submittedAt)}</span><button onClick={() => setSelectedItem(null)} className="px-8 py-3 bg-white/5 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10">Dismiss</button></div>
                 </div>
               </motion.div>
             </div>

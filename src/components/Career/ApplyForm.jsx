@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { JOBS } from './jobs-data'
+import { api } from '../../utils/api';
+
 import { validateEmail, validateName, validatePhone, validateLength } from '../../utils/ValidationUtils';
-import { safeGetLocalStorage, safeSetLocalStorage } from '../../utils/LocalStorageUtils';
+
 import FormError from '../UI/FormError';
 import Toast from '../UI/Toast';
 
-export default function ApplyForm({ applyData, setApplyData, errors, setErrors, inModal = false }) {
+export default function ApplyForm({ applyData, setApplyData, errors, setErrors, inModal = false, jobs = [], onSuccess }) {
   const nameRef = useRef(null)
   const [toast, setToast] = useState({ show: false, type: 'success', message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!applyData) return
@@ -49,13 +51,27 @@ export default function ApplyForm({ applyData, setApplyData, errors, setErrors, 
       return
     }
 
-    const job = JOBS.find(j => j.id === applyData.jobId)
+    setIsSubmitting(true);
+
+    const job = jobs.find(j => j.id == applyData.jobId)
+
+    if (!job) {
+      setToast({ show: true, type: 'error', message: 'Could not find the selected position. Please try again.' });
+      return;
+    }
 
     // Handle resume file
     const resumeInput = document.querySelector('input[type="file"]');
     const resumeFile = resumeInput?.files[0];
 
     if (resumeFile) {
+      // 2MB Limit check (2 * 1024 * 1024 bytes)
+      if (resumeFile.size > 2097152) {
+        setToast({ show: true, type: 'error', message: 'File is too large! Maximum size is 2MB.' });
+        setIsSubmitting(false);
+        return;
+      }
+
       // Convert file to base64 for storage
       const reader = new FileReader();
       reader.onload = function (event) {
@@ -67,53 +83,61 @@ export default function ApplyForm({ applyData, setApplyData, errors, setErrors, 
     }
   }
 
-  function saveApplication(resumeData, resumeFileName, job) {
-    // Save application to localStorage
-    const application = {
-      id: Date.now(),
-      ...applyData,
-      jobTitle: job.title,
-      jobType: job.type,
-      resumeData,
-      resumeFileName,
-      submittedAt: new Date().toISOString(),
-      status: 'New'
-    };
 
-    const existingApplications = safeGetLocalStorage('vgtw_applications', []);
+  // ... 
 
-    // Check for duplicates (same email and job within last 24 hours) - simplified check
-    const isDuplicate = existingApplications.some(app =>
-      app.email === applyData.email &&
-      app.jobId === applyData.jobId &&
-      new Date(app.submittedAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
-    );
+  async function saveApplication(resumeData, resumeFileName, job) {
+    try {
+      // Save application to API
+      const application = {
+        jobId: Number(job.id),
+        jobTitle: job.title,
+        jobType: job.type,
+        name: applyData.name,
+        email: applyData.email,
+        phone: applyData.phone,
+        message: applyData.message,
+        resumeData: resumeData || '',
+        resumeFileName: resumeFileName || '',
+        status: 'New'
+      };
 
-    if (isDuplicate) {
-      setToast({ show: true, type: 'warning', message: 'You have already applied for this position recently.' });
-      return;
+      const result = await api.save('applications', application);
+
+      // Temporary Debug: Alert the result to see if it's successful or has an error
+      // alert('API Result: ' + JSON.stringify(result)); 
+
+      if (!result || result.success === false) {
+        setToast({ show: true, type: 'error', message: result?.error || 'Failed to save. File might be too large.' });
+        return;
+      }
+
+      setToast({ show: true, type: 'success', message: 'Application submitted successfully!' });
+
+      // Reset form
+      setApplyData({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+        jobId: ''
+      });
+      setErrors({});
+
+      // Success callback to close modal if provided
+      if (onSuccess) {
+        setTimeout(() => {
+          onSuccess();
+        }, 1500);
+      }
+
+      // Removed mailto logic as we now save to DB directly
+    } catch (err) {
+      console.error(err);
+      setToast({ show: true, type: 'error', message: 'An unexpected error occurred.' });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    safeSetLocalStorage('vgtw_applications', [application, ...existingApplications]);
-    window.dispatchEvent(new Event('storage'));
-
-    setToast({ show: true, type: 'success', message: 'Application saved! Opening email client...' });
-
-    const subject = encodeURIComponent(`Job Application — ${job.title}`)
-    const body = encodeURIComponent(`
-Name: ${applyData.name}
-Email: ${applyData.email}
-Phone: ${applyData.phone}
-
-Position: ${job.title}
-
-Message:
-${applyData.message}
-
-(Attach your resume manually before sending)
-    `)
-
-    window.location.href = `mailto:hr@vertexglobaltech.com?subject=${subject}&body=${body}`
   }
 
   function update(e) {
@@ -130,7 +154,7 @@ ${applyData.message}
       {!inModal && <h4 className="text-xl font-bold text-white mb-4">Apply now</h4>}
 
       <p className="text-gray-400 text-sm mb-6">
-        Fill the form. Your email client will open — attach your resume and send.
+        Fill the form below to apply for this position.
       </p>
 
       <form onSubmit={submit} noValidate className="space-y-4">
@@ -145,7 +169,7 @@ ${applyData.message}
               className={`${inputClasses} appearance-none cursor-pointer ${errors.jobId ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
             >
               <option value="" className="bg-gray-900 text-gray-400">Select a position…</option>
-              {JOBS.map(j => (
+              {jobs.map(j => (
                 <option key={j.id} value={j.id} className="bg-gray-900 text-white">{j.title} — {j.type}</option>
               ))}
             </select>
@@ -211,18 +235,19 @@ ${applyData.message}
           <input
             className={inputClasses}
             type="file"
-            accept=".pdf,.doc,.docx"
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
           />
           <div className="text-xs text-blue-400 mt-1.5 font-medium">
-            Upload your resume (PDF or DOC). It will be saved with your application.
+            Upload your resume (PDF, DOC, or image). It will be saved with your application.
           </div>
         </div>
 
         <button
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-blue-500/25 transform hover:-translate-y-0.5 mt-2"
+          className={`w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-blue-500/25 transform hover:-translate-y-0.5 mt-2 ${isSubmitting ? 'opacity-70 cursor-wait' : ''}`}
           type="submit"
+          disabled={isSubmitting}
         >
-          Apply — open email
+          {isSubmitting ? 'Processing...' : 'Submit Application'}
         </button>
 
       </form>

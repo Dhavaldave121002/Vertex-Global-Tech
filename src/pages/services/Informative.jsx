@@ -1,4 +1,5 @@
 import React from 'react';
+import { api } from '../../utils/api';
 import { motion } from 'framer-motion';
 import ProcessTimeline from '../../components/Services/ProcessTimeline';
 import TechStack from '../../components/Services/TechStack';
@@ -20,10 +21,9 @@ export default function Informative() {
   const [process, setProcess] = React.useState([]);
 
   React.useEffect(() => {
-    const loadData = () => {
-      const saved = localStorage.getItem('vgtw_service_informative');
-      if (saved) {
-        const data = JSON.parse(saved);
+    const loadData = async () => {
+      const data = await api.fetchConfig('service_config_informative');
+      if (data) {
         if (data.features) setFeatures(data.features);
         if (data.techStack) setTechStack(data.techStack);
         if (data.faqs) setFaqs(data.faqs);
@@ -31,8 +31,6 @@ export default function Informative() {
       }
     };
     loadData();
-    window.addEventListener('storage', loadData);
-    return () => window.removeEventListener('storage', loadData);
   }, []);
 
   return (

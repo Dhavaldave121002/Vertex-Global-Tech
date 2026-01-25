@@ -1,46 +1,75 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBriefcase, FaPlus, FaSearch, FaEye, FaEdit, FaTrash, FaCheckCircle, FaClock, FaTimesCircle, FaUserTie, FaChevronRight } from 'react-icons/fa';
+import { api } from '../../utils/api';
+import { SessionManager } from '../../utils/SessionManager';
 
 const CareerManager = () => {
   const [activeTab, setActiveTab] = useState('jobs');
   const [isAdding, setIsAdding] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const [jobs, setJobs] = useState([
-    { id: 1, title: 'Senior React Developer', department: 'Engineering', type: 'Full-time', status: 'Active', applicants: 12 },
-    { id: 2, title: 'UI/UX Designer', department: 'Design', type: 'Remote', status: 'Active', applicants: 8 },
-    { id: 3, title: 'Backend Architect', department: 'Engineering', type: 'Full-time', status: 'Closed', applicants: 24 },
-  ]);
+  const [jobs, setJobs] = useState([]);
 
-  const [applicants, setApplicants] = useState([
-    { id: 1, name: 'Prashant Patel', role: 'React Developer', score: '92%', status: 'Interview', date: '2023-12-28' },
-    { id: 2, name: 'Meera Sharma', role: 'UI/UX Designer', score: '88%', status: 'Reviewing', date: '2023-12-30' },
-  ]);
+  // Mock applicants for now as per current scope focus on Jobs persistence
+  const [applicants, setApplicants] = useState([]);
 
   const [newJob, setNewJob] = useState({ title: '', department: 'Engineering', type: 'Full-time', status: 'Active' });
 
-  const handleAddJob = (e) => {
-    e.preventDefault();
-    const id = jobs.length > 0 ? Math.max(...jobs.map(j => j.id)) + 1 : 1;
-    setJobs([...jobs, { ...newJob, id, applicants: 0 }]);
-    setNewJob({ title: '', department: 'Engineering', type: 'Full-time', status: 'Active' });
-    setIsAdding(false);
+  useEffect(() => {
+    // 1. Role-Based Access Guard
+    if (SessionManager.requireAuth(null, false)) {
+      fetchData();
+    }
+  }, []);
+
+  const fetchData = async () => {
+    const jobsData = await api.fetchAll('careers');
+    setJobs(jobsData);
+
+    const applicantsData = await api.fetchAll('applications');
+    setApplicants(applicantsData);
   };
 
-  const handleDeleteJob = (id) => { if (window.confirm('Protocol: TERMINATE POSITION NODE?')) setJobs(jobs.filter(j => j.id !== id)); };
-  const handleDeleteApplicant = (id) => { if (window.confirm('Protocol: REMOVE CANDIDATE RECORD?')) setApplicants(applicants.filter(a => a.id !== id)); };
+  const handleAddJob = async (e) => {
+    e.preventDefault();
+    const payload = { ...newJob };
+    const response = await api.save('careers', payload);
 
-  const toggleApplicantStatus = (id) => {
+    if (response.success) {
+      fetchData();
+      setNewJob({ title: '', department: 'Engineering', type: 'Full-time', status: 'Active' });
+      setIsAdding(false);
+    } else {
+      alert("Error creating position node");
+    }
+  };
+
+  const handleDeleteJob = async (id) => {
+    if (window.confirm('Protocol: TERMINATE POSITION NODE?')) {
+      await api.delete('careers', id);
+      fetchData();
+    }
+  };
+
+  const handleDeleteApplicant = async (id) => {
+    if (window.confirm('Protocol: REMOVE CANDIDATE RECORD?')) {
+      await api.delete('applications', id);
+      fetchData();
+    }
+  };
+
+  const toggleApplicantStatus = async (id) => {
     const statuses = ['Reviewing', 'Interview', 'Hired', 'Rejected'];
-    setApplicants(applicants.map(a => {
-      if (a.id === id) {
-        const currentIndex = statuses.indexOf(a.status);
-        const nextIndex = (currentIndex + 1) % statuses.length;
-        return { ...a, status: statuses[nextIndex] };
-      }
-      return a;
-    }));
+    const applicant = applicants.find(a => a.id === id);
+    if (!applicant) return;
+
+    const currentIndex = statuses.indexOf(applicant.status);
+    const nextIndex = (currentIndex + 1) % statuses.length;
+
+    const updated = { ...applicant, status: statuses[nextIndex] };
+    await api.save('applications', updated);
+    fetchData();
   };
 
   const filteredItems = (activeTab === 'jobs' ? jobs : applicants).filter(item => {
@@ -101,7 +130,7 @@ const CareerManager = () => {
               <thead>
                 <tr className="bg-white/[0.02] text-[10px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5">
                   <th className="py-6 px-10">{activeTab === 'jobs' ? 'Position Protocol' : 'Candidate Identity'}</th>
-                  <th className="py-6 px-10">{activeTab === 'jobs' ? 'Sector' : 'Assigned Node'}</th>
+                  <th className="py-6 px-10">{activeTab === 'jobs' ? 'Deployment' : 'Assigned Node'}</th>
                   <th className="py-6 px-10">{activeTab === 'jobs' ? 'Capacity' : 'Probability'}</th>
                   <th className="py-6 px-10">Status</th>
                   <th className="py-6 px-10 text-right">Protocol</th>
@@ -120,8 +149,8 @@ const CareerManager = () => {
                       <td className="py-8 px-10"><span className="text-[10px] text-gray-400 font-black uppercase tracking-widest border border-white/5 px-4 py-1.5 rounded-xl bg-white/5">{activeTab === 'jobs' ? item.department : item.role}</span></td>
                       <td className="py-8 px-10">
                         <div className="flex flex-col gap-2">
-                          <span className="text-[10px] text-white font-black tracking-widest">{activeTab === 'jobs' ? `${item.applicants} NODES` : item.score}</span>
-                          <div className="w-24 h-1 bg-white/5 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: activeTab === 'jobs' ? `${Math.min(item.applicants * 4, 100)}%` : item.score }} className="h-full bg-blue-500" /></div>
+                          <span className="text-[10px] text-white font-black tracking-widest">{activeTab === 'jobs' ? `${item.applicants || 0} NODES` : item.score}</span>
+                          <div className="w-24 h-1 bg-white/5 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: activeTab === 'jobs' ? `${Math.min((item.applicants || 0) * 4, 100)}%` : item.score }} className="h-full bg-blue-500" /></div>
                         </div>
                       </td>
                       <td className="py-8 px-10">
@@ -144,7 +173,7 @@ const CareerManager = () => {
           {filteredItems.length === 0 && <div className="py-32 text-center text-gray-700 font-black uppercase tracking-[0.5em] text-[10px]">No active talent nodes detected</div>}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
             { label: 'Active Seekers', val: applicants.length, icon: <FaUserTie />, color: 'blue' },
             { label: 'Open Sectors', val: jobs.filter(j => j.status === 'Active').length, icon: <FaCheckCircle />, color: 'emerald' },

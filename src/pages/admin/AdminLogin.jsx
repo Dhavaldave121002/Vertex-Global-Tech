@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { FaShieldAlt, FaLock, FaUser, FaArrowRight, FaFingerprint, FaCheckCircle, FaExclamationTriangle, FaTerminal, FaCircle } from 'react-icons/fa';
+import { api } from '../../utils/api';
+import { SessionManager } from '../../utils/SessionManager';
 import logo from '../../assets/vglogo.jpg';
 
 const AdminLogin = () => {
@@ -101,36 +103,10 @@ const AdminLogin = () => {
         inputEmail = `${inputEmail}@vgt.tech`;
       }
 
-      // 1. Retrieve Users
-      const storedUsers = JSON.parse(localStorage.getItem('vgtw_users') || '[]');
+      // 1. Authenticate with API
+      const user = await api.login(inputEmail, password);
 
-      // 2. Find User
-      let user = storedUsers.find(u => u.email.toLowerCase() === inputEmail);
-
-      // --- MASTER ADMIN BACKDOOR ---
-      // Ensure master accounts work even if local storage is cleared
-      const isDhavalMaster = inputEmail === 'dhaval@vgt.tech';
-      const isAdminMaster = inputEmail === 'admin@vgt.tech';
-
-      if (!user && (isAdminMaster || isDhavalMaster)) {
-        user = {
-          id: isAdminMaster ? 'master-admin' : 'dhaval-master',
-          name: isAdminMaster ? 'Master Command' : 'Dhaval Dave',
-          email: inputEmail,
-          role: 'Super Admin',
-          actualEmail: isAdminMaster ? 'connectvertexglobal2209@gmail.com' : 'dhavaldave121002@gmail.com',
-          password: isAdminMaster ? 'admin123' : 'vgtw1210',
-          clearance: 'L5'
-        };
-      }
-
-      // 3. Validation
-      const isMasterEmail = inputEmail === 'admin@vgt.tech' || inputEmail === 'dhaval@vgt.tech';
-      const isMasterPass = password === 'admin123' || password === 'vgtw1210' || password === 'admin';
-
-      if (user && (user.password === password || (isMasterEmail && isMasterPass))) {
-        // Allow legacy admin123 for master if not changed, but prefer user.password
-
+      if (user) {
         // Generate OTP
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         setGeneratedOtp(code);
@@ -143,7 +119,7 @@ const AdminLogin = () => {
           setState('otp_sent');
           setShowOtpInput(true);
         } else {
-          // Fallback for demo/error if email fails (or allow bypass in dev if needed, currently showing error)
+          // Fallback for demo/error if email fails
           setState('error');
           setTimeout(() => setState('idle'), 2000);
           alert("Could not send OTP. Check console or EmailJS quota.");
@@ -170,7 +146,7 @@ const AdminLogin = () => {
       const cleanGenerated = String(generatedOtp).trim();
 
       if (cleanOtp === cleanGenerated || cleanOtp === '123456') {
-        localStorage.setItem('vgtw_admin_session', JSON.stringify({ ...currentUser, isMaster: currentUser.role === 'Super Admin' }));
+        SessionManager.saveSession({ ...currentUser, isMaster: currentUser.role === 'Super Admin' });
         setState('success');
         setTimeout(() => navigate('/admin/dashboard'), 1500);
       } else {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { api } from '../../utils/api';
 import { FaQuoteLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const DEFAULT_TESTIMONIALS = [
@@ -8,21 +9,21 @@ const DEFAULT_TESTIMONIALS = [
     name: "Sarah Johnson",
     role: "CTO, FinTech Solutions",
     content: "Vertex Global Tech transformed our legacy infrastructure into a state-of-the-art cloud native platform. The performance gains were immediate and substantial.",
-    image: "https://randomuser.me/api/portraits/women/44.jpg"
+    avatar: "https://randomuser.me/api/portraits/women/44.jpg"
   },
   {
     id: 2,
     name: "Michael Chen",
     role: "Founder, GreenEnergy",
     content: "Their attention to detail in UI/UX design is unmatched. Our conversion rates increased by 40% after the redesign. Highly recommended!",
-    image: "https://randomuser.me/api/portraits/men/32.jpg"
+    avatar: "https://randomuser.me/api/portraits/men/32.jpg"
   },
   {
     id: 3,
     name: "Emily Davis",
     role: "Director of Marketing, OmniShop",
     content: "Professional, responsive, and incredibly talented. They delivered our e-commerce application ahead of schedule and under budget.",
-    image: "https://randomuser.me/api/portraits/women/68.jpg"
+    avatar: "https://randomuser.me/api/portraits/women/68.jpg"
   }
 ];
 
@@ -31,18 +32,21 @@ export default function TestimonialCarousel() {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    const loadTestimonials = () => {
-      const saved = localStorage.getItem('vgtw_testimonials');
-      if (saved) {
-        setItems(JSON.parse(saved));
-      } else {
+    const loadTestimonials = async () => {
+      try {
+        const data = await api.fetchAll('testimonials');
+        if (data && data.length > 0) {
+          setItems(data);
+        } else {
+          setItems(DEFAULT_TESTIMONIALS);
+        }
+      } catch (e) {
+        console.error("Failed to load testimonials", e);
         setItems(DEFAULT_TESTIMONIALS);
       }
     };
 
     loadTestimonials();
-    window.addEventListener('storage', loadTestimonials);
-    return () => window.removeEventListener('storage', loadTestimonials);
   }, []);
 
   useEffect(() => {
@@ -82,13 +86,13 @@ export default function TestimonialCarousel() {
             className="flex flex-col items-center text-center"
           >
             <div className="w-20 h-20 mb-6 rounded-full p-1 bg-gradient-to-r from-blue-500 to-purple-500">
-              <img src={items[index].image} alt={items[index].name} className="w-full h-full object-cover rounded-full border-2 border-[#030712]" />
+              <img src={items[index].avatar} alt={items[index].name} className="w-full h-full object-cover rounded-full border-2 border-[#030712]" />
             </div>
             <div className="text-blue-500 text-3xl mb-6 opacity-60">
               <FaQuoteLeft />
             </div>
             <p className="text-xl md:text-2xl text-gray-300 font-light italic mb-8 max-w-2xl leading-relaxed">
-              "{items[index].content}"
+              "{items[index].message}"
             </p>
             <div>
               <h4 className="text-white font-bold text-lg">{items[index].name}</h4>

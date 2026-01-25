@@ -3,12 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaTrash, FaEdit, FaUser, FaBriefcase, FaImage, FaCheck, FaTimes, FaQuoteLeft } from 'react-icons/fa';
 
-const DEFAULT_TEAM = [
-  { id: 1, name: "James Anderson", role: "CEO & Founder", bio: "Visionary leader with 15+ years driving digital transformation.", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400", linkedin: "#", twitter: "#", instagram: "#", facebook: "#" },
-  { id: 2, name: "Sarah Lin", role: "CTO", bio: "Cloud architecture expert passionate about AI innovation.", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400", linkedin: "#", twitter: "#", instagram: "#", facebook: "#" },
-  { id: 3, name: "Michael Chen", role: "Lead Developer", bio: "Full-stack wizard specializing in scalable enterprise solutions.", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400", linkedin: "#", twitter: "#", instagram: "#", facebook: "#" },
-  { id: 4, name: "Emily Davis", role: "Head of Design", bio: "Award-winning designer creating intuitive user experiences.", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400", linkedin: "#", twitter: "#", instagram: "#", facebook: "#" }
-];
+import { api } from '../../utils/api';
+import { SessionManager } from '../../utils/SessionManager';
 
 const TeamManager = () => {
   const [team, setTeam] = useState([]);
@@ -17,34 +13,44 @@ const TeamManager = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // 1. Role-Based Access Guard - Keeping LocalStorage for Session for now as per instructions (or could use API valid check)
+    // Minimizing change to auth flow unless requested
     // 1. Role-Based Access Guard
-    try {
-      const session = JSON.parse(localStorage.getItem('vgtw_admin_session') || 'null');
-      if (!session || !session.isMaster) {
-        navigate('/admin/dashboard');
-        return;
-      }
-    } catch (e) {
-      navigate('/admin/dashboard');
-      return;
-    }
+    if (!SessionManager.requireAuth(navigate, true)) return;
 
-    const saved = localStorage.getItem('vgtw_team');
-    if (saved) setTeam(JSON.parse(saved));
-    else { setTeam(DEFAULT_TEAM); localStorage.setItem('vgtw_team', JSON.stringify(DEFAULT_TEAM)); }
+    fetchTeam();
   }, []);
 
-  const saveToStorage = (data) => { localStorage.setItem('vgtw_team', JSON.stringify(data)); window.dispatchEvent(new Event('storage')); };
-
-  const handleSave = (e) => {
-    e.preventDefault();
-    let newTeam;
-    if (currentMember.id) newTeam = team.map(m => m.id === currentMember.id ? currentMember : m);
-    else newTeam = [...team, { ...currentMember, id: Date.now() }];
-    setTeam(newTeam); saveToStorage(newTeam); resetForm();
+  const fetchTeam = async () => {
+    const data = await api.fetchAll('teams');
+    const processed = data.map(m => {
+      let socials = {};
+      try { socials = typeof m.social_links === 'string' ? JSON.parse(m.social_links) : (m.social_links || {}); } catch (e) { }
+      return { ...m, ...socials };
+    });
+    setTeam(processed);
   };
 
-  const handleDelete = (id) => { if (window.confirm('Wipe this visionary from the collective?')) { const filtered = team.filter(m => m.id !== id); setTeam(filtered); saveToStorage(filtered); } };
+  const handleSave = async (e) => {
+    e.preventDefault();
+    const { id, name, role, bio, image, ...socials } = currentMember;
+    const data = {
+      name,
+      role,
+      bio,
+      image,
+      social_links: JSON.stringify(socials)
+    };
+    if (id) data.id = id;
+
+    const response = await api.save('teams', data);
+    if (response.success) {
+      fetchTeam();
+      resetForm();
+    }
+  };
+
+  const handleDelete = async (id) => { if (window.confirm('Wipe this visionary from the collective?')) { await api.delete('teams', id); fetchTeam(); } };
   const handleEdit = (member) => { setCurrentMember(member); setIsEditing(true); };
   const resetForm = () => { setCurrentMember({ id: '', name: '', role: '', bio: '', image: '', linkedin: '', twitter: '', instagram: '', facebook: '' }); setIsEditing(false); };
 
@@ -103,7 +109,7 @@ const TeamManager = () => {
           )}
         </AnimatePresence>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
           {team.map((member) => (
             <motion.div
               key={member.id}

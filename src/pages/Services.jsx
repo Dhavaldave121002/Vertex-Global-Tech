@@ -1,4 +1,5 @@
 import React from 'react';
+import { api } from '../utils/api';
 import { motion } from 'framer-motion';
 import { FaGlobe, FaCogs, FaShoppingCart, FaMobileAlt, FaPalette, FaTools, FaArrowRight } from 'react-icons/fa';
 import PageHero from '../components/UI/PageHero';
@@ -79,7 +80,7 @@ export default function Services() {
       description: "Crafting beautiful, intuitive interfaces that prioritize user experience and brand identity.",
       features: ["User Research", "Wireframing", "Prototyping", "Design Systems"],
       delay: 0.5,
-      slug: 'ui-ux'
+      slug: 'uiux'
     },
     {
       icon: FaTools,
@@ -100,25 +101,27 @@ export default function Services() {
   ]);
 
   React.useEffect(() => {
-    const loadServices = () => {
-      setServices(prev => prev.map(service => {
-        const saved = localStorage.getItem(`vgtw_service_${service.slug}`);
-        if (saved) {
-          const data = JSON.parse(saved);
+    const loadServices = async () => {
+      // Create an array of promises to fetch config for each service
+      const promises = services.map(async (service) => {
+        const key = `service_config_${service.slug}`;
+        const data = await api.fetchConfig(key);
+        if (data) {
           return {
             ...service,
-            title: data.title || service.title,
-            description: data.subtitle || service.description,
-            features: data.features?.map(f => f.title) || service.features
+            title: data.name || service.title, // Note: Manager saves 'name', public uses 'title'
+            description: data.desc || service.description, // Manager might use 'desc' or similar? 
+            features: data.features ? data.features.map(f => f.title) : service.features
           };
         }
         return service;
-      }));
+      });
+
+      const updatedServices = await Promise.all(promises);
+      setServices(updatedServices);
     };
 
     loadServices();
-    window.addEventListener('storage', loadServices);
-    return () => window.removeEventListener('storage', loadServices);
   }, []);
 
   return (

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { api } from '../utils/api';
 import { motion } from 'framer-motion';
 import SEO from '../components/SEO';
 
@@ -11,15 +12,17 @@ export default function Cookies() {
   const [data, setData] = useState({ sections: DEFAULT_SECTIONS, lastUpdated: 'December 28, 2025' });
 
   useEffect(() => {
-    const loadCookies = () => {
-      const saved = localStorage.getItem('vgtw_legal_cookies');
-      if (saved) {
-        setData(JSON.parse(saved));
+    const loadCookies = async () => {
+      try {
+        const saved = await api.fetchConfig('legal_cookies');
+        if (saved) {
+          setData(saved);
+        }
+      } catch (e) {
+        console.error("Failed to load cookie policy", e);
       }
     };
     loadCookies();
-    window.addEventListener('storage', loadCookies);
-    return () => window.removeEventListener('storage', loadCookies);
   }, []);
 
   return (

@@ -2,29 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaTrash, FaEdit, FaQuoteLeft, FaUser, FaBriefcase, FaImage, FaCheck, FaTimes } from 'react-icons/fa';
 
-const DEFAULT_TESTIMONIALS = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    role: "CTO, FinTech Solutions",
-    content: "Vertex Global Tech transformed our legacy infrastructure into a state-of-the-art cloud native platform. The performance gains were immediate and substantial.",
-    image: "https://randomuser.me/api/portraits/women/44.jpg"
-  },
-  {
-    id: 2,
-    name: "Michael Chen",
-    role: "Founder, GreenEnergy",
-    content: "Their attention to detail in UI/UX design is unmatched. Our conversion rates increased by 40% after the redesign. Highly recommended!",
-    image: "https://randomuser.me/api/portraits/men/32.jpg"
-  },
-  {
-    id: 3,
-    name: "Emily Davis",
-    role: "Director of Marketing, OmniShop",
-    content: "Professional, responsive, and incredibly talented. They delivered our e-commerce application ahead of schedule and under budget.",
-    image: "https://randomuser.me/api/portraits/women/68.jpg"
-  }
-];
+import { api } from '../../utils/api';
 
 const TestimonialManager = () => {
   const [testimonials, setTestimonials] = useState([]);
@@ -33,51 +11,39 @@ const TestimonialManager = () => {
     id: '',
     name: '',
     role: '',
-    content: '',
-    image: ''
+    message: '',
+    avatar: ''
   });
 
   useEffect(() => {
-    const saved = localStorage.getItem('vgtw_testimonials');
-    if (saved) {
-      setTestimonials(JSON.parse(saved));
-    } else {
-      setTestimonials(DEFAULT_TESTIMONIALS);
-      localStorage.setItem('vgtw_testimonials', JSON.stringify(DEFAULT_TESTIMONIALS));
-    }
+    fetchTestimonials();
   }, []);
 
-  const saveToStorage = (data) => {
-    localStorage.setItem('vgtw_testimonials', JSON.stringify(data));
-    window.dispatchEvent(new Event('storage')); // Trigger update for other tabs
+  const fetchTestimonials = async () => {
+    const data = await api.fetchAll('testimonials');
+    setTestimonials(data);
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    let newTestimonials;
-    if (currentTestimonial.id) {
-      // Edit
-      newTestimonials = testimonials.map(t =>
-        t.id === currentTestimonial.id ? currentTestimonial : t
-      );
+
+    const data = { ...currentTestimonial };
+    if (!data.id) delete data.id;
+
+    const response = await api.save('testimonials', data);
+
+    if (response.success) {
+      fetchTestimonials();
+      resetForm();
     } else {
-      // Add
-      const newEntry = {
-        ...currentTestimonial,
-        id: Date.now()
-      };
-      newTestimonials = [...testimonials, newEntry];
+      alert("Error saving testimonial");
     }
-    setTestimonials(newTestimonials);
-    saveToStorage(newTestimonials);
-    resetForm();
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this success story?')) {
-      const filtered = testimonials.filter(t => t.id !== id);
-      setTestimonials(filtered);
-      saveToStorage(filtered);
+      await api.delete('testimonials', id);
+      fetchTestimonials();
     }
   };
 
@@ -87,7 +53,7 @@ const TestimonialManager = () => {
   };
 
   const resetForm = () => {
-    setCurrentTestimonial({ id: '', name: '', role: '', content: '', image: '' });
+    setCurrentTestimonial({ id: '', name: '', role: '', message: '', avatar: '' });
     setIsEditing(false);
   };
 
@@ -169,8 +135,8 @@ const TestimonialManager = () => {
                       <input
                         type="url"
                         required
-                        value={currentTestimonial.image}
-                        onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, image: e.target.value })}
+                        value={currentTestimonial.avatar}
+                        onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, avatar: e.target.value })}
                         placeholder="https://..."
                         className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-14 pr-6 text-white text-sm font-bold focus:outline-none focus:border-blue-500/50 transition-all"
                       />
@@ -184,8 +150,8 @@ const TestimonialManager = () => {
                       <textarea
                         required
                         rows="4"
-                        value={currentTestimonial.content}
-                        onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, content: e.target.value })}
+                        value={currentTestimonial.message}
+                        onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, message: e.target.value })}
                         placeholder="Write the client's experience here..."
                         className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-14 pr-6 text-white text-sm font-bold focus:outline-none focus:border-blue-500/50 transition-all resize-none"
                       />
@@ -214,7 +180,7 @@ const TestimonialManager = () => {
         </AnimatePresence>
 
         {/* List View */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
           {testimonials.map((t) => (
             <motion.div
               key={t.id}
@@ -226,7 +192,7 @@ const TestimonialManager = () => {
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl p-1 bg-gradient-to-br from-blue-500 to-purple-600 shadow-xl">
-                    <img src={t.image} alt={t.name} className="w-full h-full object-cover rounded-2xl border-2 border-[#0f172a]" />
+                    <img src={t.avatar} alt={t.name} className="w-full h-full object-cover rounded-2xl border-2 border-[#0f172a]" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -257,7 +223,7 @@ const TestimonialManager = () => {
               </div>
 
               <p className="text-gray-400 text-sm italic leading-relaxed mb-10 line-clamp-4">
-                "{t.content}"
+                "{t.message}"
               </p>
 
               <div>

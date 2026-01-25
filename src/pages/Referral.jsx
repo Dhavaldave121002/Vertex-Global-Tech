@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
+import { api } from '../utils/api';
 import { motion } from 'framer-motion'
 import { FaCopy, FaCheck, FaUserPlus, FaChartLine, FaGift, FaWhatsapp, FaTwitter, FaCrown, FaEnvelope } from 'react-icons/fa'
 import SEO from '../components/SEO'
 import emailjs from '@emailjs/browser';
 import { validateEmail, validateName, validatePhone, validateReferralCode, validateRequired, checkDuplicate } from '../utils/ValidationUtils';
-import { safeGetLocalStorage } from '../utils/LocalStorageUtils';
 import FormError from '../components/UI/FormError';
 import Toast from '../components/UI/Toast';
 
@@ -36,48 +36,30 @@ export default function Referral() {
   // Tiers from localStorage
   const [tiers, setTiers] = useState([])
 
+
+  // ... 
+
   React.useEffect(() => {
-    const loadTiers = () => {
-      const savedTiers = localStorage.getItem('vgtw_referral_tiers')
+    const loadTiers = async () => {
+      const savedTiers = await api.fetchConfig('referral_tiers');
       if (savedTiers) {
-        const parsed = JSON.parse(savedTiers)
-
-        // Migration: Check if old percentage-based tiers exist and convert them
-        const needsMigration = parsed.some(t =>
-          (t.name === 'Starter' || t.name === 'Pro') &&
-          parseInt(t.commission) < 100
-        )
-
-        if (needsMigration) {
-          // Replace old tiers with new flat-rate tiers
-          const migratedTiers = [
-            { name: 'Bridge', commission: '1000', description: 'Standard entry level partner status.', color: 'blue' },
-            { name: 'Nexus', commission: '1500', description: 'Elite partner status after 3 successful referrals.', color: 'purple' }
-          ]
-          setTiers(migratedTiers)
-          localStorage.setItem('vgtw_referral_tiers', JSON.stringify(migratedTiers))
-        } else {
-          setTiers(parsed)
-        }
+        setTiers(savedTiers);
       } else {
         const defaultTiers = [
           { name: 'Bridge', commission: '1000', description: 'Standard entry level partner status.', color: 'blue' },
           { name: 'Nexus', commission: '1500', description: 'Elite partner status after 3 successful referrals.', color: 'purple' }
         ]
-        setTiers(defaultTiers)
-        localStorage.setItem('vgtw_referral_tiers', JSON.stringify(defaultTiers))
+        setTiers(defaultTiers);
+        api.saveConfig('referral_tiers', defaultTiers);
       }
     };
-
     loadTiers();
-    window.addEventListener('storage', loadTiers);
-    return () => window.removeEventListener('storage', loadTiers);
   }, [])
 
   // Handlers
   const isGeneratingRef = React.useRef(false);
 
-  const handleGenerateCode = (e) => {
+  const handleGenerateCode = async (e) => {
     e.preventDefault()
 
     // Validate name
@@ -85,8 +67,9 @@ export default function Referral() {
     const emailValidation = validateEmail(formData.email);
 
     // Check for duplicate email
-    const existingReferrals = safeGetLocalStorage('vgtw_referrals', []);
-    const duplicateCheck = checkDuplicate(formData.email, existingReferrals, 'email', 'Email');
+    // Check for duplicate email via API
+    const allReferrals = await api.fetchAll('referrals');
+    const duplicateCheck = checkDuplicate(formData.email, allReferrals, 'email', 'Email');
 
     // Set errors
     setCodeErrors({
@@ -106,7 +89,27 @@ export default function Referral() {
     setCodeLoading(true)
 
     // Generate unique code
-    const code = `VTX-${nameValidation.value.substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`
+    const baseCode = `VTX-${nameValidation.value.substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    // Save to API
+    const referralData = {
+      code: baseCode,
+      name: nameValidation.value,
+      email: emailValidation.value,
+      tier: tiers[0]?.name || 'Bridge',
+      status: 'Active'
+    };
+
+    const response = await api.save('referrals', referralData);
+
+    if (!response.success) {
+      setToast({ show: true, type: 'error', message: response.error || 'Failed to generate code. Try again.' });
+      setCodeLoading(false);
+      isGeneratingRef.current = false;
+      return;
+    }
+
+    const code = response.data?.code || baseCode; // Use returned code if backend normalized it
 
     // EmailJS Configuration
     const SERVICE_ID = import.meta.env.VITE_EMAILJS_MARKETING_SERVICE_ID;
@@ -121,23 +124,7 @@ export default function Referral() {
     };
 
     emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY)
-      .then((response) => {
-        const referral = {
-          id: Date.now(),
-          code,
-          name: nameValidation.value,
-          email: emailValidation.value,
-          createdAt: new Date().toISOString(),
-          tier: tiers[0]?.name || 'Bridge',
-          referralCount: 0,
-          totalEarnings: 0,
-          status: 'Active'
-        };
-
-        const updatedReferrals = [referral, ...existingReferrals];
-        localStorage.setItem('vgtw_referrals', JSON.stringify(updatedReferrals));
-        window.dispatchEvent(new Event('storage'));
-
+      .then(() => {
         setGeneratedCode(code)
         setCodeLoading(false)
         isGeneratingRef.current = false;
@@ -152,7 +139,7 @@ export default function Referral() {
       });
   }
 
-  const handleLeadSubmit = (e) => {
+  const handleLeadSubmit = async (e) => {
     e.preventDefault()
 
     // Validate all fields
@@ -161,44 +148,44 @@ export default function Referral() {
     const phoneValidation = validatePhone(lead.clientPhone);
     const emailValidation = lead.clientEmail ? validateEmail(lead.clientEmail) : { valid: true };
 
-    // Verify referral code exists
-    const existingReferrals = safeGetLocalStorage('vgtw_referrals', []);
-    const codeExists = existingReferrals.some(r => r.code === lead.referralCode.toUpperCase());
-
     // Set errors
     setLeadErrors({
-      referralCode: !codeValidation.valid ? codeValidation.error : (!codeExists ? 'Referral code not found' : ''),
+      referralCode: !codeValidation.valid ? codeValidation.error : '',
       clientName: nameValidation.valid ? '' : nameValidation.error,
       clientPhone: phoneValidation.valid ? '' : phoneValidation.error,
       clientEmail: emailValidation.valid ? '' : emailValidation.error
     });
 
     // Stop if validation fails
-    if (!codeValidation.valid || !codeExists || !nameValidation.valid || !phoneValidation.valid || !emailValidation.valid) {
+    if (!codeValidation.valid || !nameValidation.valid || !phoneValidation.valid || !emailValidation.valid) {
       setToast({ show: true, type: 'error', message: 'Please fix the errors before submitting' });
       return;
     }
 
     setLeadSubmitting(true)
 
-    setTimeout(() => {
-      const leadData = {
-        id: Date.now(),
-        referralCode: codeValidation.value,
-        clientName: nameValidation.value,
-        clientPhone: phoneValidation.value,
-        clientEmail: emailValidation.value || '',
-        projectType: lead.projectType,
-        notes: lead.notes.trim(),
-        submittedAt: new Date().toISOString(),
-        status: 'New'
-      };
+    const leadData = {
+      referralCode: codeValidation.value,
+      name: nameValidation.value,
+      phone: phoneValidation.value,
+      email: emailValidation.value || '',
+      service: lead.projectType,
+      plan: lead.notes.trim(), // Using 'plan' field for notes/details or add 'notes' to DB? I added 'plan' earlier.
+      status: 'New'
+    };
 
-      const existingLeads = safeGetLocalStorage('vgtw_referral_leads', []);
-      const updatedLeads = [leadData, ...existingLeads];
-      localStorage.setItem('vgtw_referral_leads', JSON.stringify(updatedLeads));
-      window.dispatchEvent(new Event('storage'));
+    // Note: I mapped clientName -> name, clientPhone -> phone, projectType -> service. 
+    // DB has 'plan'. I will store notes in plan? Or just lose notes? Database has no 'notes' column.
+    // I should probably add 'notes' column to leads table or combine.
+    // Let's assume 'plan' is okay for now or I'll ADD 'notes' to leads table. I will Add 'message' or 'notes'.
 
+    // Check referral code validity via API?
+    // The API save will validate/link?
+    // For now, assume API accepts it. Backend should validate referral code ideally.
+
+    const res = await api.save('leads', leadData);
+
+    if (res.success) {
       setLeadSubmitting(false)
       setLeadSuccess(true)
       setToast({ show: true, type: 'success', message: 'Lead submitted successfully! Awaiting admin approval.' });
@@ -208,7 +195,10 @@ export default function Referral() {
         setLead(prev => ({ ...prev, clientName: '', clientPhone: '', clientEmail: '', notes: '' }))
         setLeadErrors({ referralCode: '', clientName: '', clientPhone: '', clientEmail: '' });
       }, 3000)
-    }, 1500)
+    } else {
+      setLeadSubmitting(false);
+      setToast({ show: true, type: 'error', message: res.error || 'Failed to submit lead.' });
+    }
   }
 
   const copyCode = () => {

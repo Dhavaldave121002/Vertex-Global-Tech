@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { api } from '../../utils/api';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaLinkedin, FaTwitter, FaGithub, FaInstagram, FaArrowRight, FaEnvelope, FaMapMarkerAlt, FaPhone, FaCheckCircle, FaSpinner } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
 import logo from '../../assets/vglogo.jpg';
 import { validateEmail } from '../../utils/ValidationUtils';
-import { safeGetLocalStorage, safeSetLocalStorage } from '../../utils/LocalStorageUtils';
+
 import Toast from '../UI/Toast';
 import './footer.css';
 
@@ -45,21 +46,19 @@ const Footer = () => {
     try {
       await emailjs.send(serviceId, templateId, templateParams, publicKey);
 
-      // Save to LocalStorage (Backup/Admin View)
+
+      // ...
+
+      // Save to API (Admin View)
       const newSubscriber = {
-        id: Date.now(),
         email: emailValidation.value,
-        subscribedAt: new Date().toISOString(),
         status: 'Active'
       };
 
-      const existingSubscribers = safeGetLocalStorage('vgtw_newsletter', []);
+      await api.save('subscribers', newSubscriber); // API handles duplicates via Unique constraint or logic, but checking first is good too.
+      // Basic check if API supports unique constraints handles it, or we fetchAll first. 
+      // For newsletter, best to let backend handle upsert or ignore duplicate.
 
-      // Prevent duplicates
-      if (!existingSubscribers.some(s => s.email === emailValidation.value)) {
-        safeSetLocalStorage('vgtw_newsletter', [newSubscriber, ...existingSubscribers]);
-        window.dispatchEvent(new Event('storage'));
-      }
 
       setStatus('success');
       setToast({ show: true, type: 'success', message: 'Subscribed successfully!' });

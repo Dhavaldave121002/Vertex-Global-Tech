@@ -1,4 +1,5 @@
 import React from 'react';
+import { api } from '../../utils/api';
 import { motion } from 'framer-motion';
 import { FaHashtag, FaBullhorn, FaChartLine, FaUsers, FaMagic, FaRocket, FaInstagram, FaLinkedin, FaTiktok, FaFacebook, FaYoutube, FaTwitter } from 'react-icons/fa';
 import ProcessTimeline from '../../components/Services/ProcessTimeline';
@@ -38,10 +39,9 @@ export default function SocialMedia() {
   ]);
 
   React.useEffect(() => {
-    const loadData = () => {
-      const saved = localStorage.getItem('vgtw_service_social');
-      if (saved) {
-        const data = JSON.parse(saved);
+    const loadData = async () => {
+      const data = await api.fetchConfig('service_config_social');
+      if (data) {
         if (data.features) setFeatures(data.features);
         // Tech stack usually static for social platforms, but can be dynamic if needed
         if (data.faqs) setFaqs(data.faqs);
@@ -49,8 +49,6 @@ export default function SocialMedia() {
       }
     };
     loadData();
-    window.addEventListener('storage', loadData);
-    return () => window.removeEventListener('storage', loadData);
   }, []);
 
   return (

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaCheckCircle, FaRocket, FaBuilding, FaCrown, FaArrowRight } from 'react-icons/fa';
 import PageHero from '../components/UI/PageHero';
@@ -112,31 +113,45 @@ export default function Pricing() {
   ]);
 
   useEffect(() => {
-    const loadPlans = () => {
-      setPlans(prev => prev.map(plan => {
-        const saved = localStorage.getItem(plan.key);
-        if (saved) {
-          const data = JSON.parse(saved);
-          // PricingManager stores plans as an array. We pick the most relevant one or map carefully.
-          // For simplicity in the overview, we'll try to match by name or just take the first few.
-          const matchingPlan = data.find(p => p.name.toLowerCase().includes(plan.title.split(' ')[0].toLowerCase()));
-          if (matchingPlan) {
-            return {
-              ...plan,
-              title: matchingPlan.name,
-              price: matchingPlan.price,
-              features: matchingPlan.features || plan.features,
-              recommended: matchingPlan.isPopular || plan.recommended
-            };
-          }
+    const loadPlans = async () => {
+      try {
+        const allPlans = await api.fetchAll('pricing');
+        if (allPlans && Array.isArray(allPlans)) {
+          setPlans(prev => prev.map(plan => {
+            // Map keys to API types if needed, or just search across all
+            // The original code used keys like 'vgtw_pricing_plans' (Website), 'vgtw_app_pricing_plans' (App)
+            // We can infer type from the plan title or just search loosely as before.
+
+            let type = '';
+            if (plan.key === 'vgtw_pricing_plans') type = 'website';
+            else if (plan.key === 'vgtw_app_pricing_plans') type = 'application';
+            else if (plan.key === 'vgtw_odoo_pricing_plans') type = 'odoo';
+
+            const relevantPlans = type ? allPlans.filter(p => p.type === type) : allPlans;
+
+            // Try to match by name similarity (e.g. "Basic" in "Website Basic")
+            // The original logic was: p.name includes plan.title.split(' ')[0]
+            const searchName = plan.title.split(' ')[0].toLowerCase();
+            const matchingPlan = relevantPlans.find(p => p.name.toLowerCase().includes(searchName));
+
+            if (matchingPlan) {
+              return {
+                ...plan,
+                title: matchingPlan.plan_name,
+                price: matchingPlan.price,
+                features: typeof matchingPlan.features === 'string' ? JSON.parse(matchingPlan.features) : (matchingPlan.features || plan.features),
+                recommended: (matchingPlan.is_popular == 1) || plan.recommended
+              };
+            }
+            return plan;
+          }));
         }
-        return plan;
-      }));
+      } catch (e) {
+        console.error("Failed to load pricing highlights", e);
+      }
     };
 
     loadPlans();
-    window.addEventListener('storage', loadPlans);
-    return () => window.removeEventListener('storage', loadPlans);
   }, []);
 
   return (

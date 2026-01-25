@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaUserPlus, FaUserShield, FaKey, FaTrash, FaUserEdit, FaCircle, FaSearch, FaDatabase, FaShieldAlt } from 'react-icons/fa';
+import { FaUserPlus, FaSearch, FaShieldAlt, FaUserShield, FaCircle, FaUserEdit, FaKey } from 'react-icons/fa';
+import { api } from '../../utils/api';
+import { SessionManager } from '../../utils/SessionManager';
 
 const UserManager = () => {
   const [users, setUsers] = useState([]);
@@ -24,41 +26,20 @@ const UserManager = () => {
     }
   }, [newUser.name]);
 
-  // Load users from localStorage
+  // Load users from API
   useEffect(() => {
     // 1. Role-Based Access Guard
-    try {
-      const session = JSON.parse(localStorage.getItem('vgtw_admin_session') || 'null');
-      if (!session || !session.isMaster) {
-        navigate('/admin/dashboard');
-        return;
-      }
-    } catch (e) {
-      navigate('/admin/dashboard');
-      return;
-    }
+    if (!SessionManager.requireAuth(navigate, true)) return;
 
-    const savedUsers = localStorage.getItem('vgtw_users');
-    if (savedUsers) {
-      setUsers(JSON.parse(savedUsers));
-    } else {
-      // Default users
-      const defaultUsers = [
-        { id: 1, name: 'Admin Root', role: 'Super Admin', email: 'admin@vgt.tech', actualEmail: 'connectvertexglobal2209@gmail.com', password: 'admin', status: 'Online', clearance: 'L5' },
-        { id: 2, name: 'Dhaval Dave', role: 'Super Admin', email: 'dhaval@vgt.tech', actualEmail: 'dhavaldave121002@gmail.com', password: 'vgtw1210', status: 'Offline', clearance: 'L5' },
-      ];
-      setUsers(defaultUsers);
-      localStorage.setItem('vgtw_users', JSON.stringify(defaultUsers));
-    }
+    fetchUsers();
   }, []);
 
-  // Save users to localStorage
-  const saveUsers = (updatedUsers) => {
-    localStorage.setItem('vgtw_users', JSON.stringify(updatedUsers));
-    window.dispatchEvent(new Event('storage'));
+  const fetchUsers = async () => {
+    const data = await api.fetchAll('users');
+    setUsers(data);
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     if (!newUser.name || !newUser.actualEmail || !newUser.password) return;
 
@@ -73,47 +54,37 @@ const UserManager = () => {
       return;
     }
 
-    let updated;
-    if (isEditing && editingId) {
-      // Update existing
-      updated = users.map(u => u.id === editingId ? {
-        ...u,
-        name: newUser.name,
-        role: newUser.role,
-        clearance: newUser.clearance,
-        actualEmail: newUser.actualEmail,
-        password: newUser.password,
-        // System email changes if name changes, or keep original? 
-        // Let's allow system email update based on name for consistency
-        email: u.name !== newUser.name ? generatedSystemEmail : u.email
-      } : u);
-    } else {
-      // Add new
-      const id = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
-      const sysEmail = generatedSystemEmail;
+    // Prepare data object
+    const userData = {
+      name: newUser.name,
+      role: newUser.role,
+      clearance: newUser.clearance,
+      actualEmail: newUser.actualEmail,
+      password: newUser.password,
+      // System email changes if name changes, or keep original? 
+      // Let's allow system email update based on name for consistency
+      email: generatedSystemEmail, // Always use generated for now or from existing logic
+      status: 'Offline'
+    };
 
-      updated = [...users, {
-        id,
-        name: newUser.name,
-        role: newUser.role,
-        clearance: newUser.clearance,
-        email: sysEmail,
-        actualEmail: newUser.actualEmail,
-        password: newUser.password,
-        status: 'Offline'
-      }];
+    if (isEditing && editingId) {
+      userData.id = editingId;
     }
 
-    setUsers(updated);
-    saveUsers(updated);
-    resetForm();
+    const response = await api.save('users', userData);
+    if (response.success) {
+      fetchUsers();
+      resetForm();
+    } else {
+      alert("Error saving user: " + (response.error || "Unknown error"));
+    }
   };
 
   const handleEdit = (user) => {
     setNewUser({
       name: user.name,
       actualEmail: user.actualEmail || '',
-      password: user.password || '', // Password might be hidden in real app, but showing here for simple crud
+      password: user.password || '', // Password might be hidden in real app
       role: user.role,
       clearance: user.clearance || 'L3'
     });
@@ -129,11 +100,10 @@ const UserManager = () => {
     setEditingId(null);
   };
 
-  const handleRevoke = (id) => {
+  const handleRevoke = async (id) => {
     if (window.confirm('Protocol: REVOKE ALL PRIVILEGES?')) {
-      const updated = users.filter(u => u.id !== id);
-      setUsers(updated);
-      saveUsers(updated);
+      await api.delete('users', id);
+      fetchUsers();
     }
   };
   const handleResetKey = (name) => { alert(`Security: New Access Token Generated for ${name.toUpperCase()}.`); };

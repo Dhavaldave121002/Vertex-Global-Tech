@@ -2,13 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaTrash, FaEdit, FaSave, FaTimes, FaDatabase, FaRocket } from 'react-icons/fa';
 
-const DEFAULT_BRANDS = [
-  { id: '1', name: "TechNova", icon: "cpu", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
-  { id: '2', name: "FinStream", icon: "graph-up-arrow", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
-  { id: '3', name: "CloudScale", icon: "cloud-check", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20" },
-  { id: '4', name: "SecureNet", icon: "shield-lock", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
-  { id: '5', name: "DataFlow", icon: "diagram-3", color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20" },
-];
+import { api } from '../../utils/api';
+
+const DEFAULT_BRANDS = []; // Defaults handled by API empty state or initial seed if desired
 
 const COLORS = [
   { label: 'Blue', color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
@@ -21,52 +17,61 @@ const COLORS = [
 ];
 
 const BrandManager = () => {
-  const [brands, setBrands] = useState(() => {
-    const saved = localStorage.getItem('vgtw_brands');
-    return saved ? JSON.parse(saved) : DEFAULT_BRANDS;
-  });
-
+  const [brands, setBrands] = useState([]);
   const [isEditing, setIsEditing] = useState(null); // id of brand being edited
   const [formData, setFormData] = useState({ name: '', icon: '', colorIndex: 0 });
   const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('vgtw_brands', JSON.stringify(brands));
-  }, [brands]);
+    fetchBrands();
+  }, []);
 
-  const handleAdd = (e) => {
+  const fetchBrands = async () => {
+    const data = await api.fetchAll('brands');
+    setBrands(data);
+  };
+
+  const handleAdd = async (e) => {
     e.preventDefault();
     const color = COLORS[formData.colorIndex];
     const newBrand = {
-      id: Date.now().toString(),
       name: formData.name,
       icon: formData.icon || 'star',
       color: color.color,
       bg: color.bg,
       border: color.border
     };
-    setBrands([...brands, newBrand]);
-    resetForm();
+
+    const response = await api.save('brands', newBrand);
+    if (response.success) {
+      fetchBrands();
+      resetForm();
+    }
   };
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
     const color = COLORS[formData.colorIndex];
-    const updatedBrands = brands.map(b => b.id === isEditing ? {
-      ...b,
+    const updatedBrand = {
+      id: isEditing,
       name: formData.name,
       icon: formData.icon,
       color: color.color,
       bg: color.bg,
       border: color.border
-    } : b);
-    setBrands(updatedBrands);
-    resetForm();
+    };
+
+    const response = await api.save('brands', updatedBrand);
+    if (response.success) {
+      fetchBrands();
+      resetForm();
+    }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('CRITICAL: Delete this brand entity from the roster?')) {
-      setBrands(brands.filter(b => b.id !== id));
+      await api.delete('brands', id);
+      fetchBrands();
     }
   };
 

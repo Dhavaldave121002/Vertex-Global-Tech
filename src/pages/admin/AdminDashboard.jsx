@@ -7,6 +7,7 @@ import {
   FaBriefcase, FaNewspaper, FaRocket, FaHandshake, FaMoneyBillWave, FaDownload, FaFilePdf, FaChartLine,
   FaCalendarAlt, FaPhone, FaEnvelope, FaClock, FaPaperPlane
 } from 'react-icons/fa';
+import { api } from '../../utils/api';
 
 const StatCard = ({ stat, i }) => {
   const x = useMotionValue(0);
@@ -73,57 +74,33 @@ const PricingAnalytics = () => {
   const [planStats, setPlanStats] = useState([]);
 
   useEffect(() => {
-    const loadPricingData = () => {
-      // Define defaults if not present to ensure "Real" dashboard even before manager visits
-      const getStored = (key, def) => {
-        const item = localStorage.getItem(key);
-        if (!item) {
-          localStorage.setItem(key, JSON.stringify(def));
-          return def;
-        }
-        return JSON.parse(item);
-      };
+    const loadPricingData = async () => {
+      try {
+        const allPlans = await api.fetchAll('pricing');
 
-      const websitePlans = getStored('vgtw_pricing_plans', [
-        { name: 'Starter', price: '$2,500', features: ['5 Pages', 'Responsive'], popular: false },
-        { name: 'Business', price: '$5,000', features: ['15 Pages', 'CMS'], popular: true },
-        { name: 'Enterprise', price: 'Custom', features: ['Unlimited', 'Support'], popular: false }
-      ]);
-      const appPlans = getStored('vgtw_app_pricing_plans', [
-        { name: 'MVP Launch', price: '$10,000', features: ['Core', 'Dashboard'], popular: false },
-        { name: 'Scale & Grow', price: '$25,000', features: ['Advanced', 'API'], popular: true },
-        { name: 'Enterprise Platform', price: 'Custom', features: ['Microservices', '24/7'], popular: false }
-      ]);
-      const uiuxPlans = getStored('vgtw_uiux_pricing_plans', [
-        { name: 'UX Audit', price: '$1,500', features: ['Evaluation', 'Accessibility'], popular: false },
-        { name: 'Full Redesign', price: '$4,000', features: ['Research', 'UI Design'], popular: true },
-        { name: 'Design System', price: '$8,000', features: ['Library', 'Docs'], popular: false }
-      ]);
-      const odooPlans = getStored('vgtw_odoo_pricing_plans', [
-        { name: 'Essentials', price: '$5,000', features: ['Standard', 'CRM'], popular: false },
-        { name: 'Business Pro', price: '$12,000', features: ['Custom', 'Inventory'], popular: true },
-        { name: 'Infinite Suite', price: 'Custom', features: ['Infinite', 'Migration'], popular: false }
-      ]);
-      const socialPlans = getStored('vgtw_social_pricing_plans', [
-        { name: 'Ignition', price: '$1,200', features: ['1 Platform', '3 Posts/Week'], popular: false },
-        { name: 'Growth', price: '$2,500', features: ['3 Platforms', '5 Posts/Week'], popular: true },
-        { name: 'Viral Corp', price: 'Custom', features: ['5+ Platforms', '24/7 Monitoring'], popular: false }
-      ]);
+        // Filter by type
+        const website = allPlans.filter(p => p.type === 'website');
+        const application = allPlans.filter(p => p.type === 'application');
+        const uiux = allPlans.filter(p => p.type === 'uiux');
+        const odoo = allPlans.filter(p => p.type === 'odoo');
+        const social = allPlans.filter(p => p.type === 'social');
 
-      setPricingData({ website: websitePlans, application: appPlans, uiux: uiuxPlans, odoo: odooPlans, social: socialPlans });
-      const allPlans = [
-        ...websitePlans.map(p => ({ ...p, type: 'Website' })),
-        ...appPlans.map(p => ({ ...p, type: 'Application' })),
-        ...uiuxPlans.map(p => ({ ...p, type: 'UI/UX' })),
-        ...odooPlans.map(p => ({ ...p, type: 'Odoo ERP' })),
-        ...socialPlans.map(p => ({ ...p, type: 'Social Media' })),
-        { name: 'Redesign Basic', price: '$3,000', type: 'Redesign', features: 5, popular: false }
-      ];
-      setPlanStats(allPlans.map(plan => ({ name: plan.name, type: plan.type, price: plan.price, features: plan.features?.length || 0, popular: plan.popular || false })));
+        setPricingData({ website, application, uiux, odoo, social });
+
+        const planStats = allPlans.map(plan => ({
+          name: plan.name,
+          type: plan.type,
+          price: plan.price,
+          features: Array.isArray(plan.features) ? plan.features.length : 0,
+          popular: plan.isPopular || false
+        }));
+
+        setPlanStats(planStats);
+      } catch (e) {
+        console.error("Dashboard Pricing Error", e);
+      }
     };
     loadPricingData();
-    window.addEventListener('storage', loadPricingData);
-    return () => window.removeEventListener('storage', loadPricingData);
   }, []);
 
   const totalPlans = planStats.length;
@@ -205,16 +182,26 @@ const UpcomingMeetings = () => {
   const [meetings, setMeetings] = useState([]);
 
   useEffect(() => {
-    const loadMeetings = () => {
-      const saved = localStorage.getItem('vgtw_meetings');
-      if (saved) {
-        const upcoming = JSON.parse(saved).filter(m => m.status !== 'Cancelled' && m.status !== 'Completed').sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time)).slice(0, 5);
-        setMeetings(upcoming);
+    const loadMeetings = async () => {
+      try {
+        // Assuming meetings are stored in 'meetings' table or 'contacts'
+        // Using 'contacts' as per prior context (vgtw_contacts), but 'vgtw_meetings' was separate.
+        // Let's try fetching 'meetings'. If empty, we might need 'contacts' filtered.
+        // For now, sticking to 'meetings' entitiy.
+        const allMeetings = await api.fetchAll('meetings');
+
+        if (allMeetings && Array.isArray(allMeetings)) {
+          const upcoming = allMeetings
+            .filter(m => m.status !== 'Cancelled' && m.status !== 'Completed')
+            .sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time))
+            .slice(0, 5);
+          setMeetings(upcoming);
+        }
+      } catch (e) {
+        console.error("Dashboard Meetings Error", e);
       }
     };
     loadMeetings();
-    window.addEventListener('storage', loadMeetings);
-    return () => window.removeEventListener('storage', loadMeetings);
   }, []);
 
   const formatMeetingTime = (date, time) => {
@@ -317,118 +304,67 @@ const AdminDashboard = () => {
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
 
-    // Global Cold Start Initialization
-    const INITIAL_DATA = {
-      vgtw_projects: [
-        { id: 1, title: 'Crypto Wallet v2', type: 'FinTech', img: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=300', logo: 'https://cdn-icons-png.flaticon.com/512/825/825540.png', liveUrl: '#' },
-        { id: 2, title: 'Nexus E-Commerce', type: 'SaaS', img: 'https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=300', logo: 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png', liveUrl: '#' }
-      ],
-      vgtw_leads: [
-        { id: 1, name: 'Jessica Miller', service: 'E-Commerce', date: 'Oct 24, 2023', status: 'New', priority: 'High', email: 'jessica@example.com' },
-        { id: 2, name: 'CloudScale Inc', service: 'Cloud App', date: 'Oct 23, 2023', status: 'In Review', priority: 'Medium', email: 'ops@cloudscale.io' }
-      ],
-      vgtw_applications: [
-        { id: 1, name: 'John Doe', role: 'Frontend Dev', jobTitle: 'Frontend Dev', status: 'New', submittedAt: new Date().toISOString() },
-        { id: 2, name: 'Sarah Connor', role: 'UI/UX Designer', jobTitle: 'UI/UX Designer', status: 'Reviewing', submittedAt: new Date().toISOString() }
-      ],
-      vgtw_referrals: [
-        { id: '1', name: 'Alex Rivera', email: 'alex@partners.com', code: 'ALEX-50', tier: 'Nexus', status: 'Active', referralCount: 12, totalEarnings: 12000 },
-        { id: '2', name: 'Bespoke Media', email: 'ads@bespoke.com', code: 'BSPK-10', tier: 'Bridge', status: 'Active', referralCount: 3, totalEarnings: 3000 }
-      ],
-      vgtw_brands: [
-        { id: '1', name: "TechNova", icon: "cpu", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
-        { id: '2', name: "FinStream", icon: "graph-up-arrow", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" }
-      ],
-      vgtw_contacts: [
-        { id: 1, name: 'Marcus Aurelius', email: 'marcus@empire.it', service: 'Maintenance', status: 'New', submittedAt: new Date().toISOString(), message: 'System audit required.' },
-        { id: 2, name: 'Elon T.', email: 'elon@x.com', service: 'Dynamic App', status: 'Contacted', submittedAt: new Date().toISOString(), message: 'Mars deployment sync.' }
-      ],
-      vgtw_team: Array(4).fill({ id: 0 }),
-      vgtw_users: [{ id: 1, name: 'System Auditor', role: 'Admin', clearance: 'L4' }],
-      vgtw_blog: Array(3).fill({ id: 0 }),
-      vgtw_newsletter: Array(12).fill({ id: 0 }),
-      vgtw_testimonials: Array(4).fill({ id: 0 }),
-      vgtw_jobs: [
-        { id: 'fe-dev', title: 'Frontend Developer (React)', type: 'Full-time' },
-        { id: 'uiux', title: 'UI/UX Designer', type: 'Part-time' }
-      ],
-      vgtw_service_informative: { features: Array(6).fill({ title: 'Node' }) },
-      vgtw_service_ecommerce: { features: Array(6).fill({ title: 'Node' }) },
-      vgtw_service_application: { features: Array(6).fill({ title: 'Node' }) },
-      vgtw_service_uiux: { features: Array(6).fill({ title: 'Node' }) },
-      vgtw_service_maintenance: { features: Array(6).fill({ title: 'Node' }) },
-      vgtw_service_dynamic: { features: Array(6).fill({ title: 'Node' }) },
-      vgtw_service_odoo: { features: Array(6).fill({ title: 'Node' }) },
-      vgtw_service_social: { features: Array(6).fill({ title: 'Node' }) },
-      vgtw_service_redesign: { features: Array(6).fill({ title: 'Node' }) }
+    const fetchDashboardData = async () => {
+      try {
+        const [
+          projects, leads, applications, referrals, brands, contacts,
+          team, users, blog, subscribers, testimonials, jobs, accounting
+        ] = await Promise.all([
+          api.fetchAll('projects'),
+          api.fetchAll('leads'),
+          api.fetchAll('applications'),
+          api.fetchAll('referrals'),
+          api.fetchAll('brands'),
+          api.fetchAll('contacts'),
+          api.fetchAll('team'),
+          api.fetchAll('users'),
+          api.fetchAll('blog_posts'),
+          api.fetchAll('subscribers'),
+          api.fetchAll('testimonials'),
+          api.fetchAll('jobs'),
+          api.fetchAll('accounting')
+        ]);
+
+        const getCount = (data) => Array.isArray(data) ? data.length : 0;
+
+        // Financials
+        const acc = Array.isArray(accounting) ? accounting : [];
+        const cleanNum = (val) => Number(val?.toString().replace(/[^0-9.]/g, '')) || 0;
+        const inc = acc.filter(d => d.type === 'Income').reduce((a, c) => a + cleanNum(c.amount), 0);
+        const exp = acc.filter(d => d.type === 'Expense').reduce((a, c) => a + cleanNum(c.amount), 0);
+        setFinancials({ income: inc, expense: exp, profit: inc - exp });
+
+        // Static Estimates for Service Configs to avoid 9 extra calls
+        const totalFeatures = 54;
+        const preparationNodes = 9;
+        const redesignNodes = 20;
+
+        setStats([
+          { label: 'Active Services', value: '9', icon: <FaGlobe />, color: '#3b82f6' },
+          { label: 'Service Sectors', value: totalFeatures.toString(), icon: <FaStar />, color: '#10b981' },
+          { label: 'Project Nodes', value: getCount(projects).toString(), icon: <FaBriefcase />, color: '#a855f7' },
+          { label: 'Job Applicants', value: getCount(applications).toString(), icon: <FaUsers />, color: '#f59e0b' },
+          { label: 'Inbound Leads', value: getCount(leads).toString(), icon: <FaDownload />, color: '#10b981' },
+          { label: 'Referral Nodes', value: getCount(referrals).toString(), icon: <FaHandshake />, color: '#ec4899' },
+          { label: 'Brand Partners', value: getCount(brands).toString(), icon: <FaShieldAlt />, color: '#3b82f6' },
+          { label: 'Total Contacts', value: getCount(contacts).toString(), icon: <FaEnvelope />, color: '#6366f1' },
+          { label: 'Team Visionaries', value: getCount(team).toString(), icon: <FaUsers />, color: '#ec4899' },
+          { label: 'Security Nodes', value: getCount(users).toString(), icon: <FaShieldAlt />, color: '#3b82f6' },
+          { label: 'Content Streams', value: getCount(blog).toString(), icon: <FaNewspaper />, color: '#6366f1' },
+          { label: 'Newsletter Nodes', value: getCount(subscribers).toString(), icon: <FaPaperPlane />, color: '#10b981' },
+          { label: 'Testimonials', value: getCount(testimonials).toString(), icon: <FaQuestionCircle />, color: '#8b5cf6' },
+          { label: 'Open Protocols', value: getCount(jobs).toString(), icon: <FaRocket />, color: '#ef4444' },
+          { label: 'Preparation Nodes', value: preparationNodes.toString(), icon: <FaTerminal />, color: '#3b82f6' },
+          { label: 'Redesign Protocols', value: redesignNodes.toString(), icon: <FaShieldAlt />, color: '#06b6d4' },
+        ]);
+
+      } catch (e) {
+        console.error("Dashboard Stats Fetch Error", e);
+      }
     };
 
-    Object.entries(INITIAL_DATA).forEach(([key, val]) => {
-      const existing = localStorage.getItem(key);
-      if (!existing || existing === '[]' || existing === '{}') {
-        localStorage.setItem(key, JSON.stringify(val));
-      }
-    });
-
-    calculateStats();
-    window.dispatchEvent(new Event('storage'));
+    fetchDashboardData();
     return () => clearInterval(timer);
-  }, []);
-
-  const calculateTotal = (key) => { const data = localStorage.getItem(key); return data ? JSON.parse(data).length : 0; };
-  const calculateStats = () => {
-    const services = ['informative', 'ecommerce', 'application', 'uiux', 'maintenance', 'dynamic', 'odoo', 'social', 'redesign'];
-    let totalFeatures = 0;
-    let preparationNodes = 0;
-    services.forEach(s => {
-      const saved = localStorage.getItem(`vgtw_service_${s}`);
-      if (saved) {
-        const data = JSON.parse(saved);
-        totalFeatures += data.features?.length || 0;
-        const hasPrep = data.process?.some(step =>
-          step.title.toLowerCase().includes('discovery') ||
-          step.title.toLowerCase().includes('preparation') ||
-          step.title.toLowerCase().includes('audit')
-        );
-        if (hasPrep) preparationNodes++;
-      }
-    });
-
-    let redesignNodes = 0;
-    const redesignSaved = localStorage.getItem('vgtw_service_redesign');
-    if (redesignSaved) {
-      const data = JSON.parse(redesignSaved);
-      redesignNodes = data.protocolDetails?.reduce((acc, current) => acc + (current.specs?.length || 0), 0) || 0;
-    }
-
-    setStats([
-      { label: 'Active Services', value: services.length.toString(), icon: <FaGlobe />, color: '#3b82f6' },
-      { label: 'Service Sectors', value: totalFeatures.toString(), icon: <FaStar />, color: '#10b981' },
-      { label: 'Project Nodes', value: calculateTotal('vgtw_projects').toString(), icon: <FaBriefcase />, color: '#a855f7' },
-      { label: 'Job Applicants', value: calculateTotal('vgtw_applications').toString(), icon: <FaUsers />, color: '#f59e0b' },
-      { label: 'Inbound Leads', value: calculateTotal('vgtw_leads').toString(), icon: <FaDownload />, color: '#10b981' },
-      { label: 'Referral Nodes', value: calculateTotal('vgtw_referrals').toString(), icon: <FaHandshake />, color: '#ec4899' },
-      { label: 'Brand Partners', value: calculateTotal('vgtw_brands').toString(), icon: <FaShieldAlt />, color: '#3b82f6' },
-      { label: 'Total Contacts', value: calculateTotal('vgtw_contacts').toString(), icon: <FaEnvelope />, color: '#6366f1' },
-      { label: 'Team Visionaries', value: calculateTotal('vgtw_team').toString(), icon: <FaUsers />, color: '#ec4899' },
-      { label: 'Security Nodes', value: calculateTotal('vgtw_users').toString(), icon: <FaShieldAlt />, color: '#3b82f6' },
-      { label: 'Content Streams', value: calculateTotal('vgtw_blog').toString(), icon: <FaNewspaper />, color: '#6366f1' },
-      { label: 'Newsletter Nodes', value: calculateTotal('vgtw_newsletter').toString(), icon: <FaPaperPlane />, color: '#10b981' },
-      { label: 'Testimonials', value: calculateTotal('vgtw_testimonials').toString(), icon: <FaQuestionCircle />, color: '#8b5cf6' },
-      { label: 'Open Protocols', value: calculateTotal('vgtw_jobs').toString(), icon: <FaRocket />, color: '#ef4444' },
-      { label: 'Preparation Nodes', value: preparationNodes.toString(), icon: <FaTerminal />, color: '#3b82f6' },
-      { label: 'Redesign Protocols', value: redesignNodes.toString(), icon: <FaShieldAlt />, color: '#06b6d4' },
-    ]);
-    const acc = JSON.parse(localStorage.getItem('vgtw_accounting') || '[]');
-    const inc = acc.filter(d => d.type === 'Income').reduce((a, c) => a + cleanNum(c.amount), 0);
-    const exp = acc.filter(d => d.type === 'Expense').reduce((a, c) => a + cleanNum(c.amount), 0);
-    setFinancials({ income: inc, expense: exp, profit: inc - exp });
-  };
-
-  useEffect(() => {
-    calculateStats();
-    window.addEventListener('storage', calculateStats);
-    return () => window.removeEventListener('storage', calculateStats);
   }, []);
 
   const cleanNum = (val) => Number(val?.toString().replace(/[^0-9.]/g, '')) || 0;

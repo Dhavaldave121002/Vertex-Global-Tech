@@ -42,7 +42,7 @@ const OdooPricing = lazy(() => import('./pages/pricing/OdooPricing'))
 const SocialPricing = lazy(() => import('./pages/pricing/SocialPricing'))
 
 /* Other pages */
-const Career = lazy(() => import('./pages/Career'))
+import Career from './pages/Career';
 const Referral = lazy(() => import('./pages/Referral'))
 const Contact = lazy(() => import('./pages/Contact'))
 const NotFound = lazy(() => import('./pages/NotFound'))
@@ -81,7 +81,7 @@ import ScrollToTop from './components/UI/ScrollToTop'
 
 // AppContent component to handle conditional rendering based on route
 const AppContent = () => {
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
   const location = useLocation();
 
   React.useEffect(() => {
@@ -97,7 +97,7 @@ const AppContent = () => {
     <div className="flex flex-col min-h-screen overflow-x-hidden">
       {!isAdminRoute && <Header />}
 
-      <main id="main" className="flex-grow-1">
+      <main id="main" className="flex-grow">
         <Suspense fallback={
           <div className="h-screen w-full flex items-center justify-center bg-[#030712]">
             <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>

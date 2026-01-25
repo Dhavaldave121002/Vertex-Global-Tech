@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaTrash, FaEdit, FaSave, FaTimes, FaHistory, FaCalendarAlt } from 'react-icons/fa';
 
+import { api } from '../../utils/api';
+
 const TimelineManager = () => {
   const [events, setEvents] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -9,38 +11,24 @@ const TimelineManager = () => {
   const [formData, setFormData] = useState({
     year: '',
     title: '',
-    desc: ''
+    description: ''
   });
 
-  // Default "Step-Wise" timeline starting 2025 as requested
-  const defaultEvents = [
-    { id: 1, year: "2025", title: "The Genesis", desc: "Vertex Global Tech launches its next-gen digital ecosystem platform." },
-    { id: 2, year: "2026", title: "Global Scale", desc: "Expanding operations to key international markets in Europe and Asia." },
-    { id: 3, year: "2027", title: "AI Integration", desc: "Full-scale deployment of proprietary AI models across all client services." }
-  ];
-
   useEffect(() => {
-    const loadEvents = () => {
-      const saved = localStorage.getItem('vgtw_timeline');
-      if (saved) {
-        setEvents(JSON.parse(saved));
-      } else {
-        setEvents(defaultEvents);
-        localStorage.setItem('vgtw_timeline', JSON.stringify(defaultEvents));
-      }
-    };
-    loadEvents();
+    fetchEvents();
   }, []);
 
-  const saveEvents = (newEvents) => {
-    setEvents(newEvents);
-    localStorage.setItem('vgtw_timeline', JSON.stringify(newEvents));
+  const fetchEvents = async () => {
+    const data = await api.fetchAll('timeline');
+    // detailed sort might be needed if API doesn't return sorted
+    const sorted = data.sort((a, b) => a.year.localeCompare(b.year));
+    setEvents(sorted);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this milestone?')) {
-      const updated = events.filter(e => e.id !== id);
-      saveEvents(updated);
+      await api.delete('timeline', id);
+      fetchEvents();
     }
   };
 
@@ -52,25 +40,27 @@ const TimelineManager = () => {
 
   const handleAddNew = () => {
     setCurrentEvent(null);
-    setFormData({ year: '', title: '', desc: '' });
+    setFormData({ year: '', title: '', description: '' });
     setIsEditing(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const eventData = { ...formData };
     if (currentEvent) {
-      // Update
-      const updated = events.map(ev => ev.id === currentEvent.id ? { ...formData, id: currentEvent.id } : ev);
-      saveEvents(updated);
+      eventData.id = currentEvent.id;
     } else {
-      // Create
-      const newEvent = { ...formData, id: Date.now() };
-      // Sort by year automatically to keep "step wise" order
-      const updated = [...events, newEvent].sort((a, b) => a.year.localeCompare(b.year));
-      saveEvents(updated);
+      delete eventData.id; // Ensure no ID for insert
     }
-    setIsEditing(false);
+
+    const response = await api.save('timeline', eventData);
+    if (response.success) {
+      fetchEvents();
+      setIsEditing(false);
+    } else {
+      alert('Error saving event');
+    }
   };
 
   return (
@@ -137,7 +127,7 @@ const TimelineManager = () => {
                         </button>
                       </div>
                     </div>
-                    <p className="text-gray-500 text-sm leading-relaxed font-medium">{event.desc}</p>
+                    <p className="text-gray-500 text-sm leading-relaxed font-medium">{event.description}</p>
 
                     <div className="mt-4 flex items-center gap-2">
                       <div className="w-1 h-1 rounded-full bg-blue-500"></div>
@@ -209,8 +199,8 @@ const TimelineManager = () => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Payload_Description</label>
                     <textarea
-                      value={formData.desc}
-                      onChange={e => setFormData({ ...formData, desc: e.target.value })}
+                      value={formData.description}
+                      onChange={e => setFormData({ ...formData, description: e.target.value })}
                       placeholder="Define the synchronization event..."
                       rows="5"
                       className="w-full bg-black/40 border border-white/10 rounded-2xl py-5 px-6 text-white placeholder-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all font-medium text-sm resize-none leading-relaxed"
